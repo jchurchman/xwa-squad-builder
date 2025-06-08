@@ -7,10 +7,15 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
-    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "build": "npm run client:build && npm run server:build",
+    "start": "npm run server:start",
     "server:dev": "npm run dev --workspace=server",
+    "server:build": "npm run build --workspace=server", 
+    "server:start": "npm run start --workspace=server",
     "client:dev": "npm run dev --workspace=client",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "client:build": "npm run build --workspace=client"
   },
   "workspaces": [
     "server",
