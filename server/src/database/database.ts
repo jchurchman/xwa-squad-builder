@@ -98,5 +98,121 @@ export class ShipRepository {
     };
   }
 }
+export interface Pilot {
+  id?: number;
+  name: string;
+  faction: string;
+  ship: string;
+  skill: number;
+  points: number;
+  loadout?: number;
+  max_per_squad?: number;
+  force?: number;
+  charge?: number;
+  recurring?: number;
+  keyword?: string[];
+  slots?: string[];
+  applies_condition?: string;
+  chassis?: string;
+  ship_override?: Record<string, any>;
+  upgrades?: string[];
+  xws_addon?: string;
+  created_at?: string;
+}
+
+export class PilotRepository {
+  private insertPilot = db.prepare(`
+    INSERT INTO pilots (
+      name, faction, ship, skill, points, loadout, max_per_squad,
+      force, charge, recurring, keyword, slots, applies_condition,
+      chassis, ship_override, upgrades, xws_addon
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  private selectAllPilots = db.prepare('SELECT * FROM pilots ORDER BY name');
+  private selectPilotById = db.prepare('SELECT * FROM pilots WHERE id = ?');
+  private selectPilotByName = db.prepare('SELECT * FROM pilots WHERE name = ?');
+  private selectPilotsByFaction = db.prepare('SELECT * FROM pilots WHERE faction = ? ORDER BY name');
+  private selectPilotsByShip = db.prepare('SELECT * FROM pilots WHERE ship = ? ORDER BY name');
+  private selectPilotsBySkillRange = db.prepare('SELECT * FROM pilots WHERE skill BETWEEN ? AND ? ORDER BY skill, name');
+
+  create(pilot: Omit<Pilot, 'id' | 'created_at'>): Pilot {
+    const result = this.insertPilot.run(
+      pilot.name,
+      pilot.faction,
+      pilot.ship,
+      pilot.skill,
+      pilot.points,
+      pilot.loadout || null,
+      pilot.max_per_squad || null,
+      pilot.force || null,
+      pilot.charge || null,
+      pilot.recurring || null,
+      pilot.keyword ? JSON.stringify(pilot.keyword) : null,
+      pilot.slots ? JSON.stringify(pilot.slots) : null,
+      pilot.applies_condition || null,
+      pilot.chassis || null,
+      pilot.ship_override ? JSON.stringify(pilot.ship_override) : null,
+      pilot.upgrades ? JSON.stringify(pilot.upgrades) : null,
+      pilot.xws_addon || null
+    );
+
+    return this.findById(result.lastInsertRowid as number)!;
+  }
+
+  findAll(): Pilot[] {
+    const rows = this.selectAllPilots.all();
+    return rows.map(this.mapRowToPilot);
+  }
+
+  findById(id: number): Pilot | null {
+    const row = this.selectPilotById.get(id);
+    return row ? this.mapRowToPilot(row) : null;
+  }
+
+  findByName(name: string): Pilot | null {
+    const row = this.selectPilotByName.get(name);
+    return row ? this.mapRowToPilot(row) : null;
+  }
+
+  findByFaction(faction: string): Pilot[] {
+    const rows = this.selectPilotsByFaction.all(faction);
+    return rows.map(this.mapRowToPilot);
+  }
+
+  findByShip(ship: string): Pilot[] {
+    const rows = this.selectPilotsByShip.all(ship);
+    return rows.map(this.mapRowToPilot);
+  }
+
+  findBySkillRange(minSkill: number, maxSkill: number): Pilot[] {
+    const rows = this.selectPilotsBySkillRange.all(minSkill, maxSkill);
+    return rows.map(this.mapRowToPilot);
+  }
+
+  private mapRowToPilot(row: any): Pilot {
+    return {
+      id: row.id,
+      name: row.name,
+      faction: row.faction,
+      ship: row.ship,
+      skill: row.skill,
+      points: row.points,
+      loadout: row.loadout,
+      max_per_squad: row.max_per_squad,
+      force: row.force,
+      charge: row.charge,
+      recurring: row.recurring,
+      keyword: row.keyword ? JSON.parse(row.keyword) : undefined,
+      slots: row.slots ? JSON.parse(row.slots) : undefined,
+      applies_condition: row.applies_condition,
+      chassis: row.chassis,
+      ship_override: row.ship_override ? JSON.parse(row.ship_override) : undefined,
+      upgrades: row.upgrades ? JSON.parse(row.upgrades) : undefined,
+      xws_addon: row.xws_addon,
+      created_at: row.created_at
+    };
+  }
+}
 
 export { db };
