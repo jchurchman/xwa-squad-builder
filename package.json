@@ -8,11 +8,11 @@
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
     "build": "npm run client:build && npm run server:build",
     "start": "npm run server:start",
     "server:dev": "npm run dev --workspace=server",
-    "server:build": "npm run build --workspace=server", 
+    "server:build": "npm run build --workspace=server",
     "server:start": "npm run start --workspace=server",
     "client:dev": "npm run dev --workspace=client",
     "client:build": "npm run build --workspace=client"
@@ -22,8 +22,13 @@
     "client"
   ],
   "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md}": ["prettier --write"]
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -31,17 +36,20 @@
   "description": "",
   "devDependencies": {
     "@eslint/js": "^9.28.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
     "concurrently": "^9.1.2",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-perfectionist": "^4.14.0",
     "eslint-plugin-prettier": "^5.4.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0",
     "prettier": "^3.5.3",
+    "prettier-plugin-sort-json": "^4.1.1",
     "typescript-eslint": "^8.33.1"
   }
 }
