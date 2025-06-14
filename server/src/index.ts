@@ -1,6 +1,6 @@
+import cors from 'cors';
 import express from 'express';
 import path from 'path';
-import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,7 +15,7 @@ app.get('/api/health', (req, res) => {
 
 if (!isDev) {
   app.use(express.static(path.join(__dirname, '../client/dist')));
-  
+
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
