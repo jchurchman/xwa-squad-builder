@@ -6,9 +6,5 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx"
   },
-  "extends": "../tsconfig.json",
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "extends": "../tsconfig.json"
 }
