@@ -1,9 +1,10 @@
-import { exec } from 'child_process';
+import { exec } from 'child_process'
 import { promises as fs } from 'fs';
 import https from 'https';
 import path from 'path';
 import { promisify } from 'util';
 
+import { db } from '../database';
 import {
   initializeDatabase,
   ShipRepository,
@@ -124,11 +125,78 @@ const seedDatabase = async (): Promise<void> => {
   }
 };
 
+const backfillPilotSlots = (): void => {
+  console.log('Starting pilot slots backfill...');
+
+  // Get all pilots with empty slots but non-empty upgrades
+  const pilotsNeedingSlots = db.prepare(`
+    SELECT id, name, upgrades 
+    FROM pilots 
+    WHERE slots = '[]' AND upgrades IS NOT NULL AND upgrades != '[]'
+  `).all() as Array<{ id: number; name: string; upgrades: string }>;
+
+  console.log(`Found ${pilotsNeedingSlots.length} pilots needing slot backfill`);
+
+  const updatePilotSlots = db.prepare(`
+    UPDATE pilots SET slots = ? WHERE id = ?
+  `);
+
+  let updatedCount = 0;
+
+  for (const pilot of pilotsNeedingSlots) {
+    try {
+      const upgradeNames = JSON.parse(pilot.upgrades) as string[];
+      const derivedSlots = new Set<string>();
+
+      for (const upgradeName of upgradeNames) {
+        // Find upgrade by name
+        const upgrade = db.prepare(`
+          SELECT id FROM upgrades WHERE name = ?
+        `).get(upgradeName) as { id: number } | undefined;
+
+        if (!upgrade) {
+          console.warn(`Upgrade not found: ${upgradeName} for pilot ${pilot.name}`);
+          continue;
+        }
+
+        // Get upgrade restrictions for 'slots' type
+        const slotsRestrictions = db.prepare(`
+          SELECT restriction_values 
+          FROM upgrade_restrictions 
+          WHERE upgrade_id = ? AND restriction_type = 'slots'
+        `).all(upgrade.id) as Array<{ restriction_values: string }>;
+
+        // Extract first value from each slots restriction
+        for (const restriction of slotsRestrictions) {
+          const values = JSON.parse(restriction.restriction_values) as string[];
+          if (values.length > 0) {
+            derivedSlots.add(values[0]);
+          }
+        }
+      }
+
+      if (derivedSlots.size > 0) {
+        const slotsArray = Array.from(derivedSlots);
+        updatePilotSlots.run(JSON.stringify(slotsArray), pilot.id);
+        updatedCount++;
+        console.log(`Updated ${pilot.name}: added slots [${slotsArray.join(', ')}]`);
+      } else {
+        console.warn(`No slots derived for pilot ${pilot.name}`);
+      }
+    } catch (error) {
+      console.error(`Error processing pilot ${pilot.name}:`, error);
+    }
+  }
+
+  console.log(`Backfill complete: updated ${updatedCount} pilots`);
+};
+
 if (require.main === module) {
   (async () => {
     console.log('Initializing database...');
     initializeDatabase();
     await seedDatabase();
+    backfillPilotSlots()
     console.log('Seeding complete!');
   })();
 }
