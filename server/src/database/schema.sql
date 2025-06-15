@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS pilot_restrictions (
   pilot_id INTEGER NOT NULL,
   restriction_type TEXT NOT NULL,
   operator TEXT NOT NULL DEFAULT 'equals',
-  values TEXT NOT NULL, -- JSON array
+  restriction_values TEXT NOT NULL, -- JSON array
   FOREIGN KEY (pilot_id) REFERENCES pilots(id)
 );
 
@@ -90,6 +90,6 @@ CREATE TABLE IF NOT EXISTS upgrade_restrictions (
   upgrade_id INTEGER NOT NULL,
   restriction_type TEXT NOT NULL,
   operator TEXT NOT NULL DEFAULT 'equals',
-  values TEXT NOT NULL, -- JSON array
+  restriction_values TEXT NOT NULL, -- JSON array
   FOREIGN KEY (upgrade_id) REFERENCES upgrades(id)
 );

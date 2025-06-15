@@ -189,15 +189,15 @@ export interface PilotRestrictionRow {
   operator: string;
   pilot_id: number;
   restriction_type: string;
-  values: string; // JSON string
+  restriction_values: string; // JSON string
 }
 
 export interface UpgradeRestrictionRow {
   id: number;
   operator: string;
   restriction_type: string;
+  restriction_values: string; // JSON string
   upgrade_id: number;
-  values: string; // JSON string
 }
 
 export interface HydratedShip

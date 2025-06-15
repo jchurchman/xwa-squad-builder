@@ -58,7 +58,7 @@ const seedDatabase = async (): Promise<void> => {
     const rawDataModule = await import(tempPath);
     const rawData = rawDataModule.default || rawDataModule;
     const basicCardData = rawData.basicCardData();
-    const { pilotsById, ships, upgrades } = basicCardData;
+    const { pilotsById, ships, upgradesById } = basicCardData;
 
     const shipRepo = new ShipRepository();
     const pilotRepo = new PilotRepository();
@@ -95,7 +95,7 @@ const seedDatabase = async (): Promise<void> => {
     }
 
     console.log('Transforming and seeding upgrades...');
-    const transformedUpgrades = transformUpgradesForDb(upgrades);
+    const transformedUpgrades = transformUpgradesForDb(upgradesById);
     for (const upgrade of transformedUpgrades) {
       const hydratedUpgrade = upgradeRepo.create(upgrade);
 

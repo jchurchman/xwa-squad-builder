@@ -49,7 +49,7 @@ export class ShipRepository {
   create(ship: Ship): HydratedShip {
     const result = this.insertShip.run(
       ship.name,
-      ship.base,
+      ship.base || "Small",
       ship.agility,
       ship.hull,
       ship.shields,
@@ -118,30 +118,34 @@ export class PilotRepository {
   );
 
   create(pilot: Pilot): HydratedPilot {
-    const result = this.insertPilot.run(
-      pilot.name,
-      pilot.ship,
-      pilot.faction,
-      pilot.skill,
-      pilot.points,
-      pilot.loadout,
-      JSON.stringify(pilot.slots),
-      pilot.appliesCondition ? JSON.stringify(pilot.appliesCondition) : null,
-      pilot.charge || null,
-      pilot.chassis || null,
-      pilot.engagement || null,
-      pilot.force || null,
-      pilot.forcerecurring || null,
-      pilot.keywords ? JSON.stringify(pilot.keywords) : null,
-      pilot.maxPerSquad || null,
-      pilot.recurring || null,
-      pilot.shipOverride ? JSON.stringify(pilot.shipOverride) : null,
-      pilot.upgrades ? JSON.stringify(pilot.upgrades) : null,
-      pilot.xws || null,
-      pilot.xwsaddon || null,
-      pilot.xwsship ? 1 : 0
-    );
-    return this.findById(result.lastInsertRowid as number)!;
+    try {
+      const result = this.insertPilot.run(
+        pilot.name,
+        pilot.ship,
+        pilot.faction,
+        pilot.skill,
+        pilot.points,
+        pilot.loadout,
+        JSON.stringify(pilot.slots),
+        pilot.appliesCondition ? JSON.stringify(pilot.appliesCondition) : null,
+        pilot.charge || null,
+        pilot.chassis || null,
+        pilot.engagement || null,
+        pilot.force || null,
+        pilot.forcerecurring || null,
+        pilot.keywords ? JSON.stringify(pilot.keywords) : null,
+        pilot.maxPerSquad || null,
+        pilot.recurring || null,
+        pilot.shipOverride ? JSON.stringify(pilot.shipOverride) : null,
+        pilot.upgrades ? JSON.stringify(pilot.upgrades) : null,
+        pilot.xws || null,
+        pilot.xwsaddon || null,
+        pilot.xwsship ? 1 : 0
+      );
+      return this.findById(result.lastInsertRowid as number)!;
+    } catch(error) {
+      throw new Error(`Error creating pilot ${pilot.name}: ${error}`)
+    }
   }
 
   findAll(): HydratedPilot[] {
@@ -192,7 +196,7 @@ export class PilotRepository {
 
     const result: Restrictions = {};
     for (const restriction of restrictions) {
-      const values = JSON.parse(restriction.values);
+      const values = JSON.parse(restriction.restriction_values);
       const key = restriction.restriction_type as keyof Restrictions;
 
       if (key === 'factionOrUnique') {
@@ -217,25 +221,30 @@ export class UpgradeRepository {
   private selectUpgradeById = db.prepare('SELECT * FROM upgrades WHERE id = ?');
 
   create(upgrade: Upgrade): HydratedUpgrade {
-    const result = this.insertUpgrade.run(
-      upgrade.name,
-      JSON.stringify(upgrade.shipOverride),
-      upgrade.appliesCondition
-        ? JSON.stringify(upgrade.appliesCondition)
-        : null,
-      upgrade.charge || null,
-      upgrade.chassis || null,
-      upgrade.force || null,
-      upgrade.forcerecurring || null,
-      upgrade.keywords ? JSON.stringify(upgrade.keywords) : null,
-      upgrade.maxPerSquad || null,
-      upgrade.points || null,
-      upgrade.recurring || null,
-      upgrade.ship ? JSON.stringify(upgrade.ship) : null,
-      upgrade.xws || null,
-      upgrade.xwsaddon || null
-    );
-    return this.findById(result.lastInsertRowid as number)!;
+    try {
+
+      const result = this.insertUpgrade.run(
+        upgrade.name,
+        JSON.stringify(upgrade.shipOverride),
+        upgrade.appliesCondition
+          ? JSON.stringify(upgrade.appliesCondition)
+          : null,
+        upgrade.charge || null,
+        upgrade.chassis || null,
+        upgrade.force || null,
+        upgrade.forcerecurring || null,
+        upgrade.keywords ? JSON.stringify(upgrade.keywords) : null,
+        upgrade.maxPerSquad || null,
+        upgrade.points || null,
+        upgrade.recurring || null,
+        upgrade.ship ? JSON.stringify(upgrade.ship) : null,
+        upgrade.xws || null,
+        upgrade.xwsaddon || null
+      );
+      return this.findById(result.lastInsertRowid as number)!;
+    } catch(error) {
+      throw new Error(`Error creating upgrade ${upgrade.name}: ${error}`)
+    }
   }
 
   findAll(): HydratedUpgrade[] {
@@ -270,7 +279,7 @@ export class UpgradeRepository {
   ): Restrictions {
     const result: Restrictions = {};
     for (const restriction of restrictions) {
-      const values = JSON.parse(restriction.values);
+      const values = JSON.parse(restriction.restriction_values);
       const key = restriction.restriction_type as keyof Restrictions;
 
       if (key === 'factionOrUnique') {
@@ -285,7 +294,7 @@ export class UpgradeRepository {
 
 export class PilotRestrictionRepository {
   private insertRestriction = db.prepare(`
-    INSERT INTO pilot_restrictions (pilot_id, restriction_type, operator, values)
+    INSERT INTO pilot_restrictions (pilot_id, restriction_type, operator, restriction_values)
     VALUES (?, ?, ?, ?)
   `);
 
@@ -310,7 +319,7 @@ export class PilotRestrictionRepository {
       operator,
       pilot_id: pilotId,
       restriction_type: restrictionType,
-      values: JSON.stringify(values),
+      restriction_values: JSON.stringify(values),
     };
   }
 
@@ -321,7 +330,7 @@ export class PilotRestrictionRepository {
 
 export class UpgradeRestrictionRepository {
   private insertRestriction = db.prepare(`
-    INSERT INTO upgrade_restrictions (upgrade_id, restriction_type, operator, values)
+    INSERT INTO upgrade_restrictions (upgrade_id, restriction_type, operator, restriction_values)
     VALUES (?, ?, ?, ?)
   `);
 
@@ -345,8 +354,8 @@ export class UpgradeRestrictionRepository {
       id: result.lastInsertRowid as number,
       operator,
       restriction_type: restrictionType,
+      restriction_values: JSON.stringify(values),
       upgrade_id: upgradeId,
-      values: JSON.stringify(values),
     };
   }
 

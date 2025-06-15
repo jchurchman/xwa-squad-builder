@@ -25,7 +25,7 @@ type ImportedUpgrade = {
   pointsxwa?: number;
   range?: string;
   rangebonus?: boolean;
-  recurring?: number;
+  recurring?: number | boolean;
   restrictions?: (string | number)[][];
   restrictionsxwa?: string[][];
   ship?: string;
@@ -89,7 +89,7 @@ export function transformUpgradesForDb(
         }),
         name,
         points: notNil(pointsxwa) ? pointsxwa : points,
-        ...(notNil(recurring) && { recurring }),
+        ...(notNil(recurring) && { recurring: Number(recurring) }),
         ...(notNil(ship) && { ship: Array.isArray(ship) ? ship : [ship] }),
         ...(notNil(xws) && { xws }),
         ...(notNil(xwsaddon) && { xwsaddon }),
@@ -282,7 +282,7 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
   if (notNil(modifier_func)) {
     const { actions, attackt, maneuvers, ...rest } = modifier_func(
       blankShipForModifierFunc
-    );
+    ) || {};
 
     if (attackt && name.includes('Vectored')) {
       // Have to do this manually because of the way the modifier_func
@@ -296,7 +296,7 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
       });
       returnObj.maneuvers = maneuverAdjustment;
     }
-    if (actions!.length) {
+    if (notNil(actions) && actions.length) {
       returnObj.actions = actions;
     }
 

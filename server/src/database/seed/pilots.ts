@@ -85,7 +85,7 @@ export function transformPilotsForDb(
         ...(notNil(force) && { force }),
         ...(notNil(forcerecurring) && { forcerecurring }),
         ...(notNil(keyword) && { keywords: keyword }),
-        loadout: notNil(loadoutxwa) ? loadoutxwa : loadout,
+        loadout: notNil(loadoutxwa) ? loadoutxwa : loadout || 0,
         ...((notNil(unique) || notNil(max_per_squad)) && {
           maxPerSquad: unique ? 1 : max_per_squad,
         }),
@@ -98,7 +98,7 @@ export function transformPilotsForDb(
         ship,
         ...(notNil(ship_override) && { shipOverride: ship_override }),
         skill,
-        slots: notNil(slotsxwa) ? slotsxwa : slots,
+        slots: notNil(slotsxwa) ? slotsxwa : slots || [],
         ...(notNil(upgrades) && { upgrades }),
         ...(notNil(xws) && { xws }),
         ...(notNil(xwsaddon) && { xwsaddon }),
