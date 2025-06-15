@@ -4,13 +4,13 @@ import https from 'https';
 import path from 'path';
 import { promisify } from 'util';
 
-import { 
+import {
   initializeDatabase,
   ShipRepository,
   PilotRepository,
   UpgradeRepository,
   PilotRestrictionRepository,
-  UpgradeRestrictionRepository
+  UpgradeRestrictionRepository,
 } from '../database';
 import { transformPilotsForDb } from './pilots';
 import { transformShipsForDb } from './ships';
@@ -48,7 +48,7 @@ const seedDatabase = async (): Promise<void> => {
   try {
     console.log('Fetching data from YASB...');
     const coffeeCode = await fetchFile(YASB_CARDS_URL);
-    
+
     console.log('Converting CoffeeScript to JavaScript...');
     let jsCode = await decaffeinate(coffeeCode);
     jsCode = jsCode.replace(/\.canonicalize\(\)/g, '');
@@ -76,11 +76,20 @@ const seedDatabase = async (): Promise<void> => {
     const transformedPilots = transformPilotsForDb(pilotsById);
     for (const pilot of transformedPilots) {
       const hydratedPilot = pilotRepo.create(pilot);
-      
+
       if (pilot.restrictions) {
-        for (const [restrictionType, restrictionValue] of Object.entries(pilot.restrictions)) {
-          const values = Array.isArray(restrictionValue) ? restrictionValue : [restrictionValue];
-          pilotRestrictionRepo.create(hydratedPilot.id, restrictionType, 'equals', values);
+        for (const [restrictionType, restrictionValue] of Object.entries(
+          pilot.restrictions
+        )) {
+          const values = Array.isArray(restrictionValue)
+            ? restrictionValue
+            : [restrictionValue];
+          pilotRestrictionRepo.create(
+            hydratedPilot.id,
+            restrictionType,
+            'equals',
+            values
+          );
         }
       }
     }
@@ -89,11 +98,20 @@ const seedDatabase = async (): Promise<void> => {
     const transformedUpgrades = transformUpgradesForDb(upgrades);
     for (const upgrade of transformedUpgrades) {
       const hydratedUpgrade = upgradeRepo.create(upgrade);
-      
+
       if (upgrade.upgradeRestrictions) {
-        for (const [restrictionType, restrictionValue] of Object.entries(upgrade.upgradeRestrictions)) {
-          const values = Array.isArray(restrictionValue) ? restrictionValue : [restrictionValue];
-          upgradeRestrictionRepo.create(hydratedUpgrade.id, restrictionType, 'equals', values);
+        for (const [restrictionType, restrictionValue] of Object.entries(
+          upgrade.upgradeRestrictions
+        )) {
+          const values = Array.isArray(restrictionValue)
+            ? restrictionValue
+            : [restrictionValue];
+          upgradeRestrictionRepo.create(
+            hydratedUpgrade.id,
+            restrictionType,
+            'equals',
+            values
+          );
         }
       }
     }

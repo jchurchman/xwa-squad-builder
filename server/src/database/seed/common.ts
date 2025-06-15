@@ -1,1 +1,1 @@
-export const notNil = (thing: unknown) => thing != null
+export const notNil = (thing: unknown) => thing != null;

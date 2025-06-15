@@ -72,20 +72,20 @@ export type ShipOverride = {
   addSlots?: string[];
   agility?: number;
   attack?: number;
-  attackb?: number;        
-  attackbull?: number;   
+  attackb?: number;
+  attackbull?: number;
   attackdt?: number;
-  attackf?: number;      
+  attackf?: number;
   attackt?: number;
   energy?: number;
   force?: number;
   hull?: number;
   maneuvers?: number[][];
   range?: [number, number];
-  rangebonus?: boolean;  
+  rangebonus?: boolean;
   removeSlots?: string[];
   shields?: number;
-}
+};
 
 export type Restrictions = {
   action?: string[];
@@ -109,7 +109,7 @@ export type Restrictions = {
   slots?: string[];
   solitary?: boolean;
   upgradesInList?: string[];
-}
+};
 
 export interface ShipRow {
   actions: string; // JSON string
@@ -200,7 +200,11 @@ export interface UpgradeRestrictionRow {
   values: string; // JSON string
 }
 
-export interface HydratedShip extends Omit<ShipRow, 'actions' | 'factions' | 'maneuvers' | 'autoequip' | 'keyword'> {
+export interface HydratedShip
+  extends Omit<
+    ShipRow,
+    'actions' | 'factions' | 'maneuvers' | 'autoequip' | 'keyword'
+  > {
   actions: string[];
   autoequip?: string[];
   factions: string[];
@@ -208,7 +212,16 @@ export interface HydratedShip extends Omit<ShipRow, 'actions' | 'factions' | 'ma
   maneuvers: number[][];
 }
 
-export interface HydratedPilot extends Omit<PilotRow, 'slots' | 'appliesCondition' | 'keywords' | 'shipOverride' | 'upgrades' | 'xwsship'> {
+export interface HydratedPilot
+  extends Omit<
+    PilotRow,
+    | 'slots'
+    | 'appliesCondition'
+    | 'keywords'
+    | 'shipOverride'
+    | 'upgrades'
+    | 'xwsship'
+  > {
   appliesCondition?: string[];
   keywords?: string[];
   restrictions?: Restrictions;
@@ -218,7 +231,11 @@ export interface HydratedPilot extends Omit<PilotRow, 'slots' | 'appliesConditio
   xwsship?: boolean;
 }
 
-export interface HydratedUpgrade extends Omit<UpgradeRow, 'shipOverride' | 'appliesCondition' | 'keywords' | 'ship'> {
+export interface HydratedUpgrade
+  extends Omit<
+    UpgradeRow,
+    'shipOverride' | 'appliesCondition' | 'keywords' | 'ship'
+  > {
   appliesCondition?: string[];
   keywords?: string[];
   ship?: string[];

@@ -110,8 +110,12 @@ export class PilotRepository {
 
   private selectAllPilots = db.prepare('SELECT * FROM pilots ORDER BY name');
   private selectPilotById = db.prepare('SELECT * FROM pilots WHERE id = ?');
-  private selectPilotsByFaction = db.prepare('SELECT * FROM pilots WHERE faction = ? ORDER BY name');
-  private selectPilotsByShip = db.prepare('SELECT * FROM pilots WHERE ship = ? ORDER BY name');
+  private selectPilotsByFaction = db.prepare(
+    'SELECT * FROM pilots WHERE faction = ? ORDER BY name'
+  );
+  private selectPilotsByShip = db.prepare(
+    'SELECT * FROM pilots WHERE ship = ? ORDER BY name'
+  );
 
   create(pilot: Pilot): HydratedPilot {
     const result = this.insertPilot.run(
@@ -142,7 +146,7 @@ export class PilotRepository {
 
   findAll(): HydratedPilot[] {
     const rows = this.selectAllPilots.all() as PilotRow[];
-    return rows.map(row => this.mapRowToPilot(row));
+    return rows.map((row) => this.mapRowToPilot(row));
   }
 
   findById(id: number): HydratedPilot | null {
@@ -153,12 +157,12 @@ export class PilotRepository {
 
   findByFaction(faction: string): HydratedPilot[] {
     const rows = this.selectPilotsByFaction.all(faction) as PilotRow[];
-    return rows.map(row => this.mapRowToPilot(row));
+    return rows.map((row) => this.mapRowToPilot(row));
   }
 
   findByShip(ship: string): HydratedPilot[] {
     const rows = this.selectPilotsByShip.all(ship) as PilotRow[];
-    return rows.map(row => this.mapRowToPilot(row));
+    return rows.map((row) => this.mapRowToPilot(row));
   }
 
   private mapRowToPilot(row: PilotRow): HydratedPilot {
@@ -167,24 +171,30 @@ export class PilotRepository {
 
     return {
       ...row,
-      appliesCondition: row.appliesCondition ? JSON.parse(row.appliesCondition) : undefined,
+      appliesCondition: row.appliesCondition
+        ? JSON.parse(row.appliesCondition)
+        : undefined,
       keywords: row.keywords ? JSON.parse(row.keywords) : undefined,
       restrictions: this.buildRestrictionsObject(restrictions),
-      shipOverride: row.shipOverride ? JSON.parse(row.shipOverride) as ShipOverride : undefined,
+      shipOverride: row.shipOverride
+        ? (JSON.parse(row.shipOverride) as ShipOverride)
+        : undefined,
       slots: JSON.parse(row.slots),
       upgrades: row.upgrades ? JSON.parse(row.upgrades) : undefined,
       xwsship: row.xwsship === 1,
     };
   }
 
-  private buildRestrictionsObject(restrictions: PilotRestrictionRow[]): Restrictions | undefined {
+  private buildRestrictionsObject(
+    restrictions: PilotRestrictionRow[]
+  ): Restrictions | undefined {
     if (restrictions.length === 0) return undefined;
 
     const result: Restrictions = {};
     for (const restriction of restrictions) {
       const values = JSON.parse(restriction.values);
       const key = restriction.restriction_type as keyof Restrictions;
-      
+
       if (key === 'factionOrUnique') {
         result[key] = values[0];
       } else {
@@ -201,14 +211,18 @@ export class UpgradeRepository {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  private selectAllUpgrades = db.prepare('SELECT * FROM upgrades ORDER BY name');
+  private selectAllUpgrades = db.prepare(
+    'SELECT * FROM upgrades ORDER BY name'
+  );
   private selectUpgradeById = db.prepare('SELECT * FROM upgrades WHERE id = ?');
 
   create(upgrade: Upgrade): HydratedUpgrade {
     const result = this.insertUpgrade.run(
       upgrade.name,
       JSON.stringify(upgrade.shipOverride),
-      upgrade.appliesCondition ? JSON.stringify(upgrade.appliesCondition) : null,
+      upgrade.appliesCondition
+        ? JSON.stringify(upgrade.appliesCondition)
+        : null,
       upgrade.charge || null,
       upgrade.chassis || null,
       upgrade.force || null,
@@ -226,7 +240,7 @@ export class UpgradeRepository {
 
   findAll(): HydratedUpgrade[] {
     const rows = this.selectAllUpgrades.all() as UpgradeRow[];
-    return rows.map(row => this.mapRowToUpgrade(row));
+    return rows.map((row) => this.mapRowToUpgrade(row));
   }
 
   findById(id: number): HydratedUpgrade | null {
@@ -241,7 +255,9 @@ export class UpgradeRepository {
 
     return {
       ...row,
-      appliesCondition: row.appliesCondition ? JSON.parse(row.appliesCondition) : undefined,
+      appliesCondition: row.appliesCondition
+        ? JSON.parse(row.appliesCondition)
+        : undefined,
       keywords: row.keywords ? JSON.parse(row.keywords) : undefined,
       ship: row.ship ? JSON.parse(row.ship) : undefined,
       shipOverride: JSON.parse(row.shipOverride) as ShipOverride,
@@ -249,12 +265,14 @@ export class UpgradeRepository {
     };
   }
 
-  private buildRestrictionsObject(restrictions: UpgradeRestrictionRow[]): Restrictions {
+  private buildRestrictionsObject(
+    restrictions: UpgradeRestrictionRow[]
+  ): Restrictions {
     const result: Restrictions = {};
     for (const restriction of restrictions) {
       const values = JSON.parse(restriction.values);
       const key = restriction.restriction_type as keyof Restrictions;
-      
+
       if (key === 'factionOrUnique') {
         result[key] = values[0];
       } else {
@@ -271,9 +289,16 @@ export class PilotRestrictionRepository {
     VALUES (?, ?, ?, ?)
   `);
 
-  private selectByPilotId = db.prepare('SELECT * FROM pilot_restrictions WHERE pilot_id = ?');
+  private selectByPilotId = db.prepare(
+    'SELECT * FROM pilot_restrictions WHERE pilot_id = ?'
+  );
 
-  create(pilotId: number, restrictionType: string, operator: string, values: unknown[]): PilotRestrictionRow {
+  create(
+    pilotId: number,
+    restrictionType: string,
+    operator: string,
+    values: unknown[]
+  ): PilotRestrictionRow {
     const result = this.insertRestriction.run(
       pilotId,
       restrictionType,
@@ -300,9 +325,16 @@ export class UpgradeRestrictionRepository {
     VALUES (?, ?, ?, ?)
   `);
 
-  private selectByUpgradeId = db.prepare('SELECT * FROM upgrade_restrictions WHERE upgrade_id = ?');
+  private selectByUpgradeId = db.prepare(
+    'SELECT * FROM upgrade_restrictions WHERE upgrade_id = ?'
+  );
 
-  create(upgradeId: number, restrictionType: string, operator: string, values: unknown[]): UpgradeRestrictionRow {
+  create(
+    upgradeId: number,
+    restrictionType: string,
+    operator: string,
+    values: unknown[]
+  ): UpgradeRestrictionRow {
     const result = this.insertRestriction.run(
       upgradeId,
       restrictionType,
