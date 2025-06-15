@@ -1,9 +1,3 @@
-import { exec } from 'child_process'
-import { promises as fs } from 'fs';
-import https from 'https';
-import path from 'path';
-import { promisify } from 'util';
-
 import { db } from '../database';
 import {
   initializeDatabase,
@@ -16,6 +10,11 @@ import {
 import { transformPilotsForDb } from './pilots';
 import { transformShipsForDb } from './ships';
 import { transformUpgradesForDb } from './upgrades';
+import { exec } from 'child_process';
+import { promises as fs } from 'fs';
+import https from 'https';
+import path from 'path';
+import { promisify } from 'util';
 
 const YASB_CARDS_URL =
   'https://raw.githubusercontent.com/jchurchman/yasb/master/coffeescripts/content/cards-common.coffee';
@@ -129,13 +128,19 @@ const backfillPilotSlots = (): void => {
   console.log('Starting pilot slots backfill...');
 
   // Get all pilots with empty slots but non-empty upgrades
-  const pilotsNeedingSlots = db.prepare(`
+  const pilotsNeedingSlots = db
+    .prepare(
+      `
     SELECT id, name, upgrades 
     FROM pilots 
     WHERE slots = '[]' AND upgrades IS NOT NULL AND upgrades != '[]'
-  `).all() as Array<{ id: number; name: string; upgrades: string }>;
+  `
+    )
+    .all() as Array<{ id: number; name: string; upgrades: string }>;
 
-  console.log(`Found ${pilotsNeedingSlots.length} pilots needing slot backfill`);
+  console.log(
+    `Found ${pilotsNeedingSlots.length} pilots needing slot backfill`
+  );
 
   const updatePilotSlots = db.prepare(`
     UPDATE pilots SET slots = ? WHERE id = ?
@@ -150,21 +155,31 @@ const backfillPilotSlots = (): void => {
 
       for (const upgradeName of upgradeNames) {
         // Find upgrade by name
-        const upgrade = db.prepare(`
+        const upgrade = db
+          .prepare(
+            `
           SELECT id FROM upgrades WHERE name = ?
-        `).get(upgradeName) as { id: number } | undefined;
+        `
+          )
+          .get(upgradeName) as { id: number } | undefined;
 
         if (!upgrade) {
-          console.warn(`Upgrade not found: ${upgradeName} for pilot ${pilot.name}`);
+          console.warn(
+            `Upgrade not found: ${upgradeName} for pilot ${pilot.name}`
+          );
           continue;
         }
 
         // Get upgrade restrictions for 'slots' type
-        const slotsRestrictions = db.prepare(`
+        const slotsRestrictions = db
+          .prepare(
+            `
           SELECT restriction_values 
           FROM upgrade_restrictions 
           WHERE upgrade_id = ? AND restriction_type = 'slots'
-        `).all(upgrade.id) as Array<{ restriction_values: string }>;
+        `
+          )
+          .all(upgrade.id) as Array<{ restriction_values: string }>;
 
         // Extract first value from each slots restriction
         for (const restriction of slotsRestrictions) {
@@ -179,7 +194,9 @@ const backfillPilotSlots = (): void => {
         const slotsArray = Array.from(derivedSlots);
         updatePilotSlots.run(JSON.stringify(slotsArray), pilot.id);
         updatedCount++;
-        console.log(`Updated ${pilot.name}: added slots [${slotsArray.join(', ')}]`);
+        console.log(
+          `Updated ${pilot.name}: added slots [${slotsArray.join(', ')}]`
+        );
       } else {
         console.warn(`No slots derived for pilot ${pilot.name}`);
       }
@@ -196,7 +213,7 @@ if (require.main === module) {
     console.log('Initializing database...');
     initializeDatabase();
     await seedDatabase();
-    backfillPilotSlots()
+    backfillPilotSlots();
     console.log('Seeding complete!');
   })();
 }

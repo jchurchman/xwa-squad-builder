@@ -280,9 +280,8 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
     ];
   }
   if (notNil(modifier_func)) {
-    const { actions, attackt, maneuvers, ...rest } = modifier_func(
-      blankShipForModifierFunc
-    ) || {};
+    const { actions, attackt, maneuvers, ...rest } =
+      modifier_func(blankShipForModifierFunc) || {};
 
     if (attackt && name.includes('Vectored')) {
       // Have to do this manually because of the way the modifier_func

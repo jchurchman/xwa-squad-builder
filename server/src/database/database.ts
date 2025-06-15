@@ -1,7 +1,3 @@
-import Database from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
-
 import {
   Ship,
   Pilot,
@@ -17,6 +13,9 @@ import {
   ShipOverride,
   Restrictions,
 } from './types';
+import Database from 'better-sqlite3';
+import fs from 'fs';
+import path from 'path';
 
 const DB_PATH = path.join(__dirname, '../../data/xwing.db');
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
@@ -46,10 +45,17 @@ export class ShipRepository {
     SELECT * FROM ships WHERE factions LIKE ? ORDER BY name
   `);
 
+  private selectShipByName = db.prepare('SELECT * FROM ships WHERE name = ?');
+
+  findByName(name: string): HydratedShip | null {
+    const row = this.selectShipByName.get(name) as ShipRow | undefined;
+    return row ? this.mapRowToShip(row) : null;
+  }
+
   create(ship: Ship): HydratedShip {
     const result = this.insertShip.run(
       ship.name,
-      ship.base || "Small",
+      ship.base || 'Small',
       ship.agility,
       ship.hull,
       ship.shields,
@@ -117,6 +123,13 @@ export class PilotRepository {
     'SELECT * FROM pilots WHERE ship = ? ORDER BY name'
   );
 
+  private selectPilotByName = db.prepare('SELECT * FROM pilots WHERE name = ?');
+
+  findByName(name: string): HydratedPilot | null {
+    const row = this.selectPilotByName.get(name) as PilotRow | undefined;
+    return row ? this.mapRowToPilot(row) : null;
+  }
+
   create(pilot: Pilot): HydratedPilot {
     try {
       const result = this.insertPilot.run(
@@ -143,8 +156,8 @@ export class PilotRepository {
         pilot.xwsship ? 1 : 0
       );
       return this.findById(result.lastInsertRowid as number)!;
-    } catch(error) {
-      throw new Error(`Error creating pilot ${pilot.name}: ${error}`)
+    } catch (error) {
+      throw new Error(`Error creating pilot ${pilot.name}: ${error}`);
     }
   }
 
@@ -220,9 +233,30 @@ export class UpgradeRepository {
   );
   private selectUpgradeById = db.prepare('SELECT * FROM upgrades WHERE id = ?');
 
+  findByFirstSlot(slotType: string): HydratedUpgrade[] {
+    const allUpgrades = this.findAll();
+
+    return allUpgrades.filter((upgrade) => {
+      const slotRestrictions = upgrade.upgradeRestrictions?.slots;
+      if (!slotRestrictions) return true;
+
+      return slotRestrictions[0] === slotType;
+    });
+  }
+
+  findBySlot(slotType: string): HydratedUpgrade[] {
+    const allUpgrades = this.findAll();
+
+    return allUpgrades.filter((upgrade) => {
+      const slotRestrictions = upgrade.upgradeRestrictions?.slots;
+      if (!slotRestrictions) return true;
+
+      return slotRestrictions.includes(slotType);
+    });
+  }
+
   create(upgrade: Upgrade): HydratedUpgrade {
     try {
-
       const result = this.insertUpgrade.run(
         upgrade.name,
         JSON.stringify(upgrade.shipOverride),
@@ -242,8 +276,8 @@ export class UpgradeRepository {
         upgrade.xwsaddon || null
       );
       return this.findById(result.lastInsertRowid as number)!;
-    } catch(error) {
-      throw new Error(`Error creating upgrade ${upgrade.name}: ${error}`)
+    } catch (error) {
+      throw new Error(`Error creating upgrade ${upgrade.name}: ${error}`);
     }
   }
 
