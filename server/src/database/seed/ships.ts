@@ -26,8 +26,6 @@ type importedShip = {
   shields: number;
 };
 
-export function transformShipsForDb(
-  ships: Record<string, importedShip>
-): Ship[] {
+export function transformShipsForDb(ships: Record<string, importedShip>): Ship[] {
   return Object.values(ships);
 }

@@ -1,20 +1,21 @@
-import { db } from '../database';
-import {
-  initializeDatabase,
-  ShipRepository,
-  PilotRepository,
-  UpgradeRepository,
-  PilotRestrictionRepository,
-  UpgradeRestrictionRepository,
-} from '../database';
-import { transformPilotsForDb } from './pilots';
-import { transformShipsForDb } from './ships';
-import { transformUpgradesForDb } from './upgrades';
 import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import https from 'https';
 import path from 'path';
 import { promisify } from 'util';
+
+import { db } from '../database';
+import {
+  initializeDatabase,
+  PilotRepository,
+  PilotRestrictionRepository,
+  ShipRepository,
+  UpgradeRepository,
+  UpgradeRestrictionRepository,
+} from '../database';
+import { transformPilotsForDb } from './pilots';
+import { transformShipsForDb } from './ships';
+import { transformUpgradesForDb } from './upgrades';
 
 const YASB_CARDS_URL =
   'https://raw.githubusercontent.com/jchurchman/yasb/master/coffeescripts/content/cards-common.coffee';
@@ -78,18 +79,9 @@ const seedDatabase = async (): Promise<void> => {
       const hydratedPilot = pilotRepo.create(pilot);
 
       if (pilot.restrictions) {
-        for (const [restrictionType, restrictionValue] of Object.entries(
-          pilot.restrictions
-        )) {
-          const values = Array.isArray(restrictionValue)
-            ? restrictionValue
-            : [restrictionValue];
-          pilotRestrictionRepo.create(
-            hydratedPilot.id,
-            restrictionType,
-            'equals',
-            values
-          );
+        for (const [restrictionType, restrictionValue] of Object.entries(pilot.restrictions)) {
+          const values = Array.isArray(restrictionValue) ? restrictionValue : [restrictionValue];
+          pilotRestrictionRepo.create(hydratedPilot.id, restrictionType, 'equals', values);
         }
       }
     }
@@ -103,15 +95,8 @@ const seedDatabase = async (): Promise<void> => {
         for (const [restrictionType, restrictionValue] of Object.entries(
           upgrade.upgradeRestrictions
         )) {
-          const values = Array.isArray(restrictionValue)
-            ? restrictionValue
-            : [restrictionValue];
-          upgradeRestrictionRepo.create(
-            hydratedUpgrade.id,
-            restrictionType,
-            'equals',
-            values
-          );
+          const values = Array.isArray(restrictionValue) ? restrictionValue : [restrictionValue];
+          upgradeRestrictionRepo.create(hydratedUpgrade.id, restrictionType, 'equals', values);
         }
       }
     }
@@ -138,9 +123,7 @@ const backfillPilotSlots = (): void => {
     )
     .all() as Array<{ id: number; name: string; upgrades: string }>;
 
-  console.log(
-    `Found ${pilotsNeedingSlots.length} pilots needing slot backfill`
-  );
+  console.log(`Found ${pilotsNeedingSlots.length} pilots needing slot backfill`);
 
   const updatePilotSlots = db.prepare(`
     UPDATE pilots SET slots = ? WHERE id = ?
@@ -164,9 +147,7 @@ const backfillPilotSlots = (): void => {
           .get(upgradeName) as { id: number } | undefined;
 
         if (!upgrade) {
-          console.warn(
-            `Upgrade not found: ${upgradeName} for pilot ${pilot.name}`
-          );
+          console.warn(`Upgrade not found: ${upgradeName} for pilot ${pilot.name}`);
           continue;
         }
 
@@ -194,9 +175,7 @@ const backfillPilotSlots = (): void => {
         const slotsArray = Array.from(derivedSlots);
         updatePilotSlots.run(JSON.stringify(slotsArray), pilot.id);
         updatedCount++;
-        console.log(
-          `Updated ${pilot.name}: added slots [${slotsArray.join(', ')}]`
-        );
+        console.log(`Updated ${pilot.name}: added slots [${slotsArray.join(', ')}]`);
       } else {
         console.warn(`No slots derived for pilot ${pilot.name}`);
       }

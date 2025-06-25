@@ -1,27 +1,33 @@
-export interface Ship {
+export interface HydratedPilot
+  extends Omit<
+    PilotRow,
+    'appliesCondition' | 'keywords' | 'shipOverride' | 'slots' | 'upgrades' | 'xwsship'
+  > {
+  appliesCondition?: string[];
+  keywords?: string[];
+  restrictions?: Restrictions;
+  shipOverride?: ShipOverride;
+  slots: string[];
+  upgrades?: string[];
+  xwsship?: boolean;
+}
+
+export interface HydratedShip
+  extends Omit<ShipRow, 'actions' | 'autoequip' | 'factions' | 'keyword' | 'maneuvers'> {
   actions: string[];
-  agility: number;
-  attack?: number;
-  attackb?: number;
-  attackbull?: number;
-  attackdt?: number;
-  attackf?: number;
-  attackl?: number;
-  attackr?: number;
-  attackt?: number;
   autoequip?: string[];
-  base: string;
-  chassis?: string;
-  energy?: number;
-  energyrecurr?: number;
   factions: string[];
-  hull: number;
-  icon?: string;
   keyword?: string[];
   maneuvers: number[][];
-  name: string;
-  shieldrecurr?: number;
-  shields: number;
+}
+
+export interface HydratedUpgrade
+  extends Omit<UpgradeRow, 'appliesCondition' | 'keywords' | 'ship' | 'shipOverride'> {
+  appliesCondition?: string[];
+  keywords?: string[];
+  ship?: string[];
+  shipOverride: ShipOverride;
+  upgradeRestrictions: Restrictions;
 }
 
 export interface Pilot {
@@ -49,43 +55,39 @@ export interface Pilot {
   xwsship?: boolean;
 }
 
-export interface Upgrade {
-  appliesCondition?: string[];
-  charge?: number;
-  chassis?: string;
-  force?: number;
-  forcerecurring?: number;
-  keywords?: string[];
-  maxPerSquad?: number;
-  name: string;
-  points?: number;
-  recurring?: number;
-  ship?: string[];
-  shipOverride: ShipOverride;
-  upgradeRestrictions: Restrictions;
-  xws?: string;
-  xwsaddon?: string;
+export interface PilotRestrictionRow {
+  id: number;
+  operator: string;
+  pilot_id: number;
+  restriction_type: string;
+  restriction_values: string; // JSON string
 }
 
-export type ShipOverride = {
-  actions?: string[];
-  addSlots?: string[];
-  agility?: number;
-  attack?: number;
-  attackb?: number;
-  attackbull?: number;
-  attackdt?: number;
-  attackf?: number;
-  attackt?: number;
-  energy?: number;
+export interface PilotRow {
+  appliesCondition?: string; // JSON string
+  charge?: number;
+  chassis?: string;
+  created_at: string;
+  engagement?: number;
+  faction: string;
   force?: number;
-  hull?: number;
-  maneuvers?: number[][];
-  range?: [number, number];
-  rangebonus?: boolean;
-  removeSlots?: string[];
-  shields?: number;
-};
+  forcerecurring?: number;
+  id: number;
+  keywords?: string; // JSON string
+  loadout: number;
+  maxPerSquad?: number;
+  name: string;
+  points: number;
+  recurring?: number;
+  ship: string;
+  shipOverride?: string; // JSON string
+  skill: number;
+  slots: string; // JSON string
+  upgrades?: string; // JSON string
+  xws?: string;
+  xwsaddon?: string;
+  xwsship?: number; // 0 or 1
+}
 
 export type Restrictions = {
   action?: string[];
@@ -109,6 +111,52 @@ export type Restrictions = {
   slots?: string[];
   solitary?: boolean;
   upgradesInList?: string[];
+};
+
+export interface Ship {
+  actions: string[];
+  agility: number;
+  attack?: number;
+  attackb?: number;
+  attackbull?: number;
+  attackdt?: number;
+  attackf?: number;
+  attackl?: number;
+  attackr?: number;
+  attackt?: number;
+  autoequip?: string[];
+  base: string;
+  chassis?: string;
+  energy?: number;
+  energyrecurr?: number;
+  factions: string[];
+  hull: number;
+  icon?: string;
+  keyword?: string[];
+  maneuvers: number[][];
+  name: string;
+  shieldrecurr?: number;
+  shields: number;
+}
+
+export type ShipOverride = {
+  actions?: string[];
+  addSlots?: string[];
+  agility?: number;
+  attack?: number;
+  attackb?: number;
+  attackbull?: number;
+  attackdt?: number;
+  attackf?: number;
+  attackt?: number;
+  energy?: number;
+  force?: number;
+  hull?: number;
+  maneuvers?: number[][];
+  range?: [number, number];
+  rangebonus?: boolean;
+  removeSlots?: string[];
+  shields?: number;
 };
 
 export interface ShipRow {
@@ -139,30 +187,30 @@ export interface ShipRow {
   shields: number;
 }
 
-export interface PilotRow {
-  appliesCondition?: string; // JSON string
+export interface Upgrade {
+  appliesCondition?: string[];
   charge?: number;
   chassis?: string;
-  created_at: string;
-  engagement?: number;
-  faction: string;
   force?: number;
   forcerecurring?: number;
-  id: number;
-  keywords?: string; // JSON string
-  loadout: number;
+  keywords?: string[];
   maxPerSquad?: number;
   name: string;
-  points: number;
+  points?: number;
   recurring?: number;
-  ship: string;
-  shipOverride?: string; // JSON string
-  skill: number;
-  slots: string; // JSON string
-  upgrades?: string; // JSON string
+  ship?: string[];
+  shipOverride: ShipOverride;
+  upgradeRestrictions: Restrictions;
   xws?: string;
   xwsaddon?: string;
-  xwsship?: number; // 0 or 1
+}
+
+export interface UpgradeRestrictionRow {
+  id: number;
+  operator: string;
+  restriction_type: string;
+  restriction_values: string; // JSON string
+  upgrade_id: number;
 }
 
 export interface UpgradeRow {
@@ -182,63 +230,4 @@ export interface UpgradeRow {
   shipOverride: string; // JSON string
   xws?: string;
   xwsaddon?: string;
-}
-
-export interface PilotRestrictionRow {
-  id: number;
-  operator: string;
-  pilot_id: number;
-  restriction_type: string;
-  restriction_values: string; // JSON string
-}
-
-export interface UpgradeRestrictionRow {
-  id: number;
-  operator: string;
-  restriction_type: string;
-  restriction_values: string; // JSON string
-  upgrade_id: number;
-}
-
-export interface HydratedShip
-  extends Omit<
-    ShipRow,
-    'actions' | 'factions' | 'maneuvers' | 'autoequip' | 'keyword'
-  > {
-  actions: string[];
-  autoequip?: string[];
-  factions: string[];
-  keyword?: string[];
-  maneuvers: number[][];
-}
-
-export interface HydratedPilot
-  extends Omit<
-    PilotRow,
-    | 'slots'
-    | 'appliesCondition'
-    | 'keywords'
-    | 'shipOverride'
-    | 'upgrades'
-    | 'xwsship'
-  > {
-  appliesCondition?: string[];
-  keywords?: string[];
-  restrictions?: Restrictions;
-  shipOverride?: ShipOverride;
-  slots: string[];
-  upgrades?: string[];
-  xwsship?: boolean;
-}
-
-export interface HydratedUpgrade
-  extends Omit<
-    UpgradeRow,
-    'shipOverride' | 'appliesCondition' | 'keywords' | 'ship'
-  > {
-  appliesCondition?: string[];
-  keywords?: string[];
-  ship?: string[];
-  shipOverride: ShipOverride;
-  upgradeRestrictions: Restrictions;
 }

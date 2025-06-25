@@ -35,7 +35,7 @@ type ImportedPilot = {
 
 export function transformPilotsForDb(
   rawPilots: ImportedPilot[]
-): Omit<Pilot, 'id' | 'created_at'>[] {
+): Omit<Pilot, 'created_at' | 'id'>[] {
   return rawPilots.reduce(
     (transformed, pilot) => {
       const {
@@ -72,7 +72,7 @@ export function transformPilotsForDb(
         return transformed;
       }
 
-      const newPilot: Omit<Pilot, 'id' | 'created_at'> = {
+      const newPilot: Omit<Pilot, 'created_at' | 'id'> = {
         ...(notNil(applies_condition) && {
           appliesCondition: Array.isArray(applies_condition)
             ? applies_condition
@@ -109,6 +109,6 @@ export function transformPilotsForDb(
 
       return transformed;
     },
-    [] as Omit<Pilot, 'id' | 'created_at'>[]
+    [] as Omit<Pilot, 'created_at' | 'id'>[]
   );
 }

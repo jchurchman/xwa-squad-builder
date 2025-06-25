@@ -1,12 +1,13 @@
-import {
-  ShipRepository,
-  PilotRepository,
-  UpgradeRepository,
-  initializeDatabase,
-} from './database/database';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 import path from 'path';
+
+import {
+  initializeDatabase,
+  PilotRepository,
+  ShipRepository,
+  UpgradeRepository,
+} from './database/database';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -80,17 +81,15 @@ app.get('/api/upgrades', (req: Request, res: Response) => {
       return;
     }
 
-    const upgrades = upgradeRepo
-      .findByFirstSlot(slot as string)
-      .filter((upgrade) => {
-        if (!faction) {
-          return true;
-        }
-        if (!upgrade.upgradeRestrictions.faction) {
-          return true;
-        }
-        return upgrade.upgradeRestrictions.faction.includes(faction as string);
-      });
+    const upgrades = upgradeRepo.findByFirstSlot(slot as string).filter((upgrade) => {
+      if (!faction) {
+        return true;
+      }
+      if (!upgrade.upgradeRestrictions.faction) {
+        return true;
+      }
+      return upgrade.upgradeRestrictions.faction.includes(faction as string);
+    });
 
     res.json(upgrades);
   } catch (error: unknown) {

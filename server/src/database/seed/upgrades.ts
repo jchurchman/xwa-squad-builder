@@ -1,4 +1,4 @@
-import { Upgrade, ShipOverride, Restrictions } from '../types';
+import { Restrictions, ShipOverride, Upgrade } from '../types';
 import { notNil } from './common';
 
 type ImportedUpgrade = {
@@ -25,8 +25,8 @@ type ImportedUpgrade = {
   pointsxwa?: number;
   range?: string;
   rangebonus?: boolean;
-  recurring?: number | boolean;
-  restrictions?: (string | number)[][];
+  recurring?: boolean | number;
+  restrictions?: (number | string)[][];
   restrictionsxwa?: string[][];
   ship?: string;
   skip?: boolean;
@@ -43,7 +43,7 @@ type ImportedUpgrade = {
 
 export function transformUpgradesForDb(
   rawUpgrades: ImportedUpgrade[]
-): Omit<Upgrade, 'id' | 'created_at'>[] {
+): Omit<Upgrade, 'created_at' | 'id'>[] {
   return rawUpgrades.reduce(
     (transformed, upgrade) => {
       const {
@@ -73,7 +73,7 @@ export function transformUpgradesForDb(
 
       const shipOverride = buildShipOverride(upgrade);
 
-      const newUpgrade: Omit<Upgrade, 'id' | 'created_at'> = {
+      const newUpgrade: Omit<Upgrade, 'created_at' | 'id'> = {
         ...(notNil(applies_condition) && {
           appliesCondition: Array.isArray(applies_condition)
             ? applies_condition
@@ -101,7 +101,7 @@ export function transformUpgradesForDb(
 
       return transformed;
     },
-    [] as Omit<Upgrade, 'id' | 'created_at'>[]
+    [] as Omit<Upgrade, 'created_at' | 'id'>[]
   );
 }
 
@@ -128,9 +128,7 @@ function buildUpgradeRestrictions(rawUpgrade: ImportedUpgrade) {
   };
 
   if (notNil(also_occupies_upgrades) || notNil(also_occupies_upgrades_xwa)) {
-    restrictions.slots!.concat(
-      also_occupies_upgrades_xwa! || also_occupies_upgrades!
-    );
+    restrictions.slots!.concat(also_occupies_upgrades_xwa! || also_occupies_upgrades!);
   }
 
   if (notNil(restrictionsxwa)) {
@@ -144,9 +142,7 @@ function buildUpgradeRestrictions(rawUpgrade: ImportedUpgrade) {
   return restrictions;
 }
 
-function manageRawRestrictions(
-  raw: (string | number)[][]
-): Partial<Restrictions> {
+function manageRawRestrictions(raw: (number | string)[][]): Partial<Restrictions> {
   const returnObj: Partial<Restrictions> = {};
 
   raw?.forEach((res) => {
@@ -173,11 +169,9 @@ function manageRawRestrictions(
     }
     if (condition === 'Keyword') {
       if (
-        [
-          'Networked Calculations',
-          'Vectored Thrusters',
-          'Autothrusters',
-        ].includes(values[0] as string)
+        ['Autothrusters', 'Networked Calculations', 'Vectored Thrusters'].includes(
+          values[0] as string
+        )
       ) {
         returnObj.chassis = values[0] as string;
       }
@@ -232,13 +226,7 @@ const blankShipForModifierFunc: ShipOverride = {
   shields: 50,
 };
 
-type OverrideNumKeys =
-  | 'agility'
-  | 'attack'
-  | 'energy'
-  | 'force'
-  | 'hull'
-  | 'shields';
+type OverrideNumKeys = 'agility' | 'attack' | 'energy' | 'force' | 'hull' | 'shields';
 
 function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
   const {
@@ -280,8 +268,7 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
     ];
   }
   if (notNil(modifier_func)) {
-    const { actions, attackt, maneuvers, ...rest } =
-      modifier_func(blankShipForModifierFunc) || {};
+    const { actions, attackt, maneuvers, ...rest } = modifier_func(blankShipForModifierFunc) || {};
 
     if (attackt && name.includes('Vectored')) {
       // Have to do this manually because of the way the modifier_func
@@ -299,14 +286,12 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
       returnObj.actions = actions;
     }
 
-    Object.entries(rest as Pick<ShipOverride, OverrideNumKeys>).forEach(
-      ([k, v]) => {
-        const newVal = v - 9;
-        if (newVal) {
-          returnObj[k as OverrideNumKeys] = newVal;
-        }
+    Object.entries(rest as Pick<ShipOverride, OverrideNumKeys>).forEach(([k, v]) => {
+      const newVal = v - 9;
+      if (newVal) {
+        returnObj[k as OverrideNumKeys] = newVal;
       }
-    );
+    });
   }
 
   return returnObj;
