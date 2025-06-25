@@ -1,0 +1,21 @@
+.selector-container {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  color: white;
+  align-items: center;
+}
+
+a.nav-link {
+  & > i {
+    padding: 4px;
+    font-size: 48px;
+    line-height: 48px;
+  }
+  &.active {
+    & > i {
+      font-size: 52px;
+      line-height: 52px;
+    }
+  }
+}

@@ -1,0 +1,43 @@
+@use '../../../variables.scss';
+
+.faction-icon {
+  color: white;
+  font-size: inherit;
+  font-family: inherit;
+
+  &.active {
+    border-radius: 50%;
+    box-shadow: inset 0 0 4px 4px rgba(variables.$header-background,0.2),
+    inset 0 0 3px 4px rgba(variables.$header-background,0.2),
+    inset 0 0 2px 4px rgba(variables.$header-background,0.2),
+    inset 0 0 1px 4px rgba(variables.$header-background,0.2);
+  }
+  &.rebel.active {
+    color: variables.$rebel-accent;
+    background-color: variables.$rebel-main;
+  }
+  &.empire.active {
+    color: variables.$empire-accent;
+    background-color: variables.$empire-main;
+  }
+  &.scum.active {
+    color: variables.$scum-accent;
+    background-color: variables.$scum-main;
+  }
+  &.rebel-outline.active {
+    color: variables.$resistance-accent;
+    background-color: variables.$resistance-main;
+  }
+  &.firstorder.active {
+    color: variables.$firstorder-accent;
+    background-color: variables.$firstorder-main;
+  }
+  &.republic.active {
+    color: variables.$republic-accent;
+    background-color: variables.$republic-main;
+  }
+  &.separatists.active {
+    color: variables.$separatists-accent;
+    background-color: variables.$separatists-main;
+  }
+}
