@@ -12,44 +12,74 @@ export default defineConfig([
       "dist/",
       "build/",
       "**/*.js",
-      "client/"
     ]
   },
-  { extends: ["js/recommended"], files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], plugins: { js } },
-  { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], languageOptions: { globals: globals.browser } },
+  {
+    extends: ["js/recommended"],
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    plugins: {
+      js
+    }
+  },
+  {
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      }
+    }
+  },
   ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
+  pluginReact.configs.flat['jsx-runtime'],
   {
     plugins: {
-      "perfectionist": perfectionist,
+      perfectionist,
+      react: pluginReact
     },
     rules: {
       "indent": ["warn", 2],
       'perfectionist/sort-imports': [
         'error',
         {
-          customGroups: [],
+          customGroups: [
+            {
+              elementNamePattern: ['^@(components|hooks|api)'],
+              groupName: "my-code"
+            },
+            {
+              elementNamePattern: ['^@types'],
+              groupName: "my-types"
+            },
+            {
+              elementNamePattern: ['@assets'],
+              groupName: "my-assets"
+            }
+          ],
           environment: 'node',
-          fallbackSort: { type: 'unsorted' },
+          fallbackSort: { order: 'asc', type: 'line-length' },
           groups: [
-            'type-import',
+            'my-assets',
             ['value-builtin', 'value-external'],
-            'type-internal',
             'value-internal',
-            ['type-parent', 'type-sibling', 'type-index'],
+            'my-code',
             ['value-parent', 'value-sibling', 'value-index'],
+            'value-side-effect-style',
+            'side-effect-style',
+            'value-style',
+            'type-import',
+            'type-internal',
+            'my-types',
+            ['type-parent', 'type-sibling', 'type-index'],
             'ts-equals-import',
             'unknown',
           ],
           ignoreCase: true,
           internalPattern: ['^~/.+', '^@/.+'],
-          maxLineLength: undefined,
-          newlinesBetween: 'always',
           order: 'asc',
-          partitionByComment: false,
-          partitionByNewLine: false,
-          specialCharacters: 'keep',
-          type: 'alphabetical',
         },
       ],
       'perfectionist/sort-interfaces': [
@@ -85,6 +115,23 @@ export default defineConfig([
           specialCharacters: 'keep',
           type: 'alphabetical',
           useConfigurationIf: {},
+        },
+      ],
+      'perfectionist/sort-named-imports': [
+        'error',
+        {
+          customGroups: [],
+          fallbackSort: { type: 'unsorted' },
+          groupKind: 'mixed',
+          groups: [],
+          ignoreAlias: false,
+          ignoreCase: true,
+          newlinesBetween: 'ignore',
+          order: 'asc',
+          partitionByComment: true,
+          partitionByNewLine: false,
+          specialCharacters: 'keep',
+          type: 'alphabetical',
         },
       ],
       'perfectionist/sort-object-types': [
@@ -125,6 +172,8 @@ export default defineConfig([
           useConfigurationIf: {},
         },
       ],
+      'react/jsx-uses-react': 'error',
+      'react/jsx-uses-vars': 'error',
     }
   }
 ]);
