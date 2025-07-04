@@ -1,4 +1,4 @@
-import { Ship } from '../types';
+import { Ship } from '../../../../shared/types';
 
 type importedShip = {
   actions: string[];

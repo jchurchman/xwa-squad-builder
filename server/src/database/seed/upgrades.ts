@@ -1,4 +1,4 @@
-import { Restrictions, ShipOverride, Upgrade } from '../types';
+import { Restrictions, ShipOverride, Upgrade } from '../../../../shared/types';
 import { notNil } from './common';
 
 type ImportedUpgrade = {

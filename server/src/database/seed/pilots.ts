@@ -1,4 +1,4 @@
-import { Pilot, ShipOverride } from '../types';
+import { Pilot, ShipOverride } from '../../../../shared/types';
 import { notNil } from './common';
 
 type ImportedPilot = {

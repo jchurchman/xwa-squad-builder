@@ -1,4 +1,4 @@
-export enum Faction {
+enum Faction {
   rebels = 'Rebel Alliance',
   empire = 'Galactic Empire',
   scum = 'Scum and Villainy',
@@ -6,4 +6,8 @@ export enum Faction {
   firstorder = 'First Order',
   republic = 'Galactic Republic',
   separatists = 'Separatist Alliance'
+}
+
+export {
+  Faction,
 }

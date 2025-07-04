@@ -5,7 +5,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 64px;
+  height: variables.$header-height;
   background-color: variables.$header-background;
   border-bottom: 2px solid variables.$light-grey;
   box-shadow: 0 0 0 2px variables.$black;

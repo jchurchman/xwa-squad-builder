@@ -8,7 +8,7 @@ class ApiError extends Error {
   }
 }
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;

@@ -18,26 +18,14 @@ const shipRepo = new ShipRepository();
 const pilotRepo = new PilotRepository();
 const upgradeRepo = new UpgradeRepository();
 
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:5173'
+}));
 app.use(express.json());
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ message: 'XWA Squad Builder API', status: 'ok' });
-});
-
-app.get('/api/factions', (req: Request, res: Response) => {
-  try {
-    const ships = shipRepo.findAll();
-    const factions = new Set<string>();
-
-    ships.forEach((ship) => {
-      ship.factions.forEach((faction: string) => factions.add(faction));
-    });
-
-    res.json(Array.from(factions).sort());
-  } catch (error: unknown) {
-    res.status(500).json({ error: `Failed to fetch factions: ${error}` });
-  }
 });
 
 app.get('/api/ships', (req: Request, res: Response) => {

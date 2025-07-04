@@ -16,7 +16,8 @@
       "@hooks/*": ["./src/hooks/*"],
       "@assets/*": ["./src/assets/*"],
       "@api": ["./src/api/index.ts"],
-      "@api/*": ["./src/api/*"]
+      "@api/*": ["./src/api/*"],
+      "@shared/*": ["../shared/*"]
     }
   },
   "extends": "../tsconfig.json"

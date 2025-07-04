@@ -1,0 +1,6 @@
+@use "../../variables.scss";
+
+.content-spacer {
+  height: variables.$header-height;
+  width: 100%;
+}
