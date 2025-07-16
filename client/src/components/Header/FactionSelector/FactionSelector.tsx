@@ -1,13 +1,11 @@
-import { NavLink, useParams } from "react-router";
+import classNames from 'classnames';
+import { NavLink, useParams } from 'react-router';
 
-import {
-  FactionIcon,
-} from '@components';
+import { FactionIcon } from '@components';
 
 import classes from './FactionSelector.module.scss';
 
-import { Faction } from "@types";
-import classNames from "classnames";
+import { Faction } from '@types';
 
 const selectorButtonOrder: Faction[] = [
   Faction.rebels,
@@ -16,30 +14,24 @@ const selectorButtonOrder: Faction[] = [
   Faction.resistance,
   Faction.firstorder,
   Faction.republic,
-  Faction.separatists
-]
+  Faction.separatists,
+];
 
 export function FactionSelector() {
   const { lang } = useParams();
   return (
     <div className={classes.selectorContainer}>
-      {
-        selectorButtonOrder.map((faction, idx) => (
-          <NavLink
-            to={`/${lang}/${faction}`}
-            key={idx}
-            className={({ isActive }) => classNames(classes.navLink, { [classes.active]: isActive })}
-          >
-            {({ isActive }) => (
-              <FactionIcon
-                className={classes.navLink}
-                faction={faction}
-                active={isActive}
-              />
-            )}
-          </NavLink>
-        ))
-      }
+      {selectorButtonOrder.map((faction, idx) => (
+        <NavLink
+          className={({ isActive }) => classNames(classes.navLink, { [classes.active]: isActive })}
+          key={idx}
+          to={`/${lang}/${faction}`}
+        >
+          {({ isActive }) => (
+            <FactionIcon active={isActive} className={classes.navLink} faction={faction} />
+          )}
+        </NavLink>
+      ))}
     </div>
   );
 }

@@ -18,10 +18,12 @@ const shipRepo = new ShipRepository();
 const pilotRepo = new PilotRepository();
 const upgradeRepo = new UpgradeRepository();
 
-app.use(cors({
-  credentials: true,
-  origin: 'http://localhost:5173'
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: 'http://localhost:5173',
+  })
+);
 app.use(express.json());
 
 app.get('/api/health', (req: Request, res: Response) => {

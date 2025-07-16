@@ -1,4 +1,6 @@
-import { Restrictions, ShipOverride } from "./common";
+import { Restrictions, ShipOverride } from './common';
+
+export type UpgradeId = number;
 
 export interface HydratedUpgrade
   extends Omit<UpgradeRow, 'appliesCondition' | 'keywords' | 'ship' | 'shipOverride'> {
@@ -42,7 +44,7 @@ export interface UpgradeRow {
   created_at: string;
   force?: number;
   forcerecurring?: number;
-  id: number;
+  id: UpgradeId;
   keywords?: string; // JSON string
   maxPerSquad?: number;
   name: string;

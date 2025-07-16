@@ -11,20 +11,20 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@api": "/src/api/index.ts",
-      "@assets": "/src/assets/index.ts",
-      "@components": "/src/components/index.ts",
-      "@hooks": "/src/hooks/index.ts",
-      "@types": "/src/types/index.ts",
-      src: "/src"
+      '@api': '/src/api/index.ts',
+      '@assets': '/src/assets/index.ts',
+      '@components': '/src/components/index.ts',
+      '@hooks': '/src/hooks/index.ts',
+      '@types': '/src/types/index.ts',
+      src: '/src',
     },
   },
   server: {
     proxy: {
       '/api': {
+        changeOrigin: true,
         target: 'http://localhost:3001',
-        changeOrigin: true
-      }
-    }
-  }
+      },
+    },
+  },
 });

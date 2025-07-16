@@ -4,17 +4,17 @@ import { Layout } from './components/Layout';
 import { SquadBuilder } from './components/SquadBuilder';
 
 import './App.css';
+import { Faction } from './types';
 
 function App() {
-
   return (
     <>
       <Routes>
-        <Route element={<Navigate replace to="/en/rebels" />} path="/" />
+        <Route element={<Navigate replace to={`/en/${Faction.rebels}`} />} path="/" />
         <Route element={<Layout />} path="/:lang/:faction">
           <Route element={<SquadBuilder />} index />
         </Route>
-        <Route element={<Navigate replace to="/en/rebels" />} path="*" />
+        <Route element={<Navigate replace to={`/en/${Faction.rebels}`} />} path="*" />
       </Routes>
     </>
   );

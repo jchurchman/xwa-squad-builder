@@ -5,9 +5,7 @@ enum Faction {
   resistance = 'Resistance',
   firstorder = 'First Order',
   republic = 'Galactic Republic',
-  separatists = 'Separatist Alliance'
+  separatists = 'Separatist Alliance',
 }
 
-export {
-  Faction,
-}
+export { Faction };

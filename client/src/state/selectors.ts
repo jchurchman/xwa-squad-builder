@@ -1,86 +1,109 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../types';
 import { HydratedUpgrade } from '@shared/types';
 
-// Entity selectors
+import { RootState } from '.';
+import { Faction } from 'src/types';
+
 export const selectAllShips = (state: RootState) => Object.values(state.entities.ships);
+export const selectAllShipsMap = (state: RootState) => state.entities.ships;
 export const selectAllPilots = (state: RootState) => Object.values(state.entities.pilots);
 export const selectAllUpgrades = (state: RootState) => Object.values(state.entities.upgrades);
 
-export const selectShipById = (state: RootState, shipId: number) => 
-  state.entities.ships[shipId];
+export const selectShipById = (state: RootState, shipId: number) => state.entities.ships[shipId];
 
-export const selectPilotById = (state: RootState, pilotId: number) => 
+export const selectPilotById = (state: RootState, pilotId: number) =>
   state.entities.pilots[pilotId];
 
-export const selectUpgradeById = (state: RootState, upgradeId: number) => 
+export const selectUpgradeById = (state: RootState, upgradeId: number) =>
   state.entities.upgrades[upgradeId];
 
-// List selectors
 export const selectList = (state: RootState) => state.list;
-export const selectListShips = (state: RootState) => state.listShips;
+export const selectListShips = (state: RootState) => state.list.ships;
+export const selectOrderedListShipIds = (state: RootState) => state.list.constructedShipOrder;
 
-// Faction-filtered selectors
 export const selectPilotsByFaction = createSelector(
-  [selectAllPilots, (state: RootState, faction: string) => faction],
-  (pilots, faction) => pilots.filter(pilot => pilot.faction === faction)
+  [selectAllPilots, (_: RootState, faction: string) => faction],
+  (pilots, faction) => pilots.filter((pilot) => pilot.faction === faction)
 );
 
 export const selectShipsByFaction = createSelector(
-  [selectAllShips, selectPilotsByFaction],
-  (ships, pilots) => {
-    const shipNames = new Set(pilots.map(pilot => pilot.ship));
-    return ships.filter(ship => shipNames.has(ship.name));
+  [
+    selectAllShipsMap,
+    (state: RootState) => state.entities.shipsByFaction,
+    (_: RootState, faction: Faction) => faction
+  ],
+  (ships, shipsByFactionMap, faction) => {
+    const shipIdsInFaction = shipsByFactionMap[faction] || []
+    return shipIdsInFaction.map(id => ships[id]);
   }
 );
 
 export const selectListPilots = createSelector(
-  [selectList, selectListShips, (state: RootState) => state.entities.pilots],
-  (list, listShips, pilots) => {
-    if (!list) return [];
-    
-    return list.ships.map(shipId => {
-      const listShip = listShips[shipId];
-      return listShip ? pilots[listShip.pilotId] : null;
-    }).filter(Boolean);
+  [selectOrderedListShipIds, selectListShips, (state: RootState) => state.entities.pilots],
+  (shipIds, listShips, pilots) => {
+    if (!shipIds || shipIds.length === 0) return [];
+
+    return shipIds
+      .map((shipId) => {
+        const listShip = listShips[shipId];
+        return listShip && listShip.pilot ? pilots[listShip.pilot] : null;
+      })
+      .filter(Boolean);
   }
 );
 
+export const selectConstructedShipChassis = createSelector(
+  [
+    selectAllShipsMap,
+    selectListShips,
+    (_:RootState, constructedShipId: string) => constructedShipId
+  ],
+  (allShips, listShips, constructedShipId) => {
+    console.log({ allShips, listShips, constructedShipId })
+    const { ship } = listShips[constructedShipId]
+
+    if (ship) {
+      return allShips[ship]
+    }
+
+    return undefined
+  }
+)
+
 export const selectListUpgrades = createSelector(
-  [selectList, selectListShips, (state: RootState) => state.entities.upgrades],
-  (list, listShips, upgrades) => {
-    if (!list) return [];
-    
+  [selectOrderedListShipIds, selectListShips, (state: RootState) => state.entities.upgrades],
+  (shipIds, listShips, upgrades) => {
+    if (!shipIds || shipIds.length === 0) return [];
+
     const allUpgrades: HydratedUpgrade[] = [];
-    
-    list.ships.forEach(shipId => {
+
+    shipIds.forEach((shipId) => {
       const listShip = listShips[shipId];
       if (!listShip) return;
-      
-      Object.values(listShip.upgrades).forEach(upgradeIds => {
-        upgradeIds.forEach(upgradeId => {
+
+      Object.values(listShip.upgrades || {}).forEach((upgradeIds) => {
+        upgradeIds.forEach((upgradeId) => {
+          if (!upgradeId) return;
           const upgrade = upgrades[upgradeId];
           if (upgrade) allUpgrades.push(upgrade);
         });
       });
     });
-    
+
     return allUpgrades;
   }
 );
 
-// Utility selectors for restrictions
 export const selectHasPilot = createSelector(
-  [selectListPilots, (state: RootState, pilotName: string) => pilotName],
-  (pilots, pilotName) => pilots.some(pilot => pilot?.name === pilotName)
+  [selectListPilots, (_: RootState, pilotName: string) => pilotName],
+  (pilots, pilotName) => pilots.some((pilot) => pilot?.name === pilotName)
 );
 
 export const selectHasUpgrade = createSelector(
-  [selectListUpgrades, (state: RootState, upgradeName: string) => upgradeName],
-  (upgrades, upgradeName) => upgrades.some(upgrade => upgrade.name === upgradeName)
+  [selectListUpgrades, (_: RootState, upgradeName: string) => upgradeName],
+  (upgrades, upgradeName) => upgrades.some((upgrade) => upgrade.name === upgradeName)
 );
 
-// Calculate total points
 export const selectListPoints = createSelector(
   [selectListPilots, selectListUpgrades],
   (pilots, upgrades) => {
@@ -90,22 +113,10 @@ export const selectListPoints = createSelector(
   }
 );
 
-// Validation selectors
-export const selectListIsValid = createSelector(
-  [selectList, selectListPoints],
-  (list, points) => {
-    if (!list) return false;
-    
-    return (
-      list.ships.length >= 3 &&
-      list.ships.length <= 8 &&
-      points <= 200 // Standard game limit
-    );
-  }
-);
+export const selectListIsValid = createSelector([selectList, selectListPoints], (list, points) => {
+  if (!list) return false;
 
-export const selectSelectedShip = (state: RootState) => 
-  state.ui.selectedShipId ? state.listShips[state.ui.selectedShipId] : null;
-
-export const selectUILoading = (state: RootState) => state.ui.loading;
-export const selectUIError = (state: RootState) => state.ui.error;
+  return (
+    list.constructedShipOrder.length >= 3 && list.constructedShipOrder.length <= 8 && points <= 50 // Standard game limit
+  );
+});

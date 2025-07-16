@@ -1,3 +1,4 @@
+export type ShipId = number;
 
 export interface HydratedShip
   extends Omit<ShipRow, 'actions' | 'autoequip' | 'factions' | 'keyword' | 'maneuvers'> {
@@ -34,7 +35,6 @@ export interface Ship {
   shields: number;
 }
 
-
 export interface ShipRow {
   actions: string; // JSON string
   agility: number;
@@ -55,7 +55,7 @@ export interface ShipRow {
   factions: string; // JSON string
   hull: number;
   icon?: string;
-  id: number;
+  id: ShipId;
   keyword?: string; // JSON string
   maneuvers: string; // JSON string
   name: string;

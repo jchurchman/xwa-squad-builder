@@ -1,54 +1,54 @@
-import { useMemo, useState } from "react"
-import { useParams } from "react-router"
+import { Button } from 'antd';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useParams } from 'react-router';
 
-import { useApiGet } from "@hooks"
-import { HydratedPilot, HydratedShip } from "@shared/types"
-import { PilotForm } from "./PilotForm"
-import { DefaultOptionType } from "antd/es/select"
+import { useAppDispatch } from 'src/hooks';
+import { selectConstructedShipOrderList } from 'src/state/selectors/list';
+import { addShip, newList } from 'src/state/slices/listSlice';
+import { Faction } from 'src/types';
+
+import { PilotForm } from './PilotForm';
+import { useFetchShipsByFactionQuery } from 'src/state/slices/apiSlice';
 
 export function ListForm() {
-  const { faction } = useParams()
-
-  const {
-    // loading,
-    // error,
-    data: shipData
-  } = useApiGet<HydratedShip[]>(`/api/ships?faction=${faction}`)
-
-  const [selectedShip, setSelectedShip] = useState<string|null>(null)
-
-  const {
-    // loading,
-    // error,
-    data: pilotData,
-  } = useApiGet<HydratedPilot[]>(`/api/pilots?ship=${selectedShip}`)
-
-
-  const ships: DefaultOptionType[] = useMemo(() => {
-    if (shipData) {
-      return shipData.map(d => ({
-        label: d.name,
-        value: d.name,
-      }));
-    }
-
-    return []
-  }, [shipData])
-
-  const pilots: DefaultOptionType[] = useMemo(() => {
-    if (pilotData) {
-      return pilotData.map(p => ({
-        value: p.name,
-        label: p.name
-      }))
-    }
-    return [];
-  }, [pilotData])
+  const { faction } = useParams();
+  const constructedShipIds = useSelector(selectConstructedShipOrderList);
+  const dispatch = useAppDispatch();
   
-  return (
+  const { isLoading } = useFetchShipsByFactionQuery(faction!);
+
+  useEffect(() => {
+    if (!isLoading && constructedShipIds.length === 0) {
+      dispatch(newList(faction as Faction));
+    }
+  }, [isLoading, faction, constructedShipIds, dispatch]);
+
+  return isLoading ? (
+    <div>
+      Loading ...
+    </div>
+  ) : (
     <>
-    List form
-    <PilotForm ships={ships} onChange={setSelectedShip} pilots={pilots} />
+      <Button
+        onClick={() => {
+          dispatch(newList(faction as Faction));
+        }}
+      >
+        New List
+      </Button>
+
+      {constructedShipIds.map((id, index) => (
+        <PilotForm id={id} key={`${id}.${index}`} />
+      ))}
+
+      <Button
+        onClick={() => {
+          dispatch(addShip(faction as Faction));
+        }}
+      >
+        Add Ship
+      </Button>
     </>
-  )
+  );
 }

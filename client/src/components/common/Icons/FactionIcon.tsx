@@ -1,41 +1,39 @@
-import classNames from "classnames";
+import classNames from 'classnames';
 
-import classes from "./Icons.module.scss"
-import { Faction } from "src/types";
+import { Faction } from 'src/types';
+
+import classes from './Icons.module.scss';
 
 type IconProps = {
-  className?: string;
-  styles?: unknown;
   active?: boolean;
+  className?: string;
   faction: Faction;
-}
+  styles?: unknown;
+};
 
 const factionToFactionClassMap: Record<Faction, string> = {
-  [Faction.rebels]: "rebel",
-  [Faction.empire]: "empire",
-  [Faction.scum]: "scum",
-  [Faction.firstorder]: "firstorder",
-  [Faction.republic]: "republic",
-  [Faction.separatists]: "separatists",
-  [Faction.resistance]: "rebel-outline",
-}
+  [Faction.empire]: 'empire',
+  [Faction.firstorder]: 'firstorder',
+  [Faction.rebels]: 'rebel',
+  [Faction.republic]: 'republic',
+  [Faction.resistance]: 'rebel-outline',
+  [Faction.scum]: 'scum',
+  [Faction.separatists]: 'separatists',
+};
 
 export function FactionIcon(props: IconProps) {
-  const { className, active, faction } = props;
+  const { active, className, faction } = props;
 
   return (
     <i
-      className={
-        classNames(
-          'xwing-miniatures-font',
-          classes.factionIcon,
-          classes[factionToFactionClassMap[faction]],
-          `xwing-miniatures-font-${factionToFactionClassMap[faction]}`,
-          { [classes.active]: active },
-          className,
-        )
-      }
+      className={classNames(
+        'xwing-miniatures-font',
+        classes.factionIcon,
+        classes[factionToFactionClassMap[faction]],
+        `xwing-miniatures-font-${factionToFactionClassMap[faction]}`,
+        { [classes.active]: active },
+        className
+      )}
     />
   );
 }
-

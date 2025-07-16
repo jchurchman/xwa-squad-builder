@@ -1,4 +1,6 @@
-import { Restrictions, ShipOverride } from "./common";
+import { Restrictions, ShipOverride } from './common';
+
+export type PilotId = number;
 
 export interface HydratedPilot
   extends Omit<
@@ -56,7 +58,7 @@ export interface PilotRow {
   faction: string;
   force?: number;
   forcerecurring?: number;
-  id: number;
+  id: PilotId;
   keywords?: string; // JSON string
   loadout: number;
   maxPerSquad?: number;

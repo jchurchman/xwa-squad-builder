@@ -1,2 +1,2 @@
-export { Faction } from "./types"
-export * from "./state"
+export { Faction } from './types';
+export * from './state';

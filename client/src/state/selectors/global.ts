@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { selectShipsLoading, selectPilotsLoading, selectUpgradesLoading } from './entities';
+
+import { selectPilotsLoading, selectShipsLoading, selectUpgradesLoading } from './entities';
 
 export const selectGlobalLoading = createSelector(
   [selectShipsLoading, selectPilotsLoading, selectUpgradesLoading],
