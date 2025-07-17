@@ -1,4 +1,4 @@
 export * from './pilotTypes';
-export * from './shipTypes';
+export * from './platformTypes';
 export * from './upgradeTypes';
 export * from './common';

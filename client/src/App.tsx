@@ -2,9 +2,9 @@ import { Navigate, Route, Routes } from 'react-router';
 
 import { Layout } from './components/Layout';
 import { SquadBuilder } from './components/SquadBuilder';
+import { Faction } from './types';
 
 import './App.css';
-import { Faction } from './types';
 
 function App() {
   return (

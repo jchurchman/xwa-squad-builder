@@ -1,13 +1,13 @@
-import { Restrictions, ShipOverride } from './common';
+import { PlatformOverride, Restrictions } from './common';
 
 export type UpgradeId = number;
 
 export interface HydratedUpgrade
-  extends Omit<UpgradeRow, 'appliesCondition' | 'keywords' | 'ship' | 'shipOverride'> {
+  extends Omit<UpgradeRow, 'appliesCondition' | 'keywords' | 'platform' | 'platformOverride'> {
   appliesCondition?: string[];
   keywords?: string[];
-  ship?: string[];
-  shipOverride: ShipOverride;
+  platform?: string[];
+  platformOverride: PlatformOverride;
   upgradeRestrictions: Restrictions;
 }
 
@@ -20,10 +20,10 @@ export interface Upgrade {
   keywords?: string[];
   maxPerSquad?: number;
   name: string;
+  platform?: string[];
+  platformOverride: PlatformOverride;
   points?: number;
   recurring?: number;
-  ship?: string[];
-  shipOverride: ShipOverride;
   upgradeRestrictions: Restrictions;
   xws?: string;
   xwsaddon?: string;
@@ -48,10 +48,10 @@ export interface UpgradeRow {
   keywords?: string; // JSON string
   maxPerSquad?: number;
   name: string;
+  platform?: string; // JSON string
+  platformOverride: string; // JSON string
   points?: number;
   recurring?: number;
-  ship?: string; // JSON string
-  shipOverride: string; // JSON string
   xws?: string;
   xwsaddon?: string;
 }

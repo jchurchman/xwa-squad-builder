@@ -1,4 +1,4 @@
-import { Restrictions, ShipOverride, Upgrade } from '../../../../shared/types';
+import { PlatformOverride, Restrictions, Upgrade } from '../../../../shared/types';
 import { notNil } from './common';
 
 type ImportedUpgrade = {
@@ -19,8 +19,9 @@ type ImportedUpgrade = {
   forcerecurring?: number;
   keyword?: string[];
   max_per_squad?: number;
-  modifier_func?: (arg: ShipOverride) => ShipOverride;
+  modifier_func?: (arg: PlatformOverride) => PlatformOverride;
   name: string;
+  platform?: string;
   points?: number;
   pointsxwa?: number;
   range?: string;
@@ -28,7 +29,6 @@ type ImportedUpgrade = {
   recurring?: boolean | number;
   restrictions?: (number | string)[][];
   restrictionsxwa?: string[][];
-  ship?: string;
   skip?: boolean;
   slot: string;
   solitary?: boolean;
@@ -55,10 +55,10 @@ export function transformUpgradesForDb(
         keyword,
         max_per_squad,
         name,
+        platform,
         points,
         pointsxwa,
         recurring,
-        ship,
         skip,
         unique,
         xws,
@@ -71,7 +71,7 @@ export function transformUpgradesForDb(
 
       const upgradeRestrictions = buildUpgradeRestrictions(upgrade);
 
-      const shipOverride = buildShipOverride(upgrade);
+      const platformOverride = buildPlatformOverride(upgrade);
 
       const newUpgrade: Omit<Upgrade, 'created_at' | 'id'> = {
         ...(notNil(applies_condition) && {
@@ -90,10 +90,10 @@ export function transformUpgradesForDb(
         name,
         points: notNil(pointsxwa) ? pointsxwa : points,
         ...(notNil(recurring) && { recurring: Number(recurring) }),
-        ...(notNil(ship) && { ship: Array.isArray(ship) ? ship : [ship] }),
+        ...(notNil(platform) && { platform: Array.isArray(platform) ? platform : [platform] }),
         ...(notNil(xws) && { xws }),
         ...(notNil(xwsaddon) && { xwsaddon }),
-        shipOverride,
+        platformOverride,
         upgradeRestrictions,
       };
 
@@ -215,7 +215,7 @@ const maneuversBlank = [
   [3, 3, 3, 3, 3, 3, 3, 3, 3, 3], // 5 speed
 ];
 
-const blankShipForModifierFunc: ShipOverride = {
+const blankPlatformForModifierFunc: PlatformOverride = {
   actions: [],
   agility: 50,
   attack: 50,
@@ -228,7 +228,7 @@ const blankShipForModifierFunc: ShipOverride = {
 
 type OverrideNumKeys = 'agility' | 'attack' | 'energy' | 'force' | 'hull' | 'shields';
 
-function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
+function buildPlatformOverride(upgrade: ImportedUpgrade): PlatformOverride {
   const {
     attack,
     attackb,
@@ -244,7 +244,7 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
     unequips_upgrades,
   } = upgrade;
 
-  const returnObj: ShipOverride = {
+  const returnObj: PlatformOverride = {
     ...(notNil(attack) && { attack }),
     ...(notNil(attackb) && { attackb }),
     ...(notNil(attackbull) && { attackbull }),
@@ -268,7 +268,8 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
     ];
   }
   if (notNil(modifier_func)) {
-    const { actions, attackt, maneuvers, ...rest } = modifier_func(blankShipForModifierFunc) || {};
+    const { actions, attackt, maneuvers, ...rest } =
+      modifier_func(blankPlatformForModifierFunc) || {};
 
     if (attackt && name.includes('Vectored')) {
       // Have to do this manually because of the way the modifier_func
@@ -286,7 +287,7 @@ function buildShipOverride(upgrade: ImportedUpgrade): ShipOverride {
       returnObj.actions = actions;
     }
 
-    Object.entries(rest as Pick<ShipOverride, OverrideNumKeys>).forEach(([k, v]) => {
+    Object.entries(rest as Pick<PlatformOverride, OverrideNumKeys>).forEach(([k, v]) => {
       const newVal = v - 9;
       if (newVal) {
         returnObj[k as OverrideNumKeys] = newVal;

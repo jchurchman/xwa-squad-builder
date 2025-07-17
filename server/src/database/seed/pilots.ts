@@ -1,4 +1,4 @@
-import { Pilot, ShipOverride } from '../../../../shared/types';
+import { Pilot, PlatformOverride } from '../../../../shared/types';
 import { notNil } from './common';
 
 type ImportedPilot = {
@@ -21,7 +21,7 @@ type ImportedPilot = {
   restriction_func?: () => void;
   restrictions?: string[][];
   ship: string;
-  ship_override?: ShipOverride;
+  ship_override?: PlatformOverride;
   skill: number;
   skip?: boolean;
   slots: string[];
@@ -95,8 +95,8 @@ export function transformPilotsForDb(
         ...(notNil(restrictions) && {
           restrictions: { upgradesInList: [restrictions[0][1]] },
         }),
-        ship,
-        ...(notNil(ship_override) && { shipOverride: ship_override }),
+        platform: ship,
+        ...(notNil(ship_override) && { platformOverride: ship_override }),
         skill,
         slots: notNil(slotsxwa) ? slotsxwa : slots || [],
         ...(notNil(upgrades) && { upgrades }),

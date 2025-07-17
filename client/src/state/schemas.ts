@@ -1,9 +1,9 @@
 import { schema } from 'normalizr';
 
-export const shipSchema = new schema.Entity('ships');
-export const pilotSchema = new schema.Entity('pilots');
-export const upgradeSchema = new schema.Entity('upgrades');
+export const platformSchema = new schema.Entity('platform');
+export const pilotSchema = new schema.Entity('pilot');
+export const upgradeSchema = new schema.Entity('upgrade');
 
-export const shipsSchema = [shipSchema];
+export const platformsSchema = [platformSchema];
 export const pilotsSchema = [pilotSchema];
 export const upgradesSchema = [upgradeSchema];

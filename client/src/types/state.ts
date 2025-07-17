@@ -1,9 +1,9 @@
 import {
   HydratedPilot,
-  HydratedShip,
+  HydratedPlatform,
   HydratedUpgrade,
   PilotId,
-  ShipId,
+  PlatformId,
   UpgradeId,
 } from '@shared/types';
 
@@ -14,24 +14,24 @@ export interface LoadingState {
 
 export interface EntitiesState {
   pilots: { [id: number]: HydratedPilot };
-  pilotsByShip: { [shipName: string]: number[] };
-  ships: { [id: number]: HydratedShip };
-  shipsByFaction: { [faction: string]: number[] };
+  pilotsByPlatform: { [platformName: string]: number[] };
+  platforms: { [id: number]: HydratedPlatform };
+  platformsByFaction: { [faction: string]: number[] };
   upgrades: { [id: number]: HydratedUpgrade };
 }
 
-export type ConstructedShipId = string;
+export type ShipId = string;
 
 export type SelectedUpgrades = Record<string, (UpgradeId | null)[]>;
 
-export interface ConstructedShipState {
-  id: ConstructedShipId;
+export interface ShipState {
+  id: ShipId;
   pilot?: PilotId;
-  ship?: ShipId;
+  platform?: PlatformId;
   upgrades?: SelectedUpgrades;
 }
 
 export interface ListState {
-  constructedShipOrder: ConstructedShipId[];
-  ships: Record<ConstructedShipId, ConstructedShipState>;
+  shipOrder: ShipId[];
+  ships: Record<ShipId, ShipState>;
 }

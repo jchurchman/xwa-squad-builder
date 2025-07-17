@@ -1,14 +1,14 @@
 import {
   HydratedPilot,
-  HydratedShip,
+  HydratedPlatform,
   HydratedUpgrade,
   Pilot,
   PilotRestrictionRow,
   PilotRow,
+  Platform,
+  PlatformOverride,
+  PlatformRow,
   Restrictions,
-  Ship,
-  ShipOverride,
-  ShipRow,
   Upgrade,
   UpgradeRestrictionRow,
   UpgradeRow,
@@ -29,7 +29,7 @@ const db = new Database(DB_PATH);
 
 export class PilotRepository {
   private insertPilot = db.prepare(`
-    INSERT INTO pilots (name, ship, faction, skill, points, loadout, slots, appliesCondition, charge, chassis, engagement, force, forcerecurring, keywords, maxPerSquad, recurring, shipOverride, upgrades, xws, xwsaddon, xwsship)
+    INSERT INTO pilots (name, platform, faction, skill, points, loadout, slots, appliesCondition, charge, chassis, engagement, force, forcerecurring, keywords, maxPerSquad, recurring, platformOverride, upgrades, xws, xwsaddon, xwsship)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
@@ -40,13 +40,15 @@ export class PilotRepository {
     'SELECT * FROM pilots WHERE faction = ? ORDER BY name'
   );
 
-  private selectPilotsByShip = db.prepare('SELECT * FROM pilots WHERE ship = ? ORDER BY name');
+  private selectPilotsByPlatform = db.prepare(
+    'SELECT * FROM pilots WHERE platform = ? ORDER BY name'
+  );
 
   create(pilot: Pilot): HydratedPilot {
     try {
       const result = this.insertPilot.run(
         pilot.name,
-        pilot.ship,
+        pilot.platform,
         pilot.faction,
         pilot.skill,
         pilot.points,
@@ -61,7 +63,7 @@ export class PilotRepository {
         pilot.keywords ? JSON.stringify(pilot.keywords) : null,
         pilot.maxPerSquad || null,
         pilot.recurring || null,
-        pilot.shipOverride ? JSON.stringify(pilot.shipOverride) : null,
+        pilot.platformOverride ? JSON.stringify(pilot.platformOverride) : null,
         pilot.upgrades ? JSON.stringify(pilot.upgrades) : null,
         pilot.xws || null,
         pilot.xwsaddon || null,
@@ -94,8 +96,8 @@ export class PilotRepository {
     return row ? this.mapRowToPilot(row) : null;
   }
 
-  findByShip(ship: string): HydratedPilot[] {
-    const rows = this.selectPilotsByShip.all(ship) as PilotRow[];
+  findByPlatform(platform: string): HydratedPilot[] {
+    const rows = this.selectPilotsByPlatform.all(platform) as PilotRow[];
     return rows.map((row) => this.mapRowToPilot(row));
   }
 
@@ -124,8 +126,10 @@ export class PilotRepository {
       ...row,
       appliesCondition: row.appliesCondition ? JSON.parse(row.appliesCondition) : undefined,
       keywords: row.keywords ? JSON.parse(row.keywords) : undefined,
+      platformOverride: row.platformOverride
+        ? (JSON.parse(row.platformOverride) as PlatformOverride)
+        : undefined,
       restrictions: this.buildRestrictionsObject(restrictions),
-      shipOverride: row.shipOverride ? (JSON.parse(row.shipOverride) as ShipOverride) : undefined,
       slots: JSON.parse(row.slots),
       upgrades: row.upgrades ? JSON.parse(row.upgrades) : undefined,
       xwsship: row.xwsship === 1,
@@ -167,70 +171,70 @@ export class PilotRestrictionRepository {
   }
 }
 
-export class ShipRepository {
-  private insertShip = db.prepare(`
-    INSERT INTO ships (name, base, agility, hull, shields, actions, factions, maneuvers, attack, attackb, attackbull, attackdt, attackf, attackl, attackr, attackt, autoequip, chassis, energy, energyrecurr, icon, keyword, shieldrecurr)
+export class PlatformRepository {
+  private insertPlatform = db.prepare(`
+    INSERT INTO platforms (name, base, agility, hull, shields, actions, factions, maneuvers, attack, attackb, attackbull, attackdt, attackf, attackl, attackr, attackt, autoequip, chassis, energy, energyrecurr, icon, keyword, shieldrecurr)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  private selectAllShips = db.prepare('SELECT * FROM ships ORDER BY name');
-  private selectShipById = db.prepare('SELECT * FROM ships WHERE id = ?');
-  private selectShipByName = db.prepare('SELECT * FROM ships WHERE name = ?');
+  private selectAllPlatforms = db.prepare('SELECT * FROM platforms ORDER BY name');
+  private selectPlatformById = db.prepare('SELECT * FROM platforms WHERE id = ?');
+  private selectPlatformByName = db.prepare('SELECT * FROM platforms WHERE name = ?');
 
-  private selectShipsByFaction = db.prepare(`
-    SELECT * FROM ships WHERE factions LIKE ? ORDER BY name
+  private selectPlatformsByFaction = db.prepare(`
+    SELECT * FROM platforms WHERE factions LIKE ? ORDER BY name
   `);
 
-  create(ship: Ship): HydratedShip {
-    const result = this.insertShip.run(
-      ship.name,
-      ship.base || 'Small',
-      ship.agility,
-      ship.hull,
-      ship.shields,
-      JSON.stringify(ship.actions),
-      JSON.stringify(ship.factions),
-      JSON.stringify(ship.maneuvers),
-      ship.attack || null,
-      ship.attackb || null,
-      ship.attackbull || null,
-      ship.attackdt || null,
-      ship.attackf || null,
-      ship.attackl || null,
-      ship.attackr || null,
-      ship.attackt || null,
-      ship.autoequip ? JSON.stringify(ship.autoequip) : null,
-      ship.chassis || null,
-      ship.energy || null,
-      ship.energyrecurr || null,
-      ship.icon || null,
-      ship.keyword ? JSON.stringify(ship.keyword) : null,
-      ship.shieldrecurr || null
+  create(platform: Platform): HydratedPlatform {
+    const result = this.insertPlatform.run(
+      platform.name,
+      platform.base || 'Small',
+      platform.agility,
+      platform.hull,
+      platform.shields,
+      JSON.stringify(platform.actions),
+      JSON.stringify(platform.factions),
+      JSON.stringify(platform.maneuvers),
+      platform.attack || null,
+      platform.attackb || null,
+      platform.attackbull || null,
+      platform.attackdt || null,
+      platform.attackf || null,
+      platform.attackl || null,
+      platform.attackr || null,
+      platform.attackt || null,
+      platform.autoequip ? JSON.stringify(platform.autoequip) : null,
+      platform.chassis || null,
+      platform.energy || null,
+      platform.energyrecurr || null,
+      platform.icon || null,
+      platform.keyword ? JSON.stringify(platform.keyword) : null,
+      platform.shieldrecurr || null
     );
     return this.findById(result.lastInsertRowid as number)!;
   }
 
-  findAll(): HydratedShip[] {
-    const rows = this.selectAllShips.all() as ShipRow[];
-    return rows.map(this.mapRowToShip);
+  findAll(): HydratedPlatform[] {
+    const rows = this.selectAllPlatforms.all() as PlatformRow[];
+    return rows.map(this.mapRowToPlatform);
   }
 
-  findByFaction(faction: string): HydratedShip[] {
-    const rows = this.selectShipsByFaction.all(`%"${faction}"%`) as ShipRow[];
-    return rows.map(this.mapRowToShip);
+  findByFaction(faction: string): HydratedPlatform[] {
+    const rows = this.selectPlatformsByFaction.all(`%"${faction}"%`) as PlatformRow[];
+    return rows.map(this.mapRowToPlatform);
   }
 
-  findById(id: number): HydratedShip | null {
-    const row = this.selectShipById.get(id) as ShipRow | undefined;
-    return row ? this.mapRowToShip(row) : null;
+  findById(id: number): HydratedPlatform | null {
+    const row = this.selectPlatformById.get(id) as PlatformRow | undefined;
+    return row ? this.mapRowToPlatform(row) : null;
   }
 
-  findByName(name: string): HydratedShip | null {
-    const row = this.selectShipByName.get(name) as ShipRow | undefined;
-    return row ? this.mapRowToShip(row) : null;
+  findByName(name: string): HydratedPlatform | null {
+    const row = this.selectPlatformByName.get(name) as PlatformRow | undefined;
+    return row ? this.mapRowToPlatform(row) : null;
   }
 
-  private mapRowToShip(row: ShipRow): HydratedShip {
+  private mapRowToPlatform(row: PlatformRow): HydratedPlatform {
     return {
       ...row,
       actions: JSON.parse(row.actions),
@@ -244,7 +248,7 @@ export class ShipRepository {
 
 export class UpgradeRepository {
   private insertUpgrade = db.prepare(`
-    INSERT INTO upgrades (name, shipOverride, appliesCondition, charge, chassis, force, forcerecurring, keywords, maxPerSquad, points, recurring, ship, xws, xwsaddon)
+    INSERT INTO upgrades (name, platformOverride, appliesCondition, charge, chassis, force, forcerecurring, keywords, maxPerSquad, points, recurring, platform, xws, xwsaddon)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
@@ -255,7 +259,7 @@ export class UpgradeRepository {
     try {
       const result = this.insertUpgrade.run(
         upgrade.name,
-        JSON.stringify(upgrade.shipOverride),
+        JSON.stringify(upgrade.platformOverride),
         upgrade.appliesCondition ? JSON.stringify(upgrade.appliesCondition) : null,
         upgrade.charge || null,
         upgrade.chassis || null,
@@ -265,7 +269,7 @@ export class UpgradeRepository {
         upgrade.maxPerSquad || null,
         upgrade.points || null,
         upgrade.recurring || null,
-        upgrade.ship ? JSON.stringify(upgrade.ship) : null,
+        upgrade.platform ? JSON.stringify(upgrade.platform) : null,
         upgrade.xws || null,
         upgrade.xwsaddon || null
       );
@@ -331,8 +335,8 @@ export class UpgradeRepository {
       ...row,
       appliesCondition: row.appliesCondition ? JSON.parse(row.appliesCondition) : undefined,
       keywords: row.keywords ? JSON.parse(row.keywords) : undefined,
-      ship: row.ship ? JSON.parse(row.ship) : undefined,
-      shipOverride: JSON.parse(row.shipOverride) as ShipOverride,
+      platform: row.platform ? JSON.parse(row.platform) : undefined,
+      platformOverride: JSON.parse(row.platformOverride) as PlatformOverride,
       upgradeRestrictions: this.buildRestrictionsObject(restrictions),
     };
   }

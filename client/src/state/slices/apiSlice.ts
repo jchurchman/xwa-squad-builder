@@ -1,16 +1,16 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { HydratedPilot, HydratedShip, HydratedUpgrade } from '@shared/types';
+import { HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
-    fetchPilotsByShip: builder.query<HydratedPilot[], string>({
+    fetchPilotsByPlatform: builder.query<HydratedPilot[], string>({
       providesTags: ['Pilot'],
-      query: (shipName) => `/pilots?ship=${encodeURIComponent(shipName)}`,
+      query: (platformName) => `/pilots?platform=${encodeURIComponent(platformName)}`,
     }),
-    fetchShipsByFaction: builder.query<HydratedShip[], string>({
-      providesTags: ['Ship'],
-      query: (faction) => `/ships?faction=${encodeURIComponent(faction)}`,
+    fetchPlatformsByFaction: builder.query<HydratedPlatform[], string>({
+      providesTags: ['Platform'],
+      query: (faction) => `/platforms?faction=${encodeURIComponent(faction)}`,
     }),
     fetchUpgradesBySlots: builder.query<HydratedUpgrade[], string[]>({
       providesTags: ['Upgrade'],
@@ -21,8 +21,11 @@ export const api = createApi({
     }),
   }),
   reducerPath: 'api',
-  tagTypes: ['Ship', 'Pilot', 'Upgrade'],
+  tagTypes: ['Platform', 'Pilot', 'Upgrade'],
 });
 
-export const { useFetchPilotsByShipQuery, useFetchShipsByFactionQuery, useFetchUpgradesBySlotsQuery } =
-  api;
+export const {
+  useFetchPilotsByPlatformQuery,
+  useFetchPlatformsByFactionQuery,
+  useFetchUpgradesBySlotsQuery,
+} = api;

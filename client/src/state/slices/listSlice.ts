@@ -2,13 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { HydratedPilot, UpgradeId } from '@shared/types';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  ConstructedShipId,
-  ConstructedShipState,
-  Faction,
-  ListState,
-  SelectedUpgrades,
-} from 'src/types';
+import { Faction, ListState, SelectedUpgrades, ShipId, ShipState } from 'src/types';
 
 import { GetState, RootState } from '..';
 import { createAppSlice } from './createAppSlice';
@@ -16,103 +10,103 @@ import { createAppSlice } from './createAppSlice';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: ListState = {
-  constructedShipOrder: [],
+  shipOrder: [],
   ships: {},
 };
 
-function defaultShipByFaction(getState: GetState, faction: Faction) {
+function defaultPlatformByFaction(getState: GetState, faction: Faction) {
   const {
-    entities: { shipsByFaction },
+    entities: { platformsByFaction },
   } = getState() as RootState;
-  const defaultShipId = shipsByFaction[faction][0];
+  const defaultPlatformId = platformsByFaction[faction][0];
 
-  return defaultShipId;
+  return defaultPlatformId;
 }
 
-function makeCreateAsyncThunkWithDefaultShipIdByFaction(actionName: string) {
-  return createAsyncThunk<{ defaultShip: number }, Faction, { state: RootState }>(
+function makeCreateAsyncThunkWithDefaultPlatformIdByFaction(actionName: string) {
+  return createAsyncThunk<{ defaultPlatform: number }, Faction, { state: RootState }>(
     actionName,
     async (faction, { getState }) => {
-      const defaultShip = defaultShipByFaction(getState, faction);
-      return { defaultShip };
+      const defaultPlatform = defaultPlatformByFaction(getState, faction);
+      return { defaultPlatform };
     }
   );
 }
 
-export const addShip = makeCreateAsyncThunkWithDefaultShipIdByFaction('list/addShip');
+export const addPlatform = makeCreateAsyncThunkWithDefaultPlatformIdByFaction('list/addPlatform');
 
-export const newList = makeCreateAsyncThunkWithDefaultShipIdByFaction('list/newList');
+export const newList = makeCreateAsyncThunkWithDefaultPlatformIdByFaction('list/newList');
 
-function newShipWithDefaultShipId(defaultShipId: number) {
+function newPlatformWithDefaultPlatformId(defaultPlatformId: number) {
   const id = uuidv4();
-  const newShip: ConstructedShipState = {
+  const newPlatform: ShipState = {
     id,
-    ship: defaultShipId,
+    platform: defaultPlatformId,
   };
 
-  return newShip;
+  return newPlatform;
 }
 
 export const selectPilot = createAsyncThunk<
-  { constructedShipId: ConstructedShipId; pilot: HydratedPilot },
-  { constructedShipId: ConstructedShipId; pilotId: number },
+  { pilot: HydratedPilot; shipId: ShipId; },
+  { pilotId: number; shipId: ShipId; },
   { state: RootState }
->('list/selectPilot', async ({ constructedShipId, pilotId }, { getState }) => {
+>('list/selectPilot', async ({ pilotId, shipId }, { getState }) => {
   const {
     entities: { pilots },
   } = getState();
 
   return {
-    constructedShipId,
     pilot: pilots[pilotId],
+    shipId,
   };
 });
 
 const reducers = {
   clearUpgrade: (
     state: ListState,
-    action: PayloadAction<{ shipId: ConstructedShipId; slotIndex?: number; upgradeSlot: string }>
+    action: PayloadAction<{ platformId: ShipId; slotIndex?: number; upgradeSlot: string }>
   ) => {
-    const { shipId, slotIndex, upgradeSlot } = action.payload;
+    const { platformId, slotIndex, upgradeSlot } = action.payload;
 
     // TODO: Pull this into a function that's typed better
-    state.ships[shipId].upgrades![upgradeSlot][slotIndex || 0] = null;
+    state.ships[platformId].upgrades![upgradeSlot][slotIndex || 0] = null;
   },
-  deleteShip: (state: ListState, action: PayloadAction<string>) => {
+  deletePlatform: (state: ListState, action: PayloadAction<string>) => {
     delete state.ships[action.payload];
-    state.constructedShipOrder = state.constructedShipOrder.filter((id) => id !== action.payload);
+    state.shipOrder = state.shipOrder.filter((id) => id !== action.payload);
     return state;
   },
-  selectShipId: (
+  selectPlatformId: (
     state: ListState,
-    action: PayloadAction<{ constructedShipId: ConstructedShipId, chassisId: number }>
+    action: PayloadAction<{ chassisId: number; constructedPlatformId: ShipId; }>
   ) => {
-    state.ships[action.payload.constructedShipId].ship = action.payload.chassisId
+    state.ships[action.payload.constructedPlatformId].platform = action.payload.chassisId;
 
     return state;
   },
   selectUpgrade: (
     state: ListState,
     action: PayloadAction<{
-      shipId: ConstructedShipId;
+      platformId: ShipId;
       slotIndex?: number;
       upgradeId: UpgradeId;
       upgradeSlot: string;
     }>
   ) => {
-    const { shipId, slotIndex, upgradeId, upgradeSlot } = action.payload;
+    const { platformId, slotIndex, upgradeId, upgradeSlot } = action.payload;
 
     // TODO: Pull this into a function that's typed better
-    state.ships[shipId].upgrades![upgradeSlot][slotIndex || 0] = upgradeId;
+    state.ships[platformId].upgrades![upgradeSlot][slotIndex || 0] = upgradeId;
   },
 };
 
-function addShipToState(state: ListState, newShip: ConstructedShipState) {
+function addPlatformToState(state: ListState, newPlatform: ShipState) {
   return {
-    constructedShipOrder: state.constructedShipOrder.slice().concat(newShip.id),
+    shipOrder: state.shipOrder.slice().concat(newPlatform.id),
     ships: {
       ...state.ships,
-      [newShip.id]: newShip,
+      [newPlatform.id]: newPlatform,
     },
   };
 }
@@ -120,27 +114,27 @@ function addShipToState(state: ListState, newShip: ConstructedShipState) {
 const listSlice = createAppSlice({
   extraReducers: (builder) => {
     builder
-      .addCase(addShip.fulfilled, (state, action) => {
-        const newShip = newShipWithDefaultShipId(action.payload.defaultShip);
-        return addShipToState(state, newShip);
+      .addCase(addPlatform.fulfilled, (state, action) => {
+        const newPlatform = newPlatformWithDefaultPlatformId(action.payload.defaultPlatform);
+        return addPlatformToState(state, newPlatform);
       })
       .addCase(newList.fulfilled, (_, action) => {
-        const newShip = newShipWithDefaultShipId(action.payload.defaultShip);
+        const newPlatform = newPlatformWithDefaultPlatformId(action.payload.defaultPlatform);
 
-        return addShipToState(initialState, newShip);
+        return addPlatformToState(initialState, newPlatform);
       })
       .addCase(selectPilot.fulfilled, (state, action) => {
-        const { constructedShipId, pilot } = action.payload;
-        const thisShip = state.ships[constructedShipId];
-        thisShip.pilot = pilot.id;
-        thisShip.upgrades = {} as SelectedUpgrades;
+        const { pilot, shipId } = action.payload;
+        const thisPlatform = state.ships[shipId];
+        thisPlatform.pilot = pilot.id;
+        thisPlatform.upgrades = {} as SelectedUpgrades;
 
         // TODO: Pull this into a function that's typed better
         pilot.slots.forEach((slotName) => {
-          if (!thisShip.upgrades![slotName]) {
-            thisShip.upgrades![slotName] = [null];
+          if (!thisPlatform.upgrades![slotName]) {
+            thisPlatform.upgrades![slotName] = [null];
           } else {
-            thisShip.upgrades![slotName].push(null);
+            thisPlatform.upgrades![slotName].push(null);
           }
         });
       });
@@ -151,10 +145,4 @@ const listSlice = createAppSlice({
 });
 
 export default listSlice.reducer;
-export const {
-  clearUpgrade,
-  selectShipId,
-  selectUpgrade,
-  deleteShip,
-
-} = listSlice.actions
+export const { clearUpgrade, deletePlatform, selectPlatformId, selectUpgrade } = listSlice.actions;

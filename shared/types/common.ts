@@ -15,14 +15,14 @@ export type Restrictions = {
   minEnergy?: number;
   minShield?: number;
   minSkill?: number;
-  ship?: string[];
+  platform?: string[];
   slotEquipped?: string[];
   slots?: string[];
   solitary?: boolean;
   upgradesInList?: string[];
 };
 
-export type ShipOverride = {
+export type PlatformOverride = {
   actions?: string[];
   addSlots?: string[];
   agility?: number;

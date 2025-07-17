@@ -1,5 +1,5 @@
--- Ships table (unchanged)
-CREATE TABLE IF NOT EXISTS ships (
+-- Platforms table (unchanged)
+CREATE TABLE IF NOT EXISTS platforms (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   base TEXT NOT NULL,
@@ -27,11 +27,11 @@ CREATE TABLE IF NOT EXISTS ships (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Pilots table (remove restrictions, keep shipOverride as JSON)
+-- Pilots table (remove restrictions, keep platformOverride as JSON)
 CREATE TABLE IF NOT EXISTS pilots (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  ship TEXT NOT NULL,
+  platform TEXT NOT NULL,
   faction TEXT NOT NULL,
   skill INTEGER NOT NULL,
   points INTEGER NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS pilots (
   keywords TEXT, -- JSON array
   maxPerSquad INTEGER,
   recurring INTEGER,
-  shipOverride TEXT, -- JSON object
+  platformOverride TEXT, -- JSON object
   upgrades TEXT, -- JSON array
   xws TEXT,
   xwsaddon TEXT,
@@ -54,11 +54,11 @@ CREATE TABLE IF NOT EXISTS pilots (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Upgrades table (remove upgradeRestrictions, keep shipOverride as JSON)
+-- Upgrades table (remove upgradeRestrictions, keep platformOverride as JSON)
 CREATE TABLE IF NOT EXISTS upgrades (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  shipOverride TEXT NOT NULL, -- JSON object
+  platformOverride TEXT NOT NULL, -- JSON object
   appliesCondition TEXT, -- JSON array
   charge INTEGER,
   chassis TEXT,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS upgrades (
   maxPerSquad INTEGER,
   points INTEGER,
   recurring INTEGER,
-  ship TEXT, -- JSON array
+  platform TEXT, -- JSON array
   xws TEXT,
   xwsaddon TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP

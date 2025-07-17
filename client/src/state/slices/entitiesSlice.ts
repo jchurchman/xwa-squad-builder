@@ -1,4 +1,4 @@
-import { HydratedPilot, HydratedShip, HydratedUpgrade } from '@shared/types';
+import { HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
 
 import { EntitiesState } from 'src/types';
 
@@ -7,27 +7,27 @@ import { createAppSlice } from './createAppSlice';
 
 const initialState: EntitiesState = {
   pilots: {},
-  pilotsByShip: {},
-  ships: {},
-  shipsByFaction: {},
+  pilotsByPlatform: {},
+  platforms: {},
+  platformsByFaction: {},
   upgrades: {},
 };
 
 const reducers = {
   clearAllEntities: (state: EntitiesState) => {
-    state.ships = {};
+    state.platforms = {};
     state.pilots = {};
     state.upgrades = {};
-    state.shipsByFaction = {};
-    state.pilotsByShip = {};
+    state.platformsByFaction = {};
+    state.pilotsByPlatform = {};
   },
   clearPilots: (state: EntitiesState) => {
     state.pilots = {};
-    state.pilotsByShip = {};
+    state.pilotsByPlatform = {};
   },
-  clearShips: (state: EntitiesState) => {
-    state.ships = {};
-    state.shipsByFaction = {};
+  clearPlatforms: (state: EntitiesState) => {
+    state.platforms = {};
+    state.platformsByFaction = {};
   },
   clearUpgrades: (state: EntitiesState) => {
     state.upgrades = {};
@@ -37,41 +37,41 @@ const reducers = {
 const entitiesSlice = createAppSlice({
   extraReducers: (builder) => {
     builder
-      .addMatcher(api.endpoints.getShipsByFaction.matchFulfilled, (state, action) => {
-        const ships = action.payload;
+      .addMatcher(api.endpoints.fetchPlatformsByFaction.matchFulfilled, (state, action) => {
+        const platforms = action.payload;
         const faction = action.meta.arg.originalArgs;
 
-        const shipsInFaction: number[] = [];
-        const shipsById = ships.reduce(
-          (acc, ship) => {
-            acc[ship.id] = ship;
-            shipsInFaction.push(ship.id);
+        const platformsInFaction: number[] = [];
+        const platformsById = platforms.reduce(
+          (acc, platform) => {
+            acc[platform.id] = platform;
+            platformsInFaction.push(platform.id);
             return acc;
           },
-          {} as { [id: number]: HydratedShip }
+          {} as { [id: number]: HydratedPlatform }
         );
 
-        state.ships = { ...state.ships, ...shipsById };
-        state.shipsByFaction[faction] = shipsInFaction;
+        state.platforms = { ...state.platforms, ...platformsById };
+        state.platformsByFaction[faction] = platformsInFaction;
       })
-      .addMatcher(api.endpoints.fetchPilotsByShip.matchFulfilled, (state, action) => {
+      .addMatcher(api.endpoints.fetchPilotsByPlatform.matchFulfilled, (state, action) => {
         const pilots = action.payload;
-        const shipName = action.meta.arg.originalArgs;
+        const platformName = action.meta.arg.originalArgs;
 
-        const pilotsInShip: number[] = [];
+        const pilotsInPlatform: number[] = [];
         const pilotsById = pilots.reduce(
           (acc, pilot) => {
             acc[pilot.id] = pilot;
-            pilotsInShip.push(pilot.id);
+            pilotsInPlatform.push(pilot.id);
             return acc;
           },
           {} as { [id: number]: HydratedPilot }
         );
 
         state.pilots = { ...state.pilots, ...pilotsById };
-        state.pilotsByShip[shipName] = pilotsInShip;
+        state.pilotsByPlatform[platformName] = pilotsInPlatform;
       })
-      .addMatcher(api.endpoints.getUpgradesBySlots.matchFulfilled, (state, action) => {
+      .addMatcher(api.endpoints.fetchUpgradesBySlots.matchFulfilled, (state, action) => {
         const upgrades = action.payload;
 
         const upgradesById = upgrades.reduce(
@@ -90,6 +90,7 @@ const entitiesSlice = createAppSlice({
   reducers,
 });
 
-export const { clearAllEntities, clearPilots, clearShips, clearUpgrades } = entitiesSlice.actions;
+export const { clearAllEntities, clearPilots, clearPlatforms, clearUpgrades } =
+  entitiesSlice.actions;
 
 export default entitiesSlice.reducer;

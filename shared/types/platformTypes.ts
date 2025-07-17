@@ -1,7 +1,7 @@
-export type ShipId = number;
+export type PlatformId = number;
 
-export interface HydratedShip
-  extends Omit<ShipRow, 'actions' | 'autoequip' | 'factions' | 'keyword' | 'maneuvers'> {
+export interface HydratedPlatform
+  extends Omit<PlatformRow, 'actions' | 'autoequip' | 'factions' | 'keyword' | 'maneuvers'> {
   actions: string[];
   autoequip?: string[];
   factions: string[];
@@ -9,7 +9,7 @@ export interface HydratedShip
   maneuvers: number[][];
 }
 
-export interface Ship {
+export interface Platform {
   actions: string[];
   agility: number;
   attack?: number;
@@ -35,7 +35,7 @@ export interface Ship {
   shields: number;
 }
 
-export interface ShipRow {
+export interface PlatformRow {
   actions: string; // JSON string
   agility: number;
   attack?: number;
@@ -55,7 +55,7 @@ export interface ShipRow {
   factions: string; // JSON string
   hull: number;
   icon?: string;
-  id: ShipId;
+  id: PlatformId;
   keyword?: string; // JSON string
   maneuvers: string; // JSON string
   name: string;

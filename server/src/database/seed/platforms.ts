@@ -1,6 +1,6 @@
-import { Ship } from '../../../../shared/types';
+import { Platform } from '../../../../shared/types';
 
-type importedShip = {
+type importedPlatform = {
   actions: string[];
   agility: number;
   attack?: number;
@@ -26,6 +26,6 @@ type importedShip = {
   shields: number;
 };
 
-export function transformShipsForDb(ships: Record<string, importedShip>): Ship[] {
-  return Object.values(ships);
+export function transformPlatformsForDb(platforms: Record<string, importedPlatform>): Platform[] {
+  return Object.values(platforms);
 }

@@ -9,12 +9,12 @@ import {
   initializeDatabase,
   PilotRepository,
   PilotRestrictionRepository,
-  ShipRepository,
+  PlatformRepository,
   UpgradeRepository,
   UpgradeRestrictionRepository,
 } from '../database';
 import { transformPilotsForDb } from './pilots';
-import { transformShipsForDb } from './ships';
+import { transformPlatformsForDb } from './platforms';
 import { transformUpgradesForDb } from './upgrades';
 
 const YASB_CARDS_URL =
@@ -61,16 +61,16 @@ const seedDatabase = async (): Promise<void> => {
     const basicCardData = rawData.basicCardData();
     const { pilotsById, ships, upgradesById } = basicCardData;
 
-    const shipRepo = new ShipRepository();
+    const platformRepo = new PlatformRepository();
     const pilotRepo = new PilotRepository();
     const upgradeRepo = new UpgradeRepository();
     const pilotRestrictionRepo = new PilotRestrictionRepository();
     const upgradeRestrictionRepo = new UpgradeRestrictionRepository();
 
-    console.log('Transforming and seeding ships...');
-    const transformedShips = transformShipsForDb(ships);
-    for (const ship of transformedShips) {
-      shipRepo.create(ship);
+    console.log('Transforming and seeding platforms...');
+    const transformedPlatforms = transformPlatformsForDb(ships);
+    for (const platform of transformedPlatforms) {
+      platformRepo.create(platform);
     }
 
     console.log('Transforming and seeding pilots...');

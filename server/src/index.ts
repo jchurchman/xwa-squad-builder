@@ -5,7 +5,7 @@ import path from 'path';
 import {
   initializeDatabase,
   PilotRepository,
-  ShipRepository,
+  PlatformRepository,
   UpgradeRepository,
 } from './database/database';
 
@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3001;
 const isDev = process.env.NODE_ENV !== 'production';
 
 initializeDatabase();
-const shipRepo = new ShipRepository();
+const platformRepo = new PlatformRepository();
 const pilotRepo = new PilotRepository();
 const upgradeRepo = new UpgradeRepository();
 
@@ -30,7 +30,7 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ message: 'XWA Squad Builder API', status: 'ok' });
 });
 
-app.get('/api/ships', (req: Request, res: Response) => {
+app.get('/api/platforms', (req: Request, res: Response) => {
   try {
     const { faction } = req.query;
 
@@ -39,23 +39,23 @@ app.get('/api/ships', (req: Request, res: Response) => {
       return;
     }
 
-    const ships = shipRepo.findByFaction(faction as string);
-    res.json(ships);
+    const platforms = platformRepo.findByFaction(faction as string);
+    res.json(platforms);
   } catch (error: unknown) {
-    res.status(500).json({ error: `Failed to fetch ships: ${error}` });
+    res.status(500).json({ error: `Failed to fetch platforms: ${error}` });
   }
 });
 
 app.get('/api/pilots', (req: Request, res: Response) => {
   try {
-    const { ship } = req.query;
+    const { platform } = req.query;
 
-    if (!ship) {
-      res.status(400).json({ error: 'Ship parameter required' });
+    if (!platform) {
+      res.status(400).json({ error: 'Platform parameter required' });
       return;
     }
 
-    const pilots = pilotRepo.findByShip(ship as string);
+    const pilots = pilotRepo.findByPlatform(platform as string);
     res.json(pilots);
   } catch (error: unknown) {
     res.status(500).json({ error: `Failed to fetch pilots: ${error}` });
@@ -87,26 +87,26 @@ app.get('/api/upgrades', (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/ships/:id', (req: Request, res: Response) => {
+app.get('/api/platforms/:id', (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
 
     if (isNaN(id)) {
-      res.status(400).json({ error: 'Invalid ship ID' });
+      res.status(400).json({ error: 'Invalid platform ID' });
       return;
     }
 
-    const ship = shipRepo.findById(id);
+    const platform = platformRepo.findById(id);
 
-    if (!ship) {
-      res.status(404).json({ error: 'Ship not found' });
+    if (!platform) {
+      res.status(404).json({ error: 'Platform not found' });
       return;
     }
 
-    res.json(ship);
+    res.json(platform);
   } catch (error: unknown) {
     res.status(500).json({
-      error: `Failed to fetch ship details: ${error}`,
+      error: `Failed to fetch platform details: ${error}`,
     });
   }
 });

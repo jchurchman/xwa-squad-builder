@@ -1,16 +1,16 @@
-import { Restrictions, ShipOverride } from './common';
+import { PlatformOverride, Restrictions } from './common';
 
 export type PilotId = number;
 
 export interface HydratedPilot
   extends Omit<
     PilotRow,
-    'appliesCondition' | 'keywords' | 'shipOverride' | 'slots' | 'upgrades' | 'xwsship'
+    'appliesCondition' | 'keywords' | 'platformOverride' | 'slots' | 'upgrades' | 'xwsship'
   > {
   appliesCondition?: string[];
   keywords?: string[];
+  platformOverride?: PlatformOverride;
   restrictions?: Restrictions;
-  shipOverride?: ShipOverride;
   slots: string[];
   upgrades?: string[];
   xwsship?: boolean;
@@ -28,11 +28,11 @@ export interface Pilot {
   loadout: number;
   maxPerSquad?: number;
   name: string;
+  platform: string;
+  platformOverride?: PlatformOverride;
   points: number;
   recurring?: number;
   restrictions?: Restrictions;
-  ship: string;
-  shipOverride?: ShipOverride;
   skill: number;
   slots: string[];
   upgrades?: string[];
@@ -63,10 +63,10 @@ export interface PilotRow {
   loadout: number;
   maxPerSquad?: number;
   name: string;
+  platform: string;
+  platformOverride?: string; // JSON string
   points: number;
   recurring?: number;
-  ship: string;
-  shipOverride?: string; // JSON string
   skill: number;
   slots: string; // JSON string
   upgrades?: string; // JSON string
