@@ -1,3 +1,14 @@
+# Naming conventions
+
+As with all things coding, names are hard. Doubly so with a project as complex as an x-wing squad builder. I've made the following decisions regarding naming in this app:
+
+- **Platform**: The type of ship being flown. E.g. TIE/ln, T-65 X-wing, etc.
+- **Ship**: The selected combination of Platform, Pilot, and Upgrades as part of a List.
+- **Pilot**: The character who is flying a Platform. E.g. Dark Curse, Luke Skywalker, etc.
+- **List**: Collection of Ships as selected by the user.
+
+Upgrades, conditions, etc. are as you would be familiar with as an x-wing player.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

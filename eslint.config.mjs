@@ -47,7 +47,7 @@ export default defineConfig([
         {
           customGroups: [
             {
-              elementNamePattern: ['^@(components|hooks|api)', '^src/*'],
+              elementNamePattern: ['^@(components|hooks|api|selectors)', '^src/*'],
               groupName: "my-code"
             },
             {

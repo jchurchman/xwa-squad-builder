@@ -12,7 +12,3 @@ export const store = configureStore({
     list: listReducer,
   },
 });
-
-export type RootState = ReturnType<typeof store.getState>;
-export type GetState = () => RootState;
-export type AppDispatch = typeof store.dispatch;

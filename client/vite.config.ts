@@ -15,6 +15,7 @@ export default defineConfig({
       '@assets': '/src/assets/index.ts',
       '@components': '/src/components/index.ts',
       '@hooks': '/src/hooks/index.ts',
+      '@selectors': '/src/state/selectors/index.ts',
       '@types': '/src/types/index.ts',
       src: '/src',
     },

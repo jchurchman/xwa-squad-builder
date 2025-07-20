@@ -1,8 +1,8 @@
 import classNames from 'classnames';
 
-import { Faction } from 'src/types';
-
 import classes from './Icons.module.scss';
+
+import { Faction } from '@types';
 
 type IconProps = {
   active?: boolean;

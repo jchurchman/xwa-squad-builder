@@ -1,12 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit';
 
-import { Faction } from 'src/types';
-
-import { RootState } from '../.';
+import { Faction, RootState } from 'src/types';
 
 export const selectAllPlatforms = (state: RootState) => Object.values(state.entities.platforms);
 export const selectAllPlatformsMap = (state: RootState) => state.entities.platforms;
 export const selectAllPilots = (state: RootState) => Object.values(state.entities.pilots);
+export const selectAllPilotsMap = (state: RootState) => state.entities.pilots;
+export const selectPilotIdsByPlatformMap = (state: RootState) => state.entities.pilotsByPlatform
 export const selectAllUpgrades = (state: RootState) => Object.values(state.entities.upgrades);
 
 export const selectPlatformById = (state: RootState, platformId: number) =>
@@ -34,3 +34,17 @@ export const selectPlatformsByFaction = createSelector(
     return platformIdsInFaction.map((id) => platforms[id]);
   }
 );
+
+export const selectPilotsByPlatform = createSelector(
+  [
+    selectPilotIdsByPlatformMap,
+    selectAllPilotsMap,
+    (_:RootState, platformName?: string) => platformName,
+  ],
+  (pilotIdsByPlatformMap, allPilotsMap, platformName) => {
+    const relevantPilotIds = pilotIdsByPlatformMap[platformName || ""] || []
+    console.log({ relevantPilotIds, pilotIdsByPlatformMap, allPilotsMap, platformName})
+
+    return relevantPilotIds.map(id => allPilotsMap[`${id}`]).filter(Boolean);
+  }
+)

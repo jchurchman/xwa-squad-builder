@@ -1,8 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { HydratedUpgrade } from '@shared/types';
 
-import { RootState } from '..';
 import { selectAllPlatformsMap } from './entities';
+
+import { RootState } from '@types';
 
 export const selectListState = (state: RootState) => state.list;
 export const selectListPlatforms = (state: RootState) => state.list.ships;
@@ -29,14 +30,13 @@ export const selectList = createSelector(
   }
 );
 
-export const selectShipChassis = createSelector(
+export const selectShipPlatform = createSelector(
   [
     selectAllPlatformsMap,
     selectListPlatforms,
     (_: RootState, constructedPlatformId: string) => constructedPlatformId,
   ],
   (allPlatforms, listPlatforms, constructedPlatformId) => {
-    console.log({ allPlatforms, constructedPlatformId, listPlatforms });
     const { platform } = listPlatforms[constructedPlatformId];
 
     if (platform) {
@@ -48,11 +48,7 @@ export const selectShipChassis = createSelector(
 );
 
 export const selectListUpgrades = createSelector(
-  [
-    selectShipOrderIds,
-    selectListPlatforms,
-    (state: RootState) => state.entities.upgrades,
-  ],
+  [selectShipOrderIds, selectListPlatforms, (state: RootState) => state.entities.upgrades],
   (platformIds, listPlatforms, upgrades) => {
     if (!platformIds || platformIds.length === 0) return [];
 

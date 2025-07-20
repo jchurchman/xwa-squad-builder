@@ -17,7 +17,9 @@
       "@assets/*": ["./src/assets/*"],
       "@api": ["./src/api/index.ts"],
       "@api/*": ["./src/api/*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@selectors": ["./src/state/selectors"],
+      "@selectors/*": ["./src/state/selectors/*"]
     }
   },
   "extends": "../tsconfig.json"

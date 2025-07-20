@@ -1,26 +1,25 @@
 import { Button } from 'antd';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router';
 
-import { useAppDispatch } from 'src/hooks';
+import { useAppDispatch, useTypedParams } from 'src/hooks';
 import { selectShipOrderIds } from 'src/state/selectors/list';
 import { useFetchPlatformsByFactionQuery } from 'src/state/slices/apiSlice';
-import { addPlatform, newList } from 'src/state/slices/listSlice';
+import { addShip, newList } from 'src/state/slices/listSlice';
 import { Faction } from 'src/types';
 
-import { PilotForm } from './PilotForm';
+import { ShipForm } from './ShipForm';
 
 export function ListForm() {
-  const { faction } = useParams();
+  const { faction } = useTypedParams();
   const shipIds = useSelector(selectShipOrderIds);
   const dispatch = useAppDispatch();
 
-  const { isLoading } = useFetchPlatformsByFactionQuery(faction!);
+  const { isLoading } = useFetchPlatformsByFactionQuery(faction);
 
   useEffect(() => {
     if (!isLoading && shipIds.length === 0) {
-      dispatch(newList(faction as Faction));
+      dispatch(newList(faction));
     }
   }, [isLoading, faction, shipIds, dispatch]);
 
@@ -30,22 +29,22 @@ export function ListForm() {
     <>
       <Button
         onClick={() => {
-          dispatch(newList(faction as Faction));
+          dispatch(newList(faction));
         }}
       >
         New List
       </Button>
 
       {shipIds.map((id, index) => (
-        <PilotForm id={id} key={`${id}.${index}`} />
+        <ShipForm id={id} key={`${id}.${index}`} />
       ))}
 
       <Button
         onClick={() => {
-          dispatch(addPlatform(faction as Faction));
+          dispatch(addShip(faction as Faction));
         }}
       >
-        Add Platform
+        Add Ship
       </Button>
     </>
   );

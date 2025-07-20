@@ -7,6 +7,8 @@ import {
   UpgradeId,
 } from '@shared/types';
 
+import { store } from '../state';
+
 export interface LoadingState {
   error: string | null;
   loading: boolean;
@@ -35,3 +37,7 @@ export interface ListState {
   shipOrder: ShipId[];
   ships: Record<ShipId, ShipState>;
 }
+
+export type RootState = ReturnType<typeof store.getState>;
+export type GetState = () => RootState;
+export type AppDispatch = typeof store.dispatch;
