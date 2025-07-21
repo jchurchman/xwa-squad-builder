@@ -1,4 +1,5 @@
-import { PlatformOverride, Restrictions, Upgrade } from '../../../../shared/types';
+import { Faction, PlatformOverride, Restrictions, Upgrade } from '@shared/types';
+
 import { notNil } from './common';
 
 type ImportedUpgrade = {
@@ -196,7 +197,7 @@ function manageRawRestrictions(raw: (number | string)[][]): Partial<Restrictions
     }
     if (condition === 'FactionOrUnique') {
       returnObj.factionOrUnique = {
-        faction: values[1] as string,
+        faction: values[1] as Faction,
         uniqueName: values[0] as string,
       };
     }

@@ -1,6 +1,8 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+import path from 'path'
+
 // https://vite.dev/config/
 export default defineConfig({
   css: {
@@ -17,6 +19,8 @@ export default defineConfig({
       '@hooks': '/src/hooks/index.ts',
       '@selectors': '/src/state/selectors/index.ts',
       '@types': '/src/types/index.ts',
+      '@shared/types': path.resolve(__dirname, '../shared/types/index.ts'),
+      '@shared': path.resolve(__dirname, '../shared'),
       src: '/src',
     },
   },

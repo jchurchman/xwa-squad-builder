@@ -1,4 +1,5 @@
-import { Pilot, PlatformOverride } from '../../../../shared/types';
+import { Faction, Pilot, PlatformOverride } from '@shared/types';
+
 import { notNil } from './common';
 
 type ImportedPilot = {
@@ -6,7 +7,7 @@ type ImportedPilot = {
   charge?: number;
   chassis?: string;
   engagement?: number;
-  faction: string;
+  faction: Faction;
   force?: number;
   forcerecurring?: number;
   id?: number;

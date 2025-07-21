@@ -1,16 +1,14 @@
 import { CloseOutlined } from '@ant-design/icons';
-import { Button, Select } from 'antd';
-
+import { HydratedPilot, HydratedPlatform } from '@shared/types';
+import { Button } from 'antd';
 import { useSelector } from 'react-redux';
 
 import { useAppDispatch, useTypedParams } from '@hooks';
 import { selectPilotsByPlatform, selectPlatformsByFaction, selectShipPlatform } from '@selectors';
+import { SearchableSelect } from 'src/components/common';
 import { deleteShip, selectPlatformId } from 'src/state/slices/listSlice';
 
 import { RootState } from '@types';
-import { SearchableSelect } from 'src/components/common';
-import { HydratedPilot, HydratedPlatform } from '@shared/types';
-import { useFetchPilotsByPlatformQuery } from 'src/state/slices/apiSlice';
 
 type ShipFormProps = {
   id: string;
@@ -22,9 +20,9 @@ export function ShipForm({ id }: ShipFormProps) {
   const platforms = useSelector((state: RootState) => selectPlatformsByFaction(state, faction));
   const selectedPlatform = useSelector((state: RootState) => selectShipPlatform(state, id));
 
-  const pilots = useSelector((state: RootState) => selectPilotsByPlatform(state, selectedPlatform?.name))
-
-  const { isLoading: pilotsLoading } = useFetchPilotsByPlatformQuery(selectedPlatform?.name || "");
+  const pilots = useSelector((state: RootState) =>
+    selectPilotsByPlatform(state, selectedPlatform?.name)
+  );
 
   const onChange = (selectedChassisId: number) => {
     dispatch(selectPlatformId({ platformId: selectedChassisId, shipId: id }));
@@ -33,7 +31,7 @@ export function ShipForm({ id }: ShipFormProps) {
   const onDeleteShip = () => {
     dispatch(deleteShip(id));
   };
-console.log({ selectedPlatform, pilots })
+  console.log({ pilots, selectedPlatform });
   return (
     <>
       <div>Pilot form</div>
@@ -44,15 +42,9 @@ console.log({ selectedPlatform, pilots })
         placeholder="Select a ship"
         value={selectedPlatform?.id}
       />
-      {
-        selectedPlatform && (
-          <SearchableSelect<HydratedPilot>
-            loading={pilotsLoading}
-            placeholder="Select a pilot"
-            options={pilots}
-          />
-        )
-      }
+      {selectedPlatform && (
+        <SearchableSelect<HydratedPilot> options={pilots} placeholder="Select a pilot" />
+      )}
       <Button
         danger
         icon={<CloseOutlined />}

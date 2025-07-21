@@ -1,4 +1,4 @@
-import { Platform } from '../../../../shared/types';
+import { Faction, Platform } from '@shared/types';
 
 type importedPlatform = {
   actions: string[];
@@ -16,7 +16,7 @@ type importedPlatform = {
   chassis?: string;
   energy?: number;
   energyrecurr?: number;
-  factions: string[];
+  factions: Faction[];
   hull: number;
   icon?: string;
   keyword?: string[];

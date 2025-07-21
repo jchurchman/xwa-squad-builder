@@ -1,62 +1,74 @@
-import { HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
+import { Faction, HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
 
 import { EntitiesState } from 'src/types';
 
 import { api } from './apiSlice';
 import { createAppSlice } from './createAppSlice';
 
-const initialState: EntitiesState = {
-  pilots: {},
-  pilotsByPlatform: {},
-  platforms: {},
-  platformsByFaction: {},
-  upgrades: {},
-};
+function createEmptyEntitiesState(): EntitiesState {
+  return {
+    pilots: {},
+    pilotsByPlatform: {},
+    platforms: {},
+    platformsByFaction: {},
+    upgrades: {},
+  } as EntitiesState;
+}
 
 const reducers = {
-  clearAllEntities: (state: EntitiesState) => {
-    state.platforms = {};
-    state.pilots = {};
-    state.upgrades = {};
-    state.platformsByFaction = {};
-    state.pilotsByPlatform = {};
+  clearAllEntities: () => {
+    return createEmptyEntitiesState();
   },
   clearPilots: (state: EntitiesState) => {
-    state.pilots = {};
-    state.pilotsByPlatform = {};
+    state.pilots = {} as Record<number, HydratedPilot>;
+    state.pilotsByPlatform = {} as Record<string, number[]>;
   },
   clearPlatforms: (state: EntitiesState) => {
-    state.platforms = {};
-    state.platformsByFaction = {};
+    state.platforms = {} as Record<number, HydratedPlatform>;
+    state.platformsByFaction = {} as Record<Faction, number[]>;
   },
   clearUpgrades: (state: EntitiesState) => {
-    state.upgrades = {};
+    state.upgrades = {} as Record<number, HydratedUpgrade>;
   },
 };
+
+const initialState: EntitiesState = createEmptyEntitiesState();
 
 const entitiesSlice = createAppSlice({
   extraReducers: (builder) => {
     builder
-      .addMatcher(api.endpoints.fetchPlatformsByFaction.matchFulfilled, (state, action) => {
+      .addMatcher(api.endpoints.fetchAllPlatforms.matchFulfilled, (state, action) => {
         const platforms = action.payload;
-        const faction = action.meta.arg.originalArgs;
 
-        const platformsInFaction: number[] = [];
+        const platformsByFaction: Record<Faction, number[]> = {
+          [Faction.empire]: [],
+          [Faction.firstorder]: [],
+          [Faction.rebels]: [],
+          [Faction.republic]: [],
+          [Faction.resistance]: [],
+          [Faction.scum]: [],
+          [Faction.separatists]: [],
+        };
+
         const platformsById = platforms.reduce(
           (acc, platform) => {
-            acc[platform.id] = platform;
-            platformsInFaction.push(platform.id);
+            const { factions, id } = platform;
+            acc[id] = platform;
+
+            factions.forEach((faction) => {
+              platformsByFaction[faction as Faction].push(id);
+            });
+
             return acc;
           },
           {} as { [id: number]: HydratedPlatform }
         );
 
         state.platforms = { ...state.platforms, ...platformsById };
-        state.platformsByFaction[faction] = platformsInFaction;
+        state.platformsByFaction = platformsByFaction;
       })
-      .addMatcher(api.endpoints.fetchPilotsByPlatform.matchFulfilled, (state, action) => {
+      .addMatcher(api.endpoints.fetchAllPilots.matchFulfilled, (state, action) => {
         const pilots = action.payload;
-        const platformName = action.meta.arg.originalArgs;
 
         const pilotsInPlatform: number[] = [];
         const pilotsById = pilots.reduce(
@@ -69,9 +81,9 @@ const entitiesSlice = createAppSlice({
         );
 
         state.pilots = { ...state.pilots, ...pilotsById };
-        state.pilotsByPlatform[platformName] = pilotsInPlatform;
+        // state.pilotsByPlatform[platformName] = pilotsInPlatform;
       })
-      .addMatcher(api.endpoints.fetchUpgradesBySlots.matchFulfilled, (state, action) => {
+      .addMatcher(api.endpoints.fetchAllUpgrades.matchFulfilled, (state, action) => {
         const upgrades = action.payload;
 
         const upgradesById = upgrades.reduce(

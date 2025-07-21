@@ -30,6 +30,33 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ message: 'XWA Squad Builder API', status: 'ok' });
 });
 
+app.get('/api/platforms/all', (req: Request, res: Response) => {
+  try {
+    const platforms = platformRepo.findAll();
+    res.json(platforms);
+  } catch (error: unknown) {
+    res.status(500).json({ error: `Failed to fetch all platforms: ${error}` });
+  }
+});
+
+app.get('/api/pilots/all', (req: Request, res: Response) => {
+  try {
+    const pilots = pilotRepo.findAll();
+    res.json(pilots);
+  } catch (error: unknown) {
+    res.status(500).json({ error: `Failed to fetch all pilots: ${error}` });
+  }
+});
+
+app.get('/api/upgrades/all', (req: Request, res: Response) => {
+  try {
+    const upgrades = upgradeRepo.findAll();
+    res.json(upgrades);
+  } catch (error: unknown) {
+    res.status(500).json({ error: `Failed to fetch all upgrades: ${error}` });
+  }
+});
+
 app.get('/api/platforms', (req: Request, res: Response) => {
   try {
     const { faction } = req.query;

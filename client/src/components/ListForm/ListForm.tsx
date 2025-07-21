@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 
 import { useAppDispatch, useTypedParams } from 'src/hooks';
 import { selectShipOrderIds } from 'src/state/selectors/list';
-import { useFetchPlatformsByFactionQuery } from 'src/state/slices/apiSlice';
 import { addShip, newList } from 'src/state/slices/listSlice';
 import { Faction } from 'src/types';
 
@@ -15,17 +14,13 @@ export function ListForm() {
   const shipIds = useSelector(selectShipOrderIds);
   const dispatch = useAppDispatch();
 
-  const { isLoading } = useFetchPlatformsByFactionQuery(faction);
-
   useEffect(() => {
-    if (!isLoading && shipIds.length === 0) {
+    if (shipIds.length === 0) {
       dispatch(newList(faction));
     }
-  }, [isLoading, faction, shipIds, dispatch]);
+  }, [faction, shipIds, dispatch]);
 
-  return isLoading ? (
-    <div>Loading ...</div>
-  ) : (
+  return (
     <>
       <Button
         onClick={() => {

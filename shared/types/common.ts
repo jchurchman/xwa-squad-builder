@@ -1,4 +1,14 @@
-export type Restrictions = {
+enum Faction {
+  rebels = 'Rebel Alliance',
+  empire = 'Galactic Empire',
+  scum = 'Scum and Villainy',
+  resistance = 'Resistance',
+  firstorder = 'First Order',
+  republic = 'Galactic Republic',
+  separatists = 'Separatist Alliance',
+}
+
+type Restrictions = {
   action?: string[];
   agility?: number;
   attackArc?: string;
@@ -6,7 +16,7 @@ export type Restrictions = {
   chassis?: string;
   faction?: string[];
   factionOrUnique?: {
-    faction: string;
+    faction: Faction;
     uniqueName: string;
   };
   keyword?: string[];
@@ -22,7 +32,7 @@ export type Restrictions = {
   upgradesInList?: string[];
 };
 
-export type PlatformOverride = {
+type PlatformOverride = {
   actions?: string[];
   addSlots?: string[];
   agility?: number;
@@ -40,4 +50,10 @@ export type PlatformOverride = {
   rangebonus?: boolean;
   removeSlots?: string[];
   shields?: number;
+};
+
+export {
+  Faction,
+  Restrictions,
+  PlatformOverride
 };

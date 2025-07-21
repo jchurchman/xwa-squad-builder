@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { HydratedPilot, UpgradeId } from '@shared/types';
+import { Faction, HydratedPilot, UpgradeId } from '@shared/types';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Faction, ListState, SelectedUpgrades, ShipId, ShipState } from 'src/types';
+import { ListState, SelectedUpgrades, ShipId, ShipState } from 'src/types';
 
 import { createAppSlice } from './createAppSlice';
 

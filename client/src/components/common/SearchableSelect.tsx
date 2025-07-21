@@ -2,25 +2,28 @@ import { Select, SelectProps } from 'antd';
 import { useMemo, useState } from 'react';
 
 interface HasNameAndId {
-  name: string;
   id: number;
+  name: string;
 }
 
-interface SearchableSelectProps<T extends HasNameAndId> 
-  extends Omit<SelectProps<number>, 'options' | 'onSearch' | 'showSearch' | 'filterOption' | 'onChange'> {
-  options: T[];
+interface SearchableSelectProps<T extends HasNameAndId>
+  extends Omit<
+    SelectProps<number>,
+    'options' | 'onSearch' | 'showSearch' | 'filterOption' | 'onChange'
+  > {
   onChange?: (value: number, selectedItem: T) => void;
+  options: T[];
 }
 
-export function SearchableSelect<T extends HasNameAndId>({ 
-  options, 
-  onChange, 
-  ...selectProps 
+export function SearchableSelect<T extends HasNameAndId>({
+  onChange,
+  options,
+  ...selectProps
 }: SearchableSelectProps<T>) {
   const [searchText, setSearchText] = useState<string>('');
 
   const selectItems = useMemo(() => {
-    return options.map(option => ({ label: option.name, value: option.id }));
+    return options.map((option) => ({ label: option.name, value: option.id }));
   }, [options]);
 
   const filteredSelectItems = useMemo(() => {
@@ -34,7 +37,7 @@ export function SearchableSelect<T extends HasNameAndId>({
   }, [searchText, selectItems]);
 
   const handleChange = (value: number) => {
-    const selectedItem = options.find(option => option.id === value);
+    const selectedItem = options.find((option) => option.id === value);
     if (onChange && selectedItem) {
       onChange(value, selectedItem);
     }
@@ -43,11 +46,11 @@ export function SearchableSelect<T extends HasNameAndId>({
   return (
     <Select<number>
       {...selectProps}
-      options={filteredSelectItems}
+      filterOption={false}
       onChange={handleChange}
       onSearch={setSearchText}
+      options={filteredSelectItems}
       showSearch
-      filterOption={false}
     />
   );
 }

@@ -1,3 +1,5 @@
+import { Faction } from './common';
+
 export type PlatformId = number;
 
 export interface HydratedPlatform
@@ -25,7 +27,7 @@ export interface Platform {
   chassis?: string;
   energy?: number;
   energyrecurr?: number;
-  factions: string[];
+  factions: Faction[];
   hull: number;
   icon?: string;
   keyword?: string[];

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 
 import classes from './Icons.module.scss';
 
-import { Faction } from '@types';
+import { Faction } from '@shared/types';
 
 type IconProps = {
   active?: boolean;

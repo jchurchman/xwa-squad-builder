@@ -1,4 +1,4 @@
-import { PlatformOverride, Restrictions } from './common';
+import { Faction, PlatformOverride, Restrictions } from './common';
 
 export type PilotId = number;
 
@@ -21,7 +21,7 @@ export interface Pilot {
   charge?: number;
   chassis?: string;
   engagement?: number;
-  faction: string;
+  faction: Faction;
   force?: number;
   forcerecurring?: number;
   keywords?: string[];

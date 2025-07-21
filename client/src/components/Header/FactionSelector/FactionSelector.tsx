@@ -5,7 +5,7 @@ import { FactionIcon } from '@components';
 
 import classes from './FactionSelector.module.scss';
 
-import { Faction } from '@types';
+import { Faction } from '@shared/types';
 
 const selectorButtonOrder: Faction[] = [
   Faction.rebels,

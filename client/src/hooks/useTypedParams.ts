@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
 
-import { Faction } from 'src/types';
+import { Faction } from '@shared/types';
 
 interface RouteParams {
   faction: Faction;

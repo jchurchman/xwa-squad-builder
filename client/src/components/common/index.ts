@@ -1,2 +1,2 @@
 export * from './Icons';
-export { SearchableSelect } from './SearchableSelect'
+export { SearchableSelect } from './SearchableSelect';

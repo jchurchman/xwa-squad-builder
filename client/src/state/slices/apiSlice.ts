@@ -4,14 +4,25 @@ import { HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types'
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
+    fetchAllPilots: builder.query<HydratedPilot[], void>({
+      query: () => '/pilots/all',
+    }),
+    fetchAllPlatforms: builder.query<HydratedPlatform[], void>({
+      query: () => '/platforms/all',
+    }),
+    fetchAllUpgrades: builder.query<HydratedUpgrade[], void>({
+      query: () => '/upgrades/all',
+    }),
     fetchPilotsByPlatform: builder.query<HydratedPilot[], string>({
       providesTags: ['Pilot'],
       query: (platformName) => `/pilots?platform=${encodeURIComponent(platformName)}`,
     }),
+
     fetchPlatformsByFaction: builder.query<HydratedPlatform[], string>({
       providesTags: ['Platform'],
       query: (faction) => `/platforms?faction=${encodeURIComponent(faction)}`,
     }),
+
     fetchUpgradesBySlots: builder.query<HydratedUpgrade[], string[]>({
       providesTags: ['Upgrade'],
       query: (slots) => {
@@ -25,6 +36,9 @@ export const api = createApi({
 });
 
 export const {
+  useFetchAllPilotsQuery,
+  useFetchAllPlatformsQuery,
+  useFetchAllUpgradesQuery,
   useFetchPilotsByPlatformQuery,
   useFetchPlatformsByFactionQuery,
   useFetchUpgradesBySlotsQuery,

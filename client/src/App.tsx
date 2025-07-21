@@ -2,11 +2,19 @@ import { Navigate, Route, Routes } from 'react-router';
 
 import { Layout } from './components/Layout';
 import { SquadBuilder } from './components/SquadBuilder';
-import { Faction } from './types';
+import {
+  useFetchAllPilotsQuery,
+  useFetchAllPlatformsQuery,
+  useFetchAllUpgradesQuery,
+} from './state/slices/apiSlice';
+import { Faction } from '@shared/types';
 
 import './App.css';
 
 function App() {
+  useFetchAllPlatformsQuery();
+  useFetchAllPilotsQuery();
+  useFetchAllUpgradesQuery();
   return (
     <>
       <Routes>
