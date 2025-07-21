@@ -70,18 +70,25 @@ const entitiesSlice = createAppSlice({
       .addMatcher(api.endpoints.fetchAllPilots.matchFulfilled, (state, action) => {
         const pilots = action.payload;
 
-        const pilotsInPlatform: number[] = [];
+        const pilotsByPlatform: Record<string, number[]> = {}
         const pilotsById = pilots.reduce(
           (acc, pilot) => {
-            acc[pilot.id] = pilot;
-            pilotsInPlatform.push(pilot.id);
+            const { id, platform } = pilot
+            acc[id] = pilot;
+
+            if (pilotsByPlatform[platform || ""]) {
+              pilotsByPlatform[platform || ""].push(id)
+            } else {
+              pilotsByPlatform[platform || ""] = [id]
+            }
+            
             return acc;
           },
           {} as { [id: number]: HydratedPilot }
         );
 
         state.pilots = { ...state.pilots, ...pilotsById };
-        // state.pilotsByPlatform[platformName] = pilotsInPlatform;
+        state.pilotsByPlatform = pilotsByPlatform;
       })
       .addMatcher(api.endpoints.fetchAllUpgrades.matchFulfilled, (state, action) => {
         const upgrades = action.payload;
