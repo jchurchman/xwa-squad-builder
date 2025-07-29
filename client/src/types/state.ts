@@ -1,3 +1,5 @@
+import { store } from '../state';
+
 import {
   HydratedPilot,
   HydratedPlatform,
@@ -6,8 +8,6 @@ import {
   PlatformId,
   UpgradeId,
 } from '@shared/types';
-
-import { store } from '../state';
 
 export interface LoadingState {
   error: string | null;

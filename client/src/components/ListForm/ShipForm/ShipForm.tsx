@@ -1,49 +1,44 @@
 import { CloseOutlined } from '@ant-design/icons';
-import { HydratedPilot, HydratedPlatform } from '@shared/types';
 import { Button } from 'antd';
-import { useSelector } from 'react-redux';
 
-import { useAppDispatch, useTypedParams } from '@hooks';
-import { selectPilotsByPlatform, selectPlatformsByFaction, selectShipPlatform } from '@selectors';
-import { SearchableSelect } from 'src/components/common';
-import { deleteShip, selectPlatformId } from 'src/state/slices/listSlice';
+import { SearchableSelect } from '@components';
+import { useAppDispatch, useShipForm } from '@hooks';
+import { deleteShip } from 'src/state/slices/listSlice';
 
-import { RootState } from '@types';
+import type { HydratedPilot, HydratedPlatform } from '@shared/types';
 
 type ShipFormProps = {
   id: string;
 };
 
 export function ShipForm({ id }: ShipFormProps) {
-  const { faction } = useTypedParams();
+  const { pilot, platform } = useShipForm({ shipId: id });
+
   const dispatch = useAppDispatch();
-  const platforms = useSelector((state: RootState) => selectPlatformsByFaction(state, faction));
-  const selectedPlatform = useSelector((state: RootState) => selectShipPlatform(state, id));
-
-  const pilots = useSelector((state: RootState) =>
-    selectPilotsByPlatform(state, selectedPlatform?.name)
-  );
-
-  const onChange = (selectedChassisId: number) => {
-    dispatch(selectPlatformId({ platformId: selectedChassisId, shipId: id }));
-  };
 
   const onDeleteShip = () => {
     dispatch(deleteShip(id));
   };
-  console.log({ pilots, selectedPlatform });
+
   return (
     <>
-      <div>Pilot form</div>
-      <div>{id}</div>
       <SearchableSelect<HydratedPlatform>
-        onChange={onChange}
-        options={platforms}
+        allowClear
+        onChange={platform.onSelect}
+        onClear={platform.onClear}
+        options={platform.options}
         placeholder="Select a ship"
-        value={selectedPlatform?.id}
+        value={platform.selected?.id}
       />
-      {selectedPlatform && (
-        <SearchableSelect<HydratedPilot> options={pilots} placeholder="Select a pilot" />
+      {platform.selected && (
+        <SearchableSelect<HydratedPilot>
+          allowClear
+          onChange={pilot.onSelect}
+          onClear={pilot.onClear}
+          options={pilot.options}
+          placeholder="Select a pilot"
+          value={pilot.selected?.id}
+        />
       )}
       <Button
         danger

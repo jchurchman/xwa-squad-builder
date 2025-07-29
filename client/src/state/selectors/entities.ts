@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { Faction } from '@shared/types';
 
-import { RootState } from 'src/types';
+import { Faction } from '@shared/types';
+import { RootState } from '@types';
 
 export const selectAllPlatforms = (state: RootState) => Object.values(state.entities.platforms);
 export const selectAllPlatformsMap = (state: RootState) => state.entities.platforms;
@@ -33,19 +33,5 @@ export const selectPlatformsByFaction = createSelector(
   (platforms, platformsByFactionMap, faction) => {
     const platformIdsInFaction = platformsByFactionMap[faction] || [];
     return platformIdsInFaction.map((id) => platforms[id]);
-  }
-);
-
-export const selectPilotsByPlatform = createSelector(
-  [
-    selectPilotIdsByPlatformMap,
-    selectAllPilotsMap,
-    (_: RootState, platformName?: string) => platformName,
-  ],
-  (pilotIdsByPlatformMap, allPilotsMap, platformName) => {
-    const relevantPilotIds = pilotIdsByPlatformMap[platformName || ''] || [];
-    console.log({ allPilotsMap, pilotIdsByPlatformMap, platformName, relevantPilotIds });
-
-    return relevantPilotIds.map((id) => allPilotsMap[`${id}`]).filter(Boolean);
   }
 );

@@ -1,36 +1,31 @@
-import js from "@eslint/js";
+import js from '@eslint/js';
 import perfectionist from 'eslint-plugin-perfectionist';
-import pluginReact from "eslint-plugin-react";
-import { defineConfig } from "eslint/config";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+import pluginReact from 'eslint-plugin-react';
+import { defineConfig } from 'eslint/config';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default defineConfig([
   {
-    ignores: [
-      "node_modules/",
-      "dist/",
-      "build/",
-      "**/*.js",
-    ]
+    ignores: ['node_modules/', 'dist/', 'build/', '**/*.js'],
   },
   {
-    extends: ["js/recommended"],
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    extends: ['js/recommended'],
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     plugins: {
-      js
-    }
+      js,
+    },
   },
   {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     languageOptions: {
       globals: globals.browser,
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
         },
-      }
-    }
+      },
+    },
   },
   ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
@@ -38,26 +33,26 @@ export default defineConfig([
   {
     plugins: {
       perfectionist,
-      react: pluginReact
+      react: pluginReact,
     },
     rules: {
-      "indent": ["warn", 2],
+      indent: ['warn', 2],
       'perfectionist/sort-imports': [
         'error',
         {
           customGroups: [
             {
               elementNamePattern: ['^@(components|hooks|api|selectors)', '^src/*'],
-              groupName: "my-code"
+              groupName: 'my-code',
             },
             {
-              elementNamePattern: ['^@types'],
-              groupName: "my-types"
+              elementNamePattern: ['^@(types|shared/types)'],
+              groupName: 'my-types',
             },
             {
               elementNamePattern: ['@assets'],
-              groupName: "my-assets"
-            }
+              groupName: 'my-assets',
+            },
           ],
           environment: 'node',
           fallbackSort: { order: 'asc', type: 'line-length' },
@@ -174,6 +169,6 @@ export default defineConfig([
       ],
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
-    }
-  }
+    },
+  },
 ]);

@@ -52,8 +52,4 @@ type PlatformOverride = {
   shields?: number;
 };
 
-export {
-  Faction,
-  Restrictions,
-  PlatformOverride
-};
+export { Faction, Restrictions, PlatformOverride };

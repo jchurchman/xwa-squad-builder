@@ -1,6 +1,6 @@
-import { Faction, PlatformOverride, Restrictions, Upgrade } from '@shared/types';
-
 import { notNil } from './common';
+
+import { Faction, PlatformOverride, Restrictions, Upgrade } from '@shared/types';
 
 type ImportedUpgrade = {
   also_occupies_upgrades?: string[];

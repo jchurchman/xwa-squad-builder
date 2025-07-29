@@ -7,7 +7,6 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "src/*": ["./src/*"],
       "@types": ["./src/types/index.ts"],
       "@types/*": ["./src/types/*"],
       "@components": ["./src/components/index.ts"],
@@ -19,7 +18,8 @@
       "@api/*": ["./src/api/*"],
       "@shared/*": ["../shared/*"],
       "@selectors": ["./src/state/selectors"],
-      "@selectors/*": ["./src/state/selectors/*"]
+      "@selectors/*": ["./src/state/selectors/*"],
+      "src/*": ["./src/*"]
     }
   },
   "extends": "../tsconfig.json"

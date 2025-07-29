@@ -1,3 +1,7 @@
+import Database from 'better-sqlite3';
+import fs from 'fs';
+import path from 'path';
+
 import {
   HydratedPilot,
   HydratedPlatform,
@@ -13,9 +17,6 @@ import {
   UpgradeRestrictionRow,
   UpgradeRow,
 } from '@shared/types';
-import Database from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
 
 const DB_PATH = path.join(__dirname, '../../data/xwing.db');
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');

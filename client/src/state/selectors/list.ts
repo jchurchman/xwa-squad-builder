@@ -1,8 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
+
+import { selectAllPilotsMap, selectAllPlatformsMap, selectPilotIdsByPlatformMap } from './entities';
+
 import { HydratedUpgrade } from '@shared/types';
-
-import { selectAllPlatformsMap } from './entities';
-
 import { RootState } from '@types';
 
 export const selectListState = (state: RootState) => state.list;
@@ -37,12 +37,38 @@ export const selectShipPlatform = createSelector(
     (_: RootState, constructedPlatformId: string) => constructedPlatformId,
   ],
   (allPlatforms, listPlatforms, constructedPlatformId) => {
-    const { platform } = listPlatforms[constructedPlatformId];
+    const { platform } = listPlatforms[constructedPlatformId] || {};
 
     if (platform) {
       return allPlatforms[platform];
     }
 
+    return undefined;
+  }
+);
+
+export const selectPilotsByPlatform = createSelector(
+  [selectPilotIdsByPlatformMap, selectAllPilotsMap, selectShipPlatform],
+  (pilotIdsByPlatformMap, allPilotsMap, selectedPlatform) => {
+    const relevantPilotIds = pilotIdsByPlatformMap[selectedPlatform?.name || ''] || [];
+
+    console.log({ allPilotsMap, pilotIdsByPlatformMap, relevantPilotIds });
+
+    return relevantPilotIds.map((id) => allPilotsMap[`${id}`]).filter(Boolean);
+  }
+);
+
+export const selectShipPilot = createSelector(
+  [
+    selectAllPilotsMap,
+    selectListPlatforms,
+    (_: RootState, constructedPlatformId: string) => constructedPlatformId,
+  ],
+  (allPilots, listPlatforms, constructedPlatformId) => {
+    const { pilot } = listPlatforms[constructedPlatformId];
+    if (pilot) {
+      return allPilots[pilot];
+    }
     return undefined;
   }
 );

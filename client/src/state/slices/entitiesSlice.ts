@@ -1,9 +1,8 @@
-import { Faction, HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
-
-import { EntitiesState } from 'src/types';
-
 import { api } from './apiSlice';
 import { createAppSlice } from './createAppSlice';
+
+import { Faction, HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
+import { EntitiesState } from '@types';
 
 function createEmptyEntitiesState(): EntitiesState {
   return {
@@ -70,18 +69,18 @@ const entitiesSlice = createAppSlice({
       .addMatcher(api.endpoints.fetchAllPilots.matchFulfilled, (state, action) => {
         const pilots = action.payload;
 
-        const pilotsByPlatform: Record<string, number[]> = {}
+        const pilotsByPlatform: Record<string, number[]> = {};
         const pilotsById = pilots.reduce(
           (acc, pilot) => {
-            const { id, platform } = pilot
+            const { id, platform } = pilot;
             acc[id] = pilot;
 
-            if (pilotsByPlatform[platform || ""]) {
-              pilotsByPlatform[platform || ""].push(id)
+            if (pilotsByPlatform[platform || '']) {
+              pilotsByPlatform[platform || ''].push(id);
             } else {
-              pilotsByPlatform[platform || ""] = [id]
+              pilotsByPlatform[platform || ''] = [id];
             }
-            
+
             return acc;
           },
           {} as { [id: number]: HydratedPilot }

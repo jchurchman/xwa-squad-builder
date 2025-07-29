@@ -2,10 +2,9 @@ import { Button } from 'antd';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import { useAppDispatch, useTypedParams } from 'src/hooks';
-import { selectShipOrderIds } from 'src/state/selectors/list';
+import { useAppDispatch, useTypedParams } from '@hooks';
+import { selectShipOrderIds } from '@selectors';
 import { addShip, newList } from 'src/state/slices/listSlice';
-import { Faction } from 'src/types';
 
 import { ShipForm } from './ShipForm';
 
@@ -16,7 +15,7 @@ export function ListForm() {
 
   useEffect(() => {
     if (shipIds.length === 0) {
-      dispatch(newList(faction));
+      dispatch(newList());
     }
   }, [faction, shipIds, dispatch]);
 
@@ -24,7 +23,7 @@ export function ListForm() {
     <>
       <Button
         onClick={() => {
-          dispatch(newList(faction));
+          dispatch(newList());
         }}
       >
         New List
@@ -36,7 +35,7 @@ export function ListForm() {
 
       <Button
         onClick={() => {
-          dispatch(addShip(faction as Faction));
+          dispatch(addShip());
         }}
       >
         Add Ship

@@ -1,6 +1,6 @@
-import { Faction, Pilot, PlatformOverride } from '@shared/types';
-
 import { notNil } from './common';
+
+import { Faction, Pilot, PlatformOverride } from '@shared/types';
 
 type ImportedPilot = {
   applies_condition?: string | string[];

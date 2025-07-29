@@ -1,15 +1,16 @@
 import { Navigate, Route, Routes } from 'react-router';
 
-import { Layout } from './components/Layout';
-import { SquadBuilder } from './components/SquadBuilder';
+import { Layout, SquadBuilder } from '@components';
+
 import {
   useFetchAllPilotsQuery,
   useFetchAllPlatformsQuery,
   useFetchAllUpgradesQuery,
 } from './state/slices/apiSlice';
-import { Faction } from '@shared/types';
 
 import './App.css';
+
+import { Faction } from '@shared/types';
 
 function App() {
   useFetchAllPlatformsQuery();
