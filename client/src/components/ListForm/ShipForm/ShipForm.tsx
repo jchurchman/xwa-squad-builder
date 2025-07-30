@@ -5,24 +5,22 @@ import { SearchableSelect } from '@components';
 import { useAppDispatch, useShipForm } from '@hooks';
 import { deleteShip } from 'src/state/slices/listSlice';
 
-import type { HydratedPilot, HydratedPlatform } from '@shared/types';
-
 type ShipFormProps = {
-  id: string;
+  shipId: string;
 };
 
-export function ShipForm({ id }: ShipFormProps) {
-  const { pilot, platform } = useShipForm({ shipId: id });
+export function ShipForm({ shipId }: ShipFormProps) {
+  const { pilot, platform } = useShipForm({ shipId });
 
   const dispatch = useAppDispatch();
 
   const onDeleteShip = () => {
-    dispatch(deleteShip(id));
+    dispatch(deleteShip(shipId));
   };
 
   return (
     <>
-      <SearchableSelect<HydratedPlatform>
+      <SearchableSelect
         allowClear
         onChange={platform.onSelect}
         onClear={platform.onClear}
@@ -31,7 +29,7 @@ export function ShipForm({ id }: ShipFormProps) {
         value={platform.selected?.id}
       />
       {platform.selected && (
-        <SearchableSelect<HydratedPilot>
+        <SearchableSelect
           allowClear
           onChange={pilot.onSelect}
           onClear={pilot.onClear}

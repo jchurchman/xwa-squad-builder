@@ -1,22 +1,36 @@
 import { createSelector } from '@reduxjs/toolkit';
 
-import { selectAllPilotsMap, selectAllPlatformsMap, selectPilotIdsByPlatformMap } from './entities';
+import {
+  selectAllPilotsMap,
+  selectAllPlatformsMap,
+  selectAllUpgradesMap,
+  selectPilotIdsByPlatformMap,
+} from './entities';
 
-import { HydratedUpgrade } from '@shared/types';
+import { Faction, HydratedPilot, HydratedUpgrade } from '@shared/types';
 import { RootState } from '@types';
 
+type ListSelectorArgs = {
+  faction?: Faction;
+  shipId?: string;
+};
+
+function listSelectorArgsForwarder(_: RootState, args: ListSelectorArgs) {
+  return args;
+}
+
 export const selectListState = (state: RootState) => state.list;
-export const selectListPlatforms = (state: RootState) => state.list.ships;
+export const selectListShips = (state: RootState) => state.list.ships;
 export const selectShipOrderIds = (state: RootState) => state.list.shipOrder;
 
 export const selectListPilots = createSelector(
-  [selectShipOrderIds, selectListPlatforms, (state: RootState) => state.entities.pilots],
-  (platformIds, listPlatforms, pilots) => {
-    if (!platformIds || platformIds.length === 0) return [];
+  [selectShipOrderIds, selectListShips, selectAllPilotsMap],
+  (shipIds, listShips, pilots) => {
+    if (!shipIds || shipIds.length === 0) return [];
 
-    return platformIds
+    return shipIds
       .map((platformId) => {
-        const listPlatform = listPlatforms[platformId];
+        const listPlatform = listShips[platformId];
         return listPlatform && listPlatform.pilot ? pilots[listPlatform.pilot] : null;
       })
       .filter(Boolean);
@@ -24,20 +38,19 @@ export const selectListPilots = createSelector(
 );
 
 export const selectList = createSelector(
-  [selectShipOrderIds, selectListPlatforms],
+  [selectShipOrderIds, selectListShips],
   (shipOrder, ships) => {
     return shipOrder.map((id) => ships[id]);
   }
 );
 
 export const selectShipPlatform = createSelector(
-  [
-    selectAllPlatformsMap,
-    selectListPlatforms,
-    (_: RootState, constructedPlatformId: string) => constructedPlatformId,
-  ],
-  (allPlatforms, listPlatforms, constructedPlatformId) => {
-    const { platform } = listPlatforms[constructedPlatformId] || {};
+  [selectAllPlatformsMap, selectListShips, listSelectorArgsForwarder],
+  (allPlatforms, listPlatforms, { shipId }) => {
+    if (!shipId) {
+      return undefined;
+    }
+    const { platform } = listPlatforms[shipId] || {};
 
     if (platform) {
       return allPlatforms[platform];
@@ -47,25 +60,44 @@ export const selectShipPlatform = createSelector(
   }
 );
 
-export const selectPilotsByPlatform = createSelector(
-  [selectPilotIdsByPlatformMap, selectAllPilotsMap, selectShipPlatform],
-  (pilotIdsByPlatformMap, allPilotsMap, selectedPlatform) => {
-    const relevantPilotIds = pilotIdsByPlatformMap[selectedPlatform?.name || ''] || [];
+function createEmptyPilotsArr(): HydratedPilot[] {
+  return [] as HydratedPilot[];
+}
 
-    console.log({ allPilotsMap, pilotIdsByPlatformMap, relevantPilotIds });
+const emptyPilotsArr: HydratedPilot[] = createEmptyPilotsArr();
 
-    return relevantPilotIds.map((id) => allPilotsMap[`${id}`]).filter(Boolean);
+export const selectPilotsByPlatformAndFaction = createSelector(
+  [selectPilotIdsByPlatformMap, selectAllPilotsMap, selectShipPlatform, listSelectorArgsForwarder],
+  (pilotIdsByPlatformMap, allPilotsMap, selectedPlatform, { faction }) => {
+    if (!selectedPlatform) {
+      return emptyPilotsArr;
+    }
+
+    const pilotIdsByPlatform = pilotIdsByPlatformMap[selectedPlatform?.name || ''];
+
+    if (!pilotIdsByPlatform) {
+      return emptyPilotsArr;
+    }
+
+    const platformPilotsByFaction = pilotIdsByPlatform.reduce((accum, id) => {
+      const pilot = allPilotsMap[`${id}`];
+      if (pilot.faction == faction) {
+        accum.push(pilot);
+      }
+      return accum;
+    }, createEmptyPilotsArr());
+
+    return platformPilotsByFaction;
   }
 );
 
 export const selectShipPilot = createSelector(
-  [
-    selectAllPilotsMap,
-    selectListPlatforms,
-    (_: RootState, constructedPlatformId: string) => constructedPlatformId,
-  ],
-  (allPilots, listPlatforms, constructedPlatformId) => {
-    const { pilot } = listPlatforms[constructedPlatformId];
+  [selectAllPilotsMap, selectListShips, listSelectorArgsForwarder],
+  (allPilots, listShips, { shipId }) => {
+    if (!shipId) {
+      return undefined;
+    }
+    const { pilot } = listShips[shipId];
     if (pilot) {
       return allPilots[pilot];
     }
@@ -74,7 +106,7 @@ export const selectShipPilot = createSelector(
 );
 
 export const selectListUpgrades = createSelector(
-  [selectShipOrderIds, selectListPlatforms, (state: RootState) => state.entities.upgrades],
+  [selectShipOrderIds, selectListShips, selectAllUpgradesMap],
   (platformIds, listPlatforms, upgrades) => {
     if (!platformIds || platformIds.length === 0) return [];
 

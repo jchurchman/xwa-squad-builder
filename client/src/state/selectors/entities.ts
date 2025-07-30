@@ -9,6 +9,7 @@ export const selectAllPilots = (state: RootState) => Object.values(state.entitie
 export const selectAllPilotsMap = (state: RootState) => state.entities.pilots;
 export const selectPilotIdsByPlatformMap = (state: RootState) => state.entities.pilotsByPlatform;
 export const selectAllUpgrades = (state: RootState) => Object.values(state.entities.upgrades);
+export const selectAllUpgradesMap = (state: RootState) => state.entities.upgrades;
 
 export const selectPlatformById = (state: RootState, platformId: number) =>
   state.entities.platforms[platformId];

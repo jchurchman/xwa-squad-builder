@@ -1,55 +1,35 @@
 import { Select, SelectProps } from 'antd';
-import { useMemo, useState } from 'react';
+import { DefaultOptionType } from 'antd/es/select';
 
-interface HasNameAndId {
-  id: number;
-  name: string;
+interface SearchableSelectProps
+  extends Omit<SelectProps<number>, 'onSearch' | 'showSearch' | 'filterOption' | 'onChange'> {
+  onChange?: (value: number) => void;
 }
 
-interface SearchableSelectProps<T extends HasNameAndId>
-  extends Omit<
-    SelectProps<number>,
-    'options' | 'onSearch' | 'showSearch' | 'filterOption' | 'onChange'
-  > {
-  onChange?: (value: number, selectedItem: T) => void;
-  options: T[];
+function filterOptions(inputValue: string, option?: DefaultOptionType) {
+  if (!option?.label || typeof option.label !== 'string') {
+    return false;
+  }
+  return option.label.toLowerCase().includes(inputValue.toLowerCase());
 }
 
-export function SearchableSelect<T extends HasNameAndId>({
+export function SearchableSelect({
   onChange,
-  options,
+  options = [],
   ...selectProps
-}: SearchableSelectProps<T>) {
-  const [searchText, setSearchText] = useState<string>('');
-
-  const selectItems = useMemo(() => {
-    return options.map((option) => ({ label: option.name, value: option.id }));
-  }, [options]);
-
-  const filteredSelectItems = useMemo(() => {
-    if (searchText === '') {
-      return selectItems;
-    }
-
-    return selectItems.filter((option) =>
-      option.label.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [searchText, selectItems]);
-
+}: SearchableSelectProps) {
   const handleChange = (value: number) => {
-    const selectedItem = options.find((option) => option.id === value);
-    if (onChange && selectedItem) {
-      onChange(value, selectedItem);
+    if (onChange) {
+      onChange(value);
     }
   };
 
   return (
     <Select<number>
       {...selectProps}
-      filterOption={false}
+      filterOption={filterOptions}
       onChange={handleChange}
-      onSearch={setSearchText}
-      options={filteredSelectItems}
+      options={options}
       showSearch
     />
   );

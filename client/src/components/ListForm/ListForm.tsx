@@ -30,7 +30,7 @@ export function ListForm() {
       </Button>
 
       {shipIds.map((id, index) => (
-        <ShipForm id={id} key={`${id}.${index}`} />
+        <ShipForm key={`${id}.${index}`} shipId={id} />
       ))}
 
       <Button
