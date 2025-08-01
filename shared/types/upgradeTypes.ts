@@ -2,6 +2,8 @@ import { PlatformOverride, Restrictions } from './common';
 
 export type UpgradeId = number;
 
+export type SlotType = string;
+
 export interface HydratedUpgrade
   extends Omit<UpgradeRow, 'appliesCondition' | 'keywords' | 'platform' | 'platformOverride'> {
   appliesCondition?: string[];

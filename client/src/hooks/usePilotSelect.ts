@@ -1,22 +1,19 @@
 import { useCallback, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 
 import { selectPilotsByPlatformAndFaction, selectShipPilot } from '@selectors';
-import { selectPilotId } from 'src/state/slices/listSlice';
+import { choosePilotId } from 'src/state/slices/listSlice';
 
-import { useAppDispatch } from './state';
+import { useAppDispatch, useAppSelector } from './state';
 import { useTypedParams } from './useTypedParams';
-
-import type { RootState } from '@types';
 
 export function usePilotSelect({ shipId }: { shipId: string }) {
   const { faction } = useTypedParams();
   const dispatch = useAppDispatch();
 
-  const pilots = useSelector((state: RootState) =>
+  const pilots = useAppSelector((state) =>
     selectPilotsByPlatformAndFaction(state, { faction, shipId })
   );
-  const selected = useSelector((state: RootState) => selectShipPilot(state, { shipId }));
+  const selected = useAppSelector((state) => selectShipPilot(state, { shipId }));
 
   const options = useMemo(() => {
     return pilots.map((pilot) => ({ label: pilot.name, value: pilot.id }));
@@ -24,7 +21,7 @@ export function usePilotSelect({ shipId }: { shipId: string }) {
 
   const onSelect = useCallback(
     (pilotId?: number) => {
-      dispatch(selectPilotId({ pilotId, shipId }));
+      dispatch(choosePilotId({ pilotId, shipId }));
     },
     [dispatch, shipId]
   );

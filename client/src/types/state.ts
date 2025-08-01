@@ -22,9 +22,11 @@ export interface EntitiesState {
   upgrades: { [id: number]: HydratedUpgrade };
 }
 
+export type SlotId = string; // e.g., "talent-0", "cannon-1"
+
 export type ShipId = string;
 
-export type SelectedUpgrades = Record<string, (UpgradeId | null)[]>;
+export type SelectedUpgrades = Record<SlotId, UpgradeId | null>;
 
 export interface ShipState {
   id: ShipId;

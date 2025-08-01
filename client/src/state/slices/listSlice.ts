@@ -14,6 +14,7 @@ const initialState: ListState = {
   ships: {},
 };
 
+// TODO: Refactor this to preserve slotId keys
 function createInitialUpgrades(): SelectedUpgrades {
   return {} as SelectedUpgrades;
 }
@@ -47,25 +48,7 @@ const reducers = {
     const newShip = createNewShip();
     return addShipToState(state, newShip);
   },
-  clearUpgrade: (
-    state: ListState,
-    action: PayloadAction<{ shipId: ShipId; slotIndex?: number; upgradeSlot: string }>
-  ) => {
-    const { shipId, slotIndex, upgradeSlot } = action.payload;
-
-    // TODO: Pull this into a function that's typed better
-    state.ships[shipId].upgrades![upgradeSlot][slotIndex || 0] = null;
-  },
-  deleteShip: (state: ListState, action: PayloadAction<string>) => {
-    delete state.ships[action.payload];
-    state.shipOrder = state.shipOrder.filter((id) => id !== action.payload);
-    return state;
-  },
-  newList: () => {
-    const newShip = createNewShip();
-    return addShipToState(initialState, newShip);
-  },
-  selectPilotId: (
+  choosePilotId: (
     state: ListState,
     action: PayloadAction<{ pilotId: number | undefined; shipId: ShipId }>
   ) => {
@@ -75,7 +58,7 @@ const reducers = {
 
     return state;
   },
-  selectPlatformId: (
+  choosePlatformId: (
     state: ListState,
     action: PayloadAction<{ platformId: number | undefined; shipId: ShipId }>
   ) => {
@@ -85,19 +68,27 @@ const reducers = {
 
     return state;
   },
-  selectUpgrade: (
+  chooseUpgrade: (
     state: ListState,
     action: PayloadAction<{
       shipId: ShipId;
-      slotIndex?: number;
-      upgradeId: UpgradeId;
-      upgradeSlot: string;
+      slotId: string;
+      upgradeId?: UpgradeId;
     }>
   ) => {
-    const { shipId, slotIndex, upgradeId, upgradeSlot } = action.payload;
+    const { shipId, slotId, upgradeId } = action.payload;
 
     // TODO: Pull this into a function that's typed better
-    state.ships[shipId].upgrades![upgradeSlot][slotIndex || 0] = upgradeId;
+    state.ships[shipId].upgrades![slotId] = upgradeId || null;
+  },
+  deleteShip: (state: ListState, action: PayloadAction<string>) => {
+    delete state.ships[action.payload];
+    state.shipOrder = state.shipOrder.filter((id) => id !== action.payload);
+    return state;
+  },
+  newList: () => {
+    const newShip = createNewShip();
+    return addShipToState(initialState, newShip);
   },
 };
 
@@ -119,14 +110,14 @@ const listSlice = createAppSlice({
       thisShip.pilot = pilot.id;
       thisShip.upgrades = createInitialUpgrades();
 
-      // TODO: Pull this into a function that's typed better
-      pilot.slots.forEach((slotName) => {
-        if (!thisShip.upgrades![slotName]) {
-          thisShip.upgrades![slotName] = [null];
-        } else {
-          thisShip.upgrades![slotName].push(null);
-        }
-      });
+      // // TODO: Pull this into a function that's typed better
+      // pilot.slots.forEach((slotName) => {
+      //   if (!thisShip.upgrades![slotName]) {
+      //     thisShip.upgrades![slotName] = [null];
+      //   } else {
+      //     thisShip.upgrades![slotName].push(null);
+      //   }
+      // });
     });
   },
   initialState,
@@ -135,12 +126,5 @@ const listSlice = createAppSlice({
 });
 
 export default listSlice.reducer;
-export const {
-  addShip,
-  clearUpgrade,
-  deleteShip,
-  newList,
-  selectPilotId,
-  selectPlatformId,
-  selectUpgrade,
-} = listSlice.actions;
+export const { addShip, choosePilotId, choosePlatformId, chooseUpgrade, deleteShip, newList } =
+  listSlice.actions;

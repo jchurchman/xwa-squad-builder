@@ -2,8 +2,10 @@ import { CloseOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 
 import { SearchableSelect } from '@components';
-import { useAppDispatch, useShipForm } from '@hooks';
+import { useAppDispatch, useShipForm, useUpgradeSelect } from '@hooks';
 import { deleteShip } from 'src/state/slices/listSlice';
+
+import { ShipUpgradesForm } from './ShipUpgradesForm';
 
 type ShipFormProps = {
   shipId: string;
@@ -11,6 +13,7 @@ type ShipFormProps = {
 
 export function ShipForm({ shipId }: ShipFormProps) {
   const { pilot, platform } = useShipForm({ shipId });
+  useUpgradeSelect({ shipId });
 
   const dispatch = useAppDispatch();
 
@@ -38,6 +41,7 @@ export function ShipForm({ shipId }: ShipFormProps) {
           value={pilot.selected?.id}
         />
       )}
+      <ShipUpgradesForm shipId={shipId} />
       <Button
         danger
         icon={<CloseOutlined />}
