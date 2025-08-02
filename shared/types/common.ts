@@ -29,6 +29,8 @@ type Restrictions = {
   slotEquipped?: string[];
   slots?: string[];
   solitary?: boolean;
+  standard?: boolean;
+  standardized?: boolean;
   upgradesInList?: string[];
 };
 

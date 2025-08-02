@@ -116,6 +116,9 @@ function buildUpgradeRestrictions(rawUpgrade: ImportedUpgrade) {
     restrictionsxwa,
     slot,
     solitary,
+    standard,
+    standardized,
+    standardizedxwa,
     unique,
   } = rawUpgrade;
 
@@ -126,10 +129,15 @@ function buildUpgradeRestrictions(rawUpgrade: ImportedUpgrade) {
       maxPerSquad: unique ? 1 : max_per_squad,
     }),
     ...(notNil(faction) && { faction }),
+    ...(notNil(standard) && { standard }),
   };
 
   if (notNil(also_occupies_upgrades) || notNil(also_occupies_upgrades_xwa)) {
     restrictions.slots!.concat(also_occupies_upgrades_xwa! || also_occupies_upgrades!);
+  }
+
+  if (notNil(standardized) || notNil(standardizedxwa)) {
+    restrictions.standardized = Boolean(standardized || standardizedxwa);
   }
 
   if (notNil(restrictionsxwa)) {
