@@ -8,6 +8,8 @@ import { addShip, newList } from 'src/state/slices/listSlice';
 
 import { ShipForm } from './ShipForm';
 
+import classes from './ListForm.module.scss';
+
 export function ListForm() {
   const { faction } = useTypedParams();
   const shipIds = useSelector(selectShipOrderIds);
@@ -29,10 +31,6 @@ export function ListForm() {
         New List
       </Button>
 
-      {shipIds.map((id, index) => (
-        <ShipForm key={`${id}.${index}`} shipId={id} />
-      ))}
-
       <Button
         onClick={() => {
           dispatch(addShip());
@@ -40,6 +38,13 @@ export function ListForm() {
       >
         Add Ship
       </Button>
+      <div className={classes.shipContainer}>
+        {shipIds.map((id, index) => (
+          <div className={classes.shipRow} key={`${id}.${index}`}>
+            <ShipForm shipId={id} />
+          </div>
+        ))}
+      </div>
     </>
   );
 }

@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 
 import { SearchableSelect } from '@components';
 
+import classes from './ShipForm.module.scss';
+
 import { HydratedUpgrade, UpgradeId } from '@shared/types';
 
 type UpgradeSelectorProps = {
@@ -22,6 +24,7 @@ export function UpgradeSelector(props: UpgradeSelectorProps) {
   return (
     <SearchableSelect
       allowClear
+      className={classes.upgradeSelect}
       onChange={onSelect}
       onClear={onClear}
       options={formattedOptions}

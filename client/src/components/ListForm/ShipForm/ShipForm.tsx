@@ -7,6 +7,8 @@ import { deleteShip } from 'src/state/slices/listSlice';
 
 import { ShipUpgradesForm } from './ShipUpgradesForm';
 
+import classes from './ShipForm.module.scss';
+
 type ShipFormProps = {
   shipId: string;
 };
@@ -25,6 +27,7 @@ export function ShipForm({ shipId }: ShipFormProps) {
     <>
       <SearchableSelect
         allowClear
+        className={classes.platformSelect}
         onChange={platform.onSelect}
         onClear={platform.onClear}
         options={platform.options}
@@ -34,6 +37,7 @@ export function ShipForm({ shipId }: ShipFormProps) {
       {platform.selected && (
         <SearchableSelect
           allowClear
+          className={classes.pilotSelect}
           onChange={pilot.onSelect}
           onClear={pilot.onClear}
           options={pilot.options}
