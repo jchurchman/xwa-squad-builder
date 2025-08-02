@@ -7,6 +7,9 @@
 }
 
 a.nav-link {
+  transition:
+    font-size 0.3s ease,
+    line-height 0.3s ease;
   & > i {
     padding: 4px;
     font-size: 48px;
@@ -14,8 +17,8 @@ a.nav-link {
   }
   &.active {
     & > i {
-      font-size: 52px;
-      line-height: 52px;
+      font-size: 54px;
+      line-height: 54px;
     }
   }
 }

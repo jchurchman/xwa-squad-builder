@@ -6,7 +6,6 @@
   left: 0;
   right: 0;
   height: variables.$header-height;
-  background-color: variables.$header-background;
   border-bottom: 2px solid variables.$light-grey;
   box-shadow: 0 0 0 2px variables.$black;
   z-index: 999;
@@ -15,4 +14,57 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 8px;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+
+  &.rebel-alliance {
+    background-color: variables.$rebel-accent;
+    border-color: variables.$rebel-main;
+    & i {
+      color: variables.$rebel-main;
+    }
+  }
+  &.galactic-empire {
+    background-color: variables.$empire-accent;
+    border-color: variables.$empire-main;
+    & i {
+      color: variables.$empire-main;
+    }
+  }
+  &.scum-and-villainy {
+    background-color: variables.$scum-accent;
+    border-color: variables.$scum-main;
+    & i {
+      color: variables.$scum-main;
+    }
+  }
+  &.resistance {
+    background-color: variables.$resistance-accent;
+    border-color: variables.$resistance-main;
+    & i {
+      color: variables.$resistance-main;
+    }
+  }
+  &.first-order {
+    background-color: variables.$firstorder-accent;
+    border-color: variables.$firstorder-main;
+    & i {
+      color: variables.$firstorder-main;
+    }
+  }
+  &.galactic-republic {
+    background-color: variables.$republic-accent;
+    border-color: variables.$republic-main;
+    & i {
+      color: variables.$republic-main;
+    }
+  }
+  &.separatist-alliance {
+    background-color: variables.$separatists-accent;
+    border-color: variables.$separatists-main;
+    & i {
+      color: variables.$separatists-main;
+    }
+  }
 }

@@ -4,40 +4,79 @@
   color: white;
   font-size: inherit;
   font-family: inherit;
+  border-radius: 50%;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 
-  &.active {
-    border-radius: 50%;
-    box-shadow: inset 0 0 4px 4px rgba(variables.$header-background,0.2),
-    inset 0 0 3px 4px rgba(variables.$header-background,0.2),
-    inset 0 0 2px 4px rgba(variables.$header-background,0.2),
-    inset 0 0 1px 4px rgba(variables.$header-background,0.2);
-  }
-  &.rebel.active {
+  &.rebel-alliance.active {
     color: variables.$rebel-accent;
     background-color: variables.$rebel-main;
+    box-shadow:
+      inset 0 0 4px 3px rgba(variables.$rebel-accent, 0.5),
+      inset 0 0 3px 3px rgba(variables.$rebel-accent, 0.4),
+      inset 0 0 2px 3px rgba(variables.$rebel-accent, 0.3),
+      inset 0 0 1px 3px rgba(variables.$rebel-accent, 0.3);
   }
-  &.empire.active {
+
+  &.galactic-empire.active {
     color: variables.$empire-accent;
     background-color: variables.$empire-main;
+    box-shadow:
+      inset 0 0 4px 3px rgba(variables.$empire-accent, 0.5),
+      inset 0 0 3px 3px rgba(variables.$empire-accent, 0.4),
+      inset 0 0 2px 3px rgba(variables.$empire-accent, 0.3),
+      inset 0 0 1px 3px rgba(variables.$empire-accent, 0.3);
   }
-  &.scum.active {
+
+  &.scum-and-villainy.active {
     color: variables.$scum-accent;
     background-color: variables.$scum-main;
+    box-shadow:
+      inset 0 0 4px 3px rgba(variables.$scum-accent, 0.5),
+      inset 0 0 3px 3px rgba(variables.$scum-accent, 0.4),
+      inset 0 0 2px 3px rgba(variables.$scum-accent, 0.3),
+      inset 0 0 1px 3px rgba(variables.$scum-accent, 0.3);
   }
-  &.rebel-outline.active {
+
+  &.resistance.active {
     color: variables.$resistance-accent;
     background-color: variables.$resistance-main;
+    box-shadow:
+      inset 0 0 4px 3px rgba(variables.$resistance-accent, 0.5),
+      inset 0 0 3px 3px rgba(variables.$resistance-accent, 0.4),
+      inset 0 0 2px 3px rgba(variables.$resistance-accent, 0.3),
+      inset 0 0 1px 3px rgba(variables.$resistance-accent, 0.3);
   }
-  &.firstorder.active {
+
+  &.first-order.active {
     color: variables.$firstorder-accent;
     background-color: variables.$firstorder-main;
+    box-shadow:
+      inset 0 0 4px 3px rgba(variables.$firstorder-accent, 0.5),
+      inset 0 0 3px 3px rgba(variables.$firstorder-accent, 0.4),
+      inset 0 0 2px 3px rgba(variables.$firstorder-accent, 0.3),
+      inset 0 0 1px 3px rgba(variables.$firstorder-accent, 0.3);
   }
-  &.republic.active {
+
+  &.galactic-republic.active {
     color: variables.$republic-accent;
     background-color: variables.$republic-main;
+    box-shadow:
+      inset 0 0 4px 3px rgba(variables.$republic-accent, 0.5),
+      inset 0 0 3px 3px rgba(variables.$republic-accent, 0.4),
+      inset 0 0 2px 3px rgba(variables.$republic-accent, 0.3),
+      inset 0 0 1px 3px rgba(variables.$republic-accent, 0.3);
   }
-  &.separatists.active {
+
+  &.separatist-alliance.active {
     color: variables.$separatists-accent;
     background-color: variables.$separatists-main;
+    box-shadow:
+      inset 0 0 4px 3px rgba(variables.$separatists-accent, 0.5),
+      inset 0 0 3px 3px rgba(variables.$separatists-accent, 0.4),
+      inset 0 0 2px 3px rgba(variables.$separatists-accent, 0.3),
+      inset 0 0 1px 3px rgba(variables.$separatists-accent, 0.3);
   }
 }

@@ -1,3 +1,4 @@
+import { slugify } from '@shared/utils';
 import classNames from 'classnames';
 
 import classes from './Icons.module.scss';
@@ -11,16 +12,6 @@ type IconProps = {
   styles?: unknown;
 };
 
-const factionToFactionClassMap: Record<Faction, string> = {
-  [Faction.empire]: 'empire',
-  [Faction.firstorder]: 'firstorder',
-  [Faction.rebels]: 'rebel',
-  [Faction.republic]: 'republic',
-  [Faction.resistance]: 'rebel-outline',
-  [Faction.scum]: 'scum',
-  [Faction.separatists]: 'separatists',
-};
-
 export function FactionIcon(props: IconProps) {
   const { active, className, faction } = props;
 
@@ -29,8 +20,8 @@ export function FactionIcon(props: IconProps) {
       className={classNames(
         'xwing-miniatures-font',
         classes.factionIcon,
-        classes[factionToFactionClassMap[faction]],
-        `xwing-miniatures-font-${factionToFactionClassMap[faction]}`,
+        classes[slugify(faction)],
+        `xwing-miniatures-font-${slugify(faction)}`,
         { [classes.active]: active },
         className
       )}
