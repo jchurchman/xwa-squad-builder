@@ -34,82 +34,81 @@ type ImportedPilot = {
   xwsship?: boolean;
 };
 
-export function transformPilotsForDb(
-  rawPilots: ImportedPilot[]
-): Omit<Pilot, 'created_at' | 'id'>[] {
-  return rawPilots.reduce(
-    (transformed, pilot) => {
-      const {
-        applies_condition,
-        charge,
-        chassis,
-        engagement,
-        faction,
-        force,
-        forcerecurring,
-        keyword,
-        loadout,
-        loadoutxwa,
-        max_per_squad,
-        name,
-        points,
-        pointsxwa,
-        recurring,
-        restrictions,
-        ship,
-        ship_override,
-        skill,
-        skip,
-        slots,
-        slotsxwa,
-        unique,
-        upgrades,
-        xws,
-        xwsaddon,
-        xwsship,
-      } = pilot;
+interface TransformedPilot extends Omit<Pilot, 'upgrades' | 'created_at' | 'id'> {
+  upgrades?: string[];
+}
 
-      if (skip) {
-        return transformed;
-      }
+export function transformPilotsForDb(rawPilots: ImportedPilot[]): TransformedPilot[] {
+  return rawPilots.reduce((transformed, pilot) => {
+    const {
+      applies_condition,
+      charge,
+      chassis,
+      engagement,
+      faction,
+      force,
+      forcerecurring,
+      keyword,
+      loadout,
+      loadoutxwa,
+      max_per_squad,
+      name,
+      points,
+      pointsxwa,
+      recurring,
+      restrictions,
+      ship,
+      ship_override,
+      skill,
+      skip,
+      slots,
+      slotsxwa,
+      unique,
+      upgrades,
+      xws,
+      xwsaddon,
+      xwsship,
+    } = pilot;
 
-      const newPilot: Omit<Pilot, 'created_at' | 'id'> = {
-        ...(notNil(applies_condition) && {
-          appliesCondition: Array.isArray(applies_condition)
-            ? applies_condition
-            : [applies_condition],
-        }),
-        ...(notNil(charge) && { charge }),
-        ...(notNil(chassis) && { chassis }),
-        ...(notNil(engagement) && { engagement }),
-        faction,
-        ...(notNil(force) && { force }),
-        ...(notNil(forcerecurring) && { forcerecurring }),
-        ...(notNil(keyword) && { keywords: keyword }),
-        loadout: notNil(loadoutxwa) ? loadoutxwa : loadout || 0,
-        ...((notNil(unique) || notNil(max_per_squad)) && {
-          maxPerSquad: unique ? 1 : max_per_squad,
-        }),
-        name,
-        points: notNil(pointsxwa) ? pointsxwa : points,
-        ...(notNil(recurring) && { recurring }),
-        ...(notNil(restrictions) && {
-          restrictions: { upgradesInList: [restrictions[0][1]] },
-        }),
-        platform: ship,
-        ...(notNil(ship_override) && { platformOverride: ship_override }),
-        skill,
-        slots: notNil(slotsxwa) ? slotsxwa : slots || [],
-        ...(notNil(upgrades) && { upgrades }),
-        ...(notNil(xws) && { xws }),
-        ...(notNil(xwsaddon) && { xwsaddon }),
-        ...(notNil(xwsship) && { xwsship }),
-      };
-
-      transformed.push(newPilot);
-
+    if (skip) {
       return transformed;
-    },
-    [] as Omit<Pilot, 'created_at' | 'id'>[]
-  );
+    }
+
+    const newPilot: Omit<Pilot, 'created_at' | 'id' | 'upgrades'> = {
+      ...(notNil(applies_condition) && {
+        appliesCondition: Array.isArray(applies_condition)
+          ? applies_condition
+          : [applies_condition],
+      }),
+      ...(notNil(charge) && { charge }),
+      ...(notNil(chassis) && { chassis }),
+      ...(notNil(engagement) && { engagement }),
+      faction,
+      ...(notNil(force) && { force }),
+      ...(notNil(forcerecurring) && { forcerecurring }),
+      ...(notNil(keyword) && { keywords: keyword }),
+      loadout: notNil(loadoutxwa) ? loadoutxwa : loadout || 0,
+      ...((notNil(unique) || notNil(max_per_squad)) && {
+        maxPerSquad: unique ? 1 : max_per_squad,
+      }),
+      name,
+      points: notNil(pointsxwa) ? pointsxwa : points,
+      ...(notNil(recurring) && { recurring }),
+      ...(notNil(restrictions) && {
+        restrictions: { upgradesInList: [restrictions[0][1]] },
+      }),
+      platform: ship,
+      ...(notNil(ship_override) && { platformOverride: ship_override }),
+      skill,
+      slots: notNil(slotsxwa) ? slotsxwa : slots || [],
+      ...(notNil(upgrades) && { upgrades }),
+      ...(notNil(xws) && { xws }),
+      ...(notNil(xwsaddon) && { xwsaddon }),
+      ...(notNil(xwsship) && { xwsship }),
+    };
+
+    transformed.push(newPilot);
+
+    return transformed;
+  }, [] as TransformedPilot[]);
 }

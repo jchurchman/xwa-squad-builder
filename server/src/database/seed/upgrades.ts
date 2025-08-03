@@ -15,7 +15,7 @@ type ImportedUpgrade = {
   charge?: number;
   chassis?: string;
   confersAddons?: { slot: string }[];
-  faction?: string[];
+  faction?: Faction[];
   force?: number;
   forcerecurring?: number;
   keyword?: string[];
@@ -30,6 +30,7 @@ type ImportedUpgrade = {
   recurring?: boolean | number;
   restrictions?: (number | string)[][];
   restrictionsxwa?: string[][];
+  ship?: string;
   skip?: boolean;
   slot: string;
   solitary?: boolean;
@@ -114,6 +115,7 @@ function buildUpgradeRestrictions(rawUpgrade: ImportedUpgrade) {
     max_per_squad,
     restrictions: rawRestrictions,
     restrictionsxwa,
+    ship,
     slot,
     solitary,
     standard,
@@ -130,6 +132,7 @@ function buildUpgradeRestrictions(rawUpgrade: ImportedUpgrade) {
     }),
     ...(notNil(faction) && { faction }),
     ...(notNil(standard) && { standard }),
+    ...(notNil(ship) && { platform: Array.isArray(ship) ? ship : [ship] }),
   };
 
   if (notNil(also_occupies_upgrades) || notNil(also_occupies_upgrades_xwa)) {

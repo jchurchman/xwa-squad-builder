@@ -12,7 +12,7 @@ export interface HydratedPilot
   platformOverride?: PlatformOverride;
   restrictions?: Restrictions;
   slots: string[];
-  upgrades?: string[];
+  upgrades?: number[];
   xwsship?: boolean;
 }
 
@@ -35,7 +35,7 @@ export interface Pilot {
   restrictions?: Restrictions;
   skill: number;
   slots: string[];
-  upgrades?: string[];
+  upgrades?: number[];
   xws?: string;
   xwsaddon?: string;
   xwsship?: boolean;

@@ -14,7 +14,7 @@ type Restrictions = {
   attackArc?: string;
   base?: string[];
   chassis?: string;
-  faction?: string[];
+  faction?: Faction[];
   factionOrUnique?: {
     faction: Faction;
     uniqueName: string;

@@ -9,6 +9,8 @@ import {
   UpgradeRepository,
 } from './database/database';
 
+import type { Faction } from '@shared/types';
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 const isDev = process.env.NODE_ENV !== 'production';
@@ -105,7 +107,7 @@ app.get('/api/upgrades', (req: Request, res: Response) => {
       if (!upgrade.upgradeRestrictions.faction) {
         return true;
       }
-      return upgrade.upgradeRestrictions.faction.includes(faction as string);
+      return upgrade.upgradeRestrictions.faction.includes(faction as Faction);
     });
 
     res.json(upgrades);
