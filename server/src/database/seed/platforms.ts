@@ -1,6 +1,6 @@
 import { Faction, Platform } from '@shared/types';
 
-type importedPlatform = {
+type ImportedPlatform = {
   actions: string[];
   agility: number;
   attack?: number;
@@ -26,6 +26,12 @@ type importedPlatform = {
   shields: number;
 };
 
-export function transformPlatformsForDb(platforms: Record<string, importedPlatform>): Platform[] {
+interface TransformedPlatform extends Omit<Platform, 'autoequip' | 'created_at' | 'id'> {
+  autoequip?: string[];
+}
+
+export function transformPlatformsForDb(
+  platforms: Record<string, ImportedPlatform>
+): TransformedPlatform[] {
   return Object.values(platforms);
 }

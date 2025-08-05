@@ -7,14 +7,17 @@ import {
   selectAllPlatformsMap,
   selectAllUpgradesMap,
   selectPilotIdsByPlatformMap,
+  selectUpgradeIdsBySlot,
 } from './entities';
 
-import { Faction, HydratedPilot, HydratedUpgrade } from '@shared/types';
+import { Faction, HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
 import { RootState, SlotId } from '@types';
 
 type ListSelectorArgs = {
   faction?: Faction;
   shipId?: string;
+  slotId?: SlotId;
+  slotType?: string;
 };
 
 function listSelectorArgsForwarder(_: RootState, args: ListSelectorArgs) {
@@ -25,9 +28,18 @@ export const selectListState = (state: RootState) => state.list;
 export const selectListShips = (state: RootState) => state.list.ships;
 export const selectShipOrderIds = (state: RootState) => state.list.shipOrder;
 
+export const selectSpecificShip = createSelector(
+  [selectListShips, listSelectorArgsForwarder],
+  (listShips, { shipId }) => {
+    // console.log('selectSpecificShip recomputing');
+    return listShips[shipId!];
+  }
+);
+
 export const selectListPilots = createSelector(
   [selectShipOrderIds, selectListShips, selectAllPilotsMap],
   (shipIds, listShips, pilots) => {
+    // console.log('selectListPilots recomputing');
     if (!shipIds || shipIds.length === 0) return [];
 
     return shipIds
@@ -42,23 +54,18 @@ export const selectListPilots = createSelector(
 export const selectList = createSelector(
   [selectShipOrderIds, selectListShips],
   (shipOrder, ships) => {
+    // console.log('selectList recomputing');
     return shipOrder.map((id) => ships[id]);
   }
 );
 
 export const selectShipPlatform = createSelector(
-  [selectAllPlatformsMap, selectListShips, listSelectorArgsForwarder],
-  (allPlatforms, listPlatforms, { shipId }) => {
-    if (!shipId) {
-      return undefined;
-    }
-    const { platform } = listPlatforms[shipId] || {};
+  [selectAllPlatformsMap, selectSpecificShip],
+  (allPlatforms, ship) => {
+    // console.log('selectShipPlatform recomputing');
+    const { platform } = ship || {};
 
-    if (platform) {
-      return allPlatforms[platform];
-    }
-
-    return undefined;
+    return platform ? allPlatforms[platform] : undefined;
   }
 );
 
@@ -71,6 +78,7 @@ const emptyPilotsArr: HydratedPilot[] = createEmptyPilotsArr();
 export const selectPilotsByPlatformAndFaction = createSelector(
   [selectPilotIdsByPlatformMap, selectAllPilotsMap, selectShipPlatform, listSelectorArgsForwarder],
   (pilotIdsByPlatformMap, allPilotsMap, selectedPlatform, { faction }) => {
+    // console.log('selectPilotsByPlatformAndFaction recomputing');
     if (!selectedPlatform) {
       return emptyPilotsArr;
     }
@@ -94,40 +102,30 @@ export const selectPilotsByPlatformAndFaction = createSelector(
 );
 
 export const selectShipPilot = createSelector(
-  [selectAllPilotsMap, selectListShips, listSelectorArgsForwarder],
-  (allPilots, listShips, { shipId }) => {
-    if (!shipId) {
-      return undefined;
-    }
-    const { pilot } = listShips[shipId];
-    if (pilot) {
-      return allPilots[pilot];
-    }
-    return undefined;
+  [selectAllPilotsMap, selectSpecificShip],
+  (allPilots, ship) => {
+    // console.log('selectShipPilot recomputing');
+    const { pilot } = ship || {};
+
+    return pilot ? allPilots[pilot] : undefined;
   }
 );
 
 export const selectShipUpgrades = createSelector(
-  [selectAllUpgradesMap, selectListShips, listSelectorArgsForwarder],
-  (allUpgrades, listShips, { shipId }) => {
-    if (!shipId) {
-      return undefined;
-    }
-    const { upgrades } = listShips[shipId];
-    if (upgrades) {
-      return Object.entries(upgrades).reduce(
-        (accum, [key, value]) => {
-          if (value) {
-            accum[key] = allUpgrades[value];
-          }
+  [selectAllUpgradesMap, selectSpecificShip],
+  (allUpgrades, ship) => {
+    // console.log('selectShipUpgrades recomputing');
+    const { upgrades } = ship;
 
-          return accum;
-        },
-        {} as Record<SlotId, HydratedUpgrade | null>
-      );
-    }
-
-    return undefined;
+    return Object.entries(upgrades).reduce(
+      (accum, [key, value]) => {
+        if (value) {
+          accum[key] = allUpgrades[value];
+        }
+        return accum;
+      },
+      {} as Record<SlotId, HydratedUpgrade | null>
+    );
   }
 );
 
@@ -136,6 +134,7 @@ const SLOT_ID_DELIMITER = '-';
 export const selectShipUpgradeSlots = createSelector(
   [selectShipPilot, selectShipUpgrades],
   (pilot, upgrades) => {
+    // console.log('selectShipUpgradeSlots recomputing');
     if (!pilot) {
       return [];
     }
@@ -161,95 +160,99 @@ export const selectShipUpgradeSlots = createSelector(
   }
 );
 
-export const selectUpgradesBySlot = createSelector(
-  [selectAllUpgradesMap, listSelectorArgsForwarder],
-  (upgradesMap) => {
-    const upgradesBySlot = Object.values(upgradesMap).reduce(
-      (accum, upgrade) => {
-        const { upgradeRestrictions } = upgrade;
+// TODO: Make this prettier
+function upgradeIsValid(
+  upgrade: HydratedUpgrade,
+  faction: Faction,
+  platform?: HydratedPlatform,
+  pilot?: HydratedPilot
+): boolean {
+  const { upgradeRestrictions } = upgrade;
+  const { name: platformName } = platform || {};
+  const { standard } = pilot || {};
 
-        const slotType = upgradeRestrictions.slots?.[0];
-
-        if (slotType) {
-          if (!accum[slotType]) {
-            accum[slotType] = [upgrade];
-          } else {
-            accum[slotType].push(upgrade);
-          }
-        }
-
-        return accum;
-      },
-      {} as Record<string, HydratedUpgrade[]>
-    );
-    return upgradesBySlot;
+  if (standard && upgradeRestrictions.standard) {
+    return false;
   }
+
+  if (upgradeRestrictions.platform && !upgradeRestrictions.platform.includes(platformName || '')) {
+    return false;
+  }
+
+  if (upgradeRestrictions.faction && !upgradeRestrictions.faction.includes(faction)) {
+    return false;
+  }
+
+  if (
+    upgradeRestrictions.factionOrUnique?.faction &&
+    upgradeRestrictions.factionOrUnique.faction !== faction
+  ) {
+    return false;
+  }
+
+  if (upgradeRestrictions.standard && upgradeRestrictions.standard) {
+    return false;
+  }
+
+  return true;
+}
+
+const selectIsStandardLoadoutPilot = createSelector(selectShipPilot, (pilot) => pilot?.standard);
+
+export const selectUpgradeSlotSelected = createSelector(
+  [selectShipUpgrades, listSelectorArgsForwarder],
+  (selectedUpgradesForShip, { slotId }) => selectedUpgradesForShip?.[slotId!]
 );
 
-export const selectUpgradeSlotStateProps = createSelector(
-  [selectShipUpgrades, selectShipUpgradeSlots, selectUpgradesBySlot],
-  (selectedUpgrades, availableSlots, upgradesBySlot) => {
-    return availableSlots.map(([slotId, slotType]) => {
-      return {
-        options: upgradesBySlot[slotType] || [],
-        selected: selectedUpgrades?.[slotId],
-        slotId,
-        slotType,
-      };
-    });
+const EMPTY_UPGRADES_ARRAY: HydratedUpgrade[] = [];
+
+export const selectUpgradeSlotOptionsArray = createSelector(
+  [
+    selectShipUpgrades,
+    selectUpgradeIdsBySlot,
+    selectIsStandardLoadoutPilot,
+    selectAllUpgradesMap,
+    selectShipPlatform,
+    selectShipPilot,
+    listSelectorArgsForwarder,
+  ],
+  (
+    selectedUpgradesForShip,
+    upgradesIdsBySlot,
+    standard,
+    allUpgradesMap,
+    platform,
+    pilot,
+    { faction, slotId, slotType }
+  ) => {
+    if (!faction || !slotId || !slotType) {
+      return EMPTY_UPGRADES_ARRAY;
+    }
+    const selected = selectedUpgradesForShip?.[slotId];
+
+    if (standard && selected) {
+      return EMPTY_UPGRADES_ARRAY;
+    }
+
+    const options = (upgradesIdsBySlot[slotType] || []).reduce((acc, upgradeId) => {
+      const upgrade = allUpgradesMap[upgradeId];
+      if (upgradeIsValid(upgrade, faction!, platform, pilot)) {
+        acc.push(upgrade);
+      }
+      return acc;
+    }, [] as HydratedUpgrade[]);
+
+    return options;
+  },
+  {
+    memoizeOptions: {
+      resultEqualityCheck: (a: HydratedUpgrade[], b: HydratedUpgrade[]) =>
+        a.length === b.length && a.every((item, index) => item === b[index]),
+    },
   }
 );
-
-// export const selectListUpgrades = createSelector(
-//   [selectShipOrderIds, selectListShips, selectAllUpgradesMap],
-//   (platformIds, listPlatforms, upgrades) => {
-//     if (!platformIds || platformIds.length === 0) return [];
-
-//     const allUpgrades: HydratedUpgrade[] = [];
-
-//     platformIds.forEach((platformId) => {
-//       const listPlatform = listPlatforms[platformId];
-//       if (!listPlatform) return;
-
-//       Object.values(listPlatform.upgrades || {}).forEach((upgradeIds) => {
-//         upgradeIds.forEach((upgradeId) => {
-//           if (!upgradeId) return;
-//           const upgrade = upgrades[upgradeId];
-//           if (upgrade) allUpgrades.push(upgrade);
-//         });
-//       });
-//     });
-
-//     return allUpgrades;
-//   }
-// );
 
 export const selectHasPilot = createSelector(
   [selectListPilots, (_: RootState, pilotName: string) => pilotName],
   (pilots, pilotName) => pilots.some((pilot) => pilot?.name === pilotName)
 );
-
-// export const selectHasUpgrade = createSelector(
-//   [selectListUpgrades, (_: RootState, upgradeName: string) => upgradeName],
-//   (upgrades, upgradeName) => upgrades.some((upgrade) => upgrade.name === upgradeName)
-// );
-
-// export const selectListPoints = createSelector(
-//   [selectListPilots, selectListUpgrades],
-//   (pilots, upgrades) => {
-//     const pilotPoints = pilots.reduce((sum, pilot) => sum + (pilot?.points || 0), 0);
-//     const upgradePoints = upgrades.reduce((sum, upgrade) => sum + (upgrade.points || 0), 0);
-//     return pilotPoints + upgradePoints;
-//   }
-// );
-
-// export const selectListIsValid = createSelector(
-//   [selectListState, selectListPoints],
-//   (list, points) => {
-//     if (!list) return false;
-
-//     return (
-//       list.shipOrder.length >= 3 && list.shipOrder.length <= 8 && points <= 50 // Standard game limit
-//     );
-//   }
-// );

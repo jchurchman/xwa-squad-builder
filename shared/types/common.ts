@@ -8,6 +8,17 @@ enum Faction {
   separatists = 'Separatist Alliance',
 }
 
+type RestrictionValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | Faction[]
+  | {
+      faction: Faction;
+      uniqueName: string;
+    };
+
 type Restrictions = {
   action?: string[];
   agility?: number;
@@ -54,4 +65,4 @@ type PlatformOverride = {
   shields?: number;
 };
 
-export { Faction, Restrictions, PlatformOverride };
+export { Faction, Restrictions, PlatformOverride, RestrictionValue };

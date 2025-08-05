@@ -1,32 +1,28 @@
-import { useUpgradeSelect } from '@hooks';
+import { useShipUpgradesForm } from '@hooks';
 
 import { UpgradeSelector } from './UpgradeSelector';
 
 import classes from './ShipForm.module.scss';
-
-import { UpgradeId } from '@shared/types';
 
 type ShipUpgradesFormProps = {
   shipId: string;
 };
 
 export function ShipUpgradesForm({ shipId }: ShipUpgradesFormProps) {
-  const { onClear, onSelect, upgradeSlotProps } = useUpgradeSelect({ shipId });
+  const { upgradeSlotMetadata } = useShipUpgradesForm({ shipId });
 
-  if (!upgradeSlotProps.length) {
+  if (!upgradeSlotMetadata.length) {
     return null;
   }
 
   return (
     <div className={classes.upgradeGroup}>
-      {upgradeSlotProps.map((slotProps) => (
+      {upgradeSlotMetadata.map(([slotId, slotType]) => (
         <UpgradeSelector
-          key={slotProps.slotId}
-          onClear={() => onClear(slotProps.slotId)}
-          onSelect={(upgradeId: UpgradeId) => onSelect(slotProps.slotId, upgradeId)}
-          options={slotProps.options}
-          selected={slotProps.selected}
-          slotType={slotProps.slotType}
+          key={`${shipId}.${slotId}`}
+          shipId={shipId}
+          slotId={slotId}
+          slotType={slotType}
         />
       ))}
     </div>

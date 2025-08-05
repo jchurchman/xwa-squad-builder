@@ -7,9 +7,10 @@ export const selectAllPlatforms = (state: RootState) => Object.values(state.enti
 export const selectAllPlatformsMap = (state: RootState) => state.entities.platforms;
 export const selectAllPilots = (state: RootState) => Object.values(state.entities.pilots);
 export const selectAllPilotsMap = (state: RootState) => state.entities.pilots;
-export const selectPilotIdsByPlatformMap = (state: RootState) => state.entities.pilotsByPlatform;
+export const selectPilotIdsByPlatformMap = (state: RootState) => state.entities.pilotIdsByPlatform;
 export const selectAllUpgrades = (state: RootState) => Object.values(state.entities.upgrades);
 export const selectAllUpgradesMap = (state: RootState) => state.entities.upgrades;
+export const selectUpgradeIdsBySlot = (state: RootState) => state.entities.upgradeIdsBySlot;
 
 export const selectPlatformById = (state: RootState, platformId: number) =>
   state.entities.platforms[platformId];
@@ -28,7 +29,7 @@ export const selectPilotsByFaction = createSelector(
 export const selectPlatformsByFaction = createSelector(
   [
     selectAllPlatformsMap,
-    (state: RootState) => state.entities.platformsByFaction,
+    (state: RootState) => state.entities.platformIdsByFaction,
     (_: RootState, faction: Faction) => faction,
   ],
   (platforms, platformsByFactionMap, faction) => {

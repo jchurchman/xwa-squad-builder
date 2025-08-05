@@ -1,29 +1,35 @@
 import { useMemo } from 'react';
 
 import { SearchableSelect } from '@components';
+import { useUpgradeSelector } from '@hooks';
 
 import classes from './ShipForm.module.scss';
 
-import { HydratedUpgrade, UpgradeId } from '@shared/types';
-
 type UpgradeSelectorProps = {
-  onClear: () => void;
-  onSelect: (upgradeId: UpgradeId) => void;
-  options: HydratedUpgrade[];
-  selected: HydratedUpgrade | null | undefined;
+  shipId: string;
+  slotId: string;
   slotType: string;
 };
 
 export function UpgradeSelector(props: UpgradeSelectorProps) {
-  const { onClear, onSelect, options, selected, slotType } = props;
+  const { shipId, slotId, slotType } = props;
+
+  const { onClear, onSelect, options, selected } = useUpgradeSelector({ shipId, slotId, slotType });
 
   const formattedOptions = useMemo(() => {
+    if (options.length === 0 && selected) {
+      return [{ label: selected.name, value: selected.id }];
+    }
     return options.map((opt) => ({ label: opt.name, value: opt.id }));
-  }, [options]);
+  }, [options, selected]);
+
+  const allowClear = useMemo(() => {
+    return !(options.length === 0 || selected?.upgradeRestrictions?.standard);
+  }, [options, selected]);
 
   return (
     <SearchableSelect
-      allowClear
+      allowClear={allowClear}
       className={classes.upgradeSelect}
       onChange={onSelect}
       onClear={onClear}

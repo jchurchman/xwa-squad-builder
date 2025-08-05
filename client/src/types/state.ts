@@ -15,10 +15,11 @@ export interface LoadingState {
 }
 
 export interface EntitiesState {
+  pilotIdsByPlatform: { [platformName: string]: number[] };
   pilots: { [id: number]: HydratedPilot };
-  pilotsByPlatform: { [platformName: string]: number[] };
+  platformIdsByFaction: { [faction: string]: number[] };
   platforms: { [id: number]: HydratedPlatform };
-  platformsByFaction: { [faction: string]: number[] };
+  upgradeIdsBySlot: Record<string, number[]>;
   upgrades: { [id: number]: HydratedUpgrade };
 }
 
@@ -32,7 +33,7 @@ export interface ShipState {
   id: ShipId;
   pilot?: PilotId;
   platform?: PlatformId;
-  upgrades?: SelectedUpgrades;
+  upgrades: SelectedUpgrades;
 }
 
 export interface ListState {

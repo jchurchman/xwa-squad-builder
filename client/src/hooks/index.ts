@@ -2,4 +2,5 @@ export { useApiGet } from './useApiGet';
 export { useAppDispatch, useAppSelector } from './state';
 export { useTypedParams } from './useTypedParams';
 export { useShipForm } from './useShipForm';
-export { useUpgradeSelect } from './useUpgradeSelect';
+export { useShipUpgradesForm } from './useShipUpgradesForm';
+export { useUpgradeSelector } from './useUpgradeSelector';

@@ -6,10 +6,10 @@ import { EntitiesState } from '@types';
 
 function createEmptyEntitiesState(): EntitiesState {
   return {
+    pilotIdsByPlatform: {},
     pilots: {},
-    pilotsByPlatform: {},
+    platformIdsByFaction: {},
     platforms: {},
-    platformsByFaction: {},
     upgrades: {},
   } as EntitiesState;
 }
@@ -20,11 +20,11 @@ const reducers = {
   },
   clearPilots: (state: EntitiesState) => {
     state.pilots = {} as Record<number, HydratedPilot>;
-    state.pilotsByPlatform = {} as Record<string, number[]>;
+    state.pilotIdsByPlatform = {} as Record<string, number[]>;
   },
   clearPlatforms: (state: EntitiesState) => {
     state.platforms = {} as Record<number, HydratedPlatform>;
-    state.platformsByFaction = {} as Record<Faction, number[]>;
+    state.platformIdsByFaction = {} as Record<Faction, number[]>;
   },
   clearUpgrades: (state: EntitiesState) => {
     state.upgrades = {} as Record<number, HydratedUpgrade>;
@@ -64,7 +64,7 @@ const entitiesSlice = createAppSlice({
         );
 
         state.platforms = { ...state.platforms, ...platformsById };
-        state.platformsByFaction = platformsByFaction;
+        state.platformIdsByFaction = platformsByFaction;
       })
       .addMatcher(api.endpoints.fetchAllPilots.matchFulfilled, (state, action) => {
         const pilots = action.payload;
@@ -87,20 +87,29 @@ const entitiesSlice = createAppSlice({
         );
 
         state.pilots = { ...state.pilots, ...pilotsById };
-        state.pilotsByPlatform = pilotsByPlatform;
+        state.pilotIdsByPlatform = pilotsByPlatform;
       })
       .addMatcher(api.endpoints.fetchAllUpgrades.matchFulfilled, (state, action) => {
         const upgrades = action.payload;
 
+        const upgradeIdsBySlot: Record<string, number[]> = {};
+
         const upgradesById = upgrades.reduce(
           (acc, upgrade) => {
             acc[upgrade.id] = upgrade;
+            const slots = upgrade.upgradeRestrictions?.slots || [];
+            const slotType = slots[0];
+            if (!upgradeIdsBySlot[slotType]) {
+              upgradeIdsBySlot[slotType] = [];
+            }
+            upgradeIdsBySlot[slotType].push(upgrade.id);
             return acc;
           },
           {} as { [id: number]: HydratedUpgrade }
         );
-
+        console.log(upgradesById);
         state.upgrades = { ...state.upgrades, ...upgradesById };
+        state.upgradeIdsBySlot = upgradeIdsBySlot;
       });
   },
   initialState,

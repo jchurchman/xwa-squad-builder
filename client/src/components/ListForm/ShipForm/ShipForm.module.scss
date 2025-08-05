@@ -16,4 +16,6 @@
 .upgrade-group {
   display: flex;
   flex-direction: row;
+  max-width: 100%;
+  flex-wrap: wrap;
 }

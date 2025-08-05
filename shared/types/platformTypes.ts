@@ -5,7 +5,7 @@ export type PlatformId = number;
 export interface HydratedPlatform
   extends Omit<PlatformRow, 'actions' | 'autoequip' | 'factions' | 'keyword' | 'maneuvers'> {
   actions: string[];
-  autoequip?: string[];
+  autoequip?: number[];
   factions: string[];
   keyword?: string[];
   maneuvers: number[][];
@@ -22,7 +22,7 @@ export interface Platform {
   attackl?: number;
   attackr?: number;
   attackt?: number;
-  autoequip?: string[];
+  autoequip?: number[];
   base: string;
   chassis?: string;
   energy?: number;

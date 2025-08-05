@@ -17,8 +17,6 @@ import { transformPilotsForDb } from './pilots';
 import { transformPlatformsForDb } from './platforms';
 import { transformUpgradesForDb } from './upgrades';
 
-import { Pilot } from '@shared/types';
-
 const YASB_CARDS_URL =
   'https://raw.githubusercontent.com/jchurchman/yasb/master/coffeescripts/content/cards-common.coffee';
 
@@ -69,12 +67,6 @@ const seedDatabase = async (): Promise<void> => {
     const pilotRestrictionRepo = new PilotRestrictionRepository();
     const upgradeRestrictionRepo = new UpgradeRestrictionRepository();
 
-    console.log('Transforming and seeding platforms...');
-    const transformedPlatforms = transformPlatformsForDb(ships);
-    for (const platform of transformedPlatforms) {
-      platformRepo.create(platform);
-    }
-
     console.log('Transforming and seeding upgrades...');
     const transformedUpgrades = transformUpgradesForDb(upgradesById);
     const upgradeNameToIdMap = new Map<string, number>();
@@ -87,10 +79,37 @@ const seedDatabase = async (): Promise<void> => {
         for (const [restrictionType, restrictionValue] of Object.entries(
           upgrade.upgradeRestrictions
         )) {
-          const values = Array.isArray(restrictionValue) ? restrictionValue : [restrictionValue];
-          upgradeRestrictionRepo.create(hydratedUpgrade.id, restrictionType, 'equals', values);
+          upgradeRestrictionRepo.create(
+            hydratedUpgrade.id,
+            restrictionType,
+            'equals',
+            restrictionValue
+          );
         }
       }
+    }
+
+    console.log('Transforming and seeding platforms...');
+    const transformedPlatforms = transformPlatformsForDb(ships);
+    for (const platform of transformedPlatforms) {
+      let upgradeIds: number[] | undefined;
+      if (platform.autoequip) {
+        upgradeIds = platform.autoequip
+          .map((upgradeName) => upgradeNameToIdMap.get(upgradeName))
+          .filter((id): id is number => id !== undefined);
+
+        const missingUpgrades = platform.autoequip.filter((name) => !upgradeNameToIdMap.has(name));
+        if (missingUpgrades.length > 0) {
+          console.warn(
+            `Platform ${platform.name}: Missing upgrades: ${missingUpgrades.join(', ')}`
+          );
+        }
+      }
+
+      platformRepo.create({
+        ...platform,
+        autoequip: upgradeIds,
+      });
     }
 
     console.log('Transforming and seeding pilots...');
@@ -109,8 +128,58 @@ const seedDatabase = async (): Promise<void> => {
         }
       }
 
-      const pilotWithIds: Pilot = {
+      let derivedSlots = pilot.slots;
+      let isStandard = false;
+      if ((!pilot.slots || pilot.slots.length === 0) && upgradeIds && upgradeIds.length > 0) {
+        const slotsSet = [];
+
+        for (const upgradeId of upgradeIds) {
+          const standardRestrictions = db
+            .prepare(
+              `SELECT restriction_values 
+               FROM upgrade_restrictions 
+               WHERE upgrade_id = ? AND restriction_type = 'standard'`
+            )
+            .all(upgradeId) as Array<{ restriction_values: string }>;
+
+          if (standardRestrictions.length > 0) {
+            const standardValue = JSON.parse(standardRestrictions[0].restriction_values);
+            if (
+              standardValue === true ||
+              (Array.isArray(standardValue) && standardValue[0] === true)
+            ) {
+              isStandard = true;
+            }
+          }
+
+          const slotsRestrictions = db
+            .prepare(
+              `SELECT restriction_values 
+               FROM upgrade_restrictions 
+               WHERE upgrade_id = ? AND restriction_type = 'slots'`
+            )
+            .all(upgradeId) as Array<{ restriction_values: string }>;
+
+          for (const restriction of slotsRestrictions) {
+            const values = JSON.parse(restriction.restriction_values) as string[];
+            if (values.length > 0) {
+              slotsSet.push(values[0]);
+            }
+          }
+        }
+
+        derivedSlots = slotsSet;
+        if (derivedSlots.length > 0) {
+          console.log(
+            `Pilot ${pilot.name}: Derived slots [${derivedSlots.join(', ')}] from upgrades`
+          );
+        }
+      }
+
+      const pilotWithIds = {
         ...pilot,
+        slots: derivedSlots,
+        standard: isStandard,
         upgrades: upgradeIds,
       };
 
@@ -118,8 +187,12 @@ const seedDatabase = async (): Promise<void> => {
 
       if (pilot.restrictions) {
         for (const [restrictionType, restrictionValue] of Object.entries(pilot.restrictions)) {
-          const values = Array.isArray(restrictionValue) ? restrictionValue : [restrictionValue];
-          pilotRestrictionRepo.create(hydratedPilot.id, restrictionType, 'equals', values);
+          pilotRestrictionRepo.create(
+            hydratedPilot.id,
+            restrictionType,
+            'equals',
+            restrictionValue
+          );
         }
       }
     }
@@ -132,76 +205,11 @@ const seedDatabase = async (): Promise<void> => {
   }
 };
 
-const backfillPilotSlots = (): void => {
-  console.log('Starting pilot slots backfill...');
-
-  // Get all pilots with empty slots but non-empty upgrades
-  const pilotsNeedingSlots = db
-    .prepare(
-      `
-    SELECT id, name, upgrades 
-    FROM pilots 
-    WHERE slots = '[]' AND upgrades IS NOT NULL AND upgrades != '[]'
-  `
-    )
-    .all() as Array<{ id: number; name: string; upgrades: string }>;
-
-  console.log(`Found ${pilotsNeedingSlots.length} pilots needing slot backfill`);
-
-  const updatePilotSlots = db.prepare(`
-    UPDATE pilots SET slots = ? WHERE id = ?
-  `);
-
-  let updatedCount = 0;
-
-  for (const pilot of pilotsNeedingSlots) {
-    try {
-      const upgradeIds = JSON.parse(pilot.upgrades) as number[];
-      const derivedSlots = new Set<string>();
-
-      for (const upgradeId of upgradeIds) {
-        // Get upgrade restrictions for 'slots' type
-        const slotsRestrictions = db
-          .prepare(
-            `
-          SELECT restriction_values 
-          FROM upgrade_restrictions 
-          WHERE upgrade_id = ? AND restriction_type = 'slots'
-        `
-          )
-          .all(upgradeId) as Array<{ restriction_values: string }>;
-
-        // Extract first value from each slots restriction
-        for (const restriction of slotsRestrictions) {
-          const values = JSON.parse(restriction.restriction_values) as string[];
-          if (values.length > 0) {
-            derivedSlots.add(values[0]);
-          }
-        }
-      }
-
-      if (derivedSlots.size > 0) {
-        const slotsArray = Array.from(derivedSlots);
-        updatePilotSlots.run(JSON.stringify(slotsArray), pilot.id);
-        updatedCount++;
-        console.log(`Updated ${pilot.name}: added slots [${slotsArray.join(', ')}]`);
-      } else {
-        console.warn(`No slots derived for pilot ${pilot.name}`);
-      }
-    } catch (error) {
-      console.error(`Error processing pilot ${pilot.name}:`, error);
-    }
-  }
-
-  console.log(`Backfill complete: updated ${updatedCount} pilots`);
-};
-
 if (require.main === module) {
   (async () => {
     console.log('Initializing database...');
     initializeDatabase();
     await seedDatabase();
-    backfillPilotSlots();
     console.log('Seeding complete!');
   })();
 }

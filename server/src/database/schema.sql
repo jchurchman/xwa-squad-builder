@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS pilots (
   xws TEXT,
   xwsaddon TEXT,
   xwsship INTEGER, -- SQLite boolean (0/1)
+  standard INTEGER DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -80,16 +81,15 @@ CREATE TABLE IF NOT EXISTS pilot_restrictions (
   pilot_id INTEGER NOT NULL,
   restriction_type TEXT NOT NULL,
   operator TEXT NOT NULL DEFAULT 'equals',
-  restriction_values TEXT NOT NULL, -- JSON array
+  restriction_values TEXT NOT NULL, -- JSON value (can be primitive, array, or object)
   FOREIGN KEY (pilot_id) REFERENCES pilots(id)
 );
 
--- Upgrade restrictions
 CREATE TABLE IF NOT EXISTS upgrade_restrictions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   upgrade_id INTEGER NOT NULL,
   restriction_type TEXT NOT NULL,
   operator TEXT NOT NULL DEFAULT 'equals',
-  restriction_values TEXT NOT NULL, -- JSON array
+  restriction_values TEXT NOT NULL, -- JSON value (can be primitive, array, or object)
   FOREIGN KEY (upgrade_id) REFERENCES upgrades(id)
 );

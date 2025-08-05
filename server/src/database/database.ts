@@ -13,6 +13,7 @@ import {
   PlatformOverride,
   PlatformRow,
   Restrictions,
+  RestrictionValue,
   Upgrade,
   UpgradeRestrictionRow,
   UpgradeRow,
@@ -30,8 +31,8 @@ const db = new Database(DB_PATH);
 
 export class PilotRepository {
   private insertPilot = db.prepare(`
-    INSERT INTO pilots (name, platform, faction, skill, points, loadout, slots, appliesCondition, charge, chassis, engagement, force, forcerecurring, keywords, maxPerSquad, recurring, platformOverride, upgrades, xws, xwsaddon, xwsship)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO pilots (name, platform, faction, skill, points, loadout, slots, appliesCondition, charge, chassis, engagement, force, forcerecurring, keywords, maxPerSquad, recurring, platformOverride, upgrades, xws, xwsaddon, xwsship, standard)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   private selectAllPilots = db.prepare('SELECT * FROM pilots ORDER BY name');
@@ -68,7 +69,8 @@ export class PilotRepository {
         pilot.upgrades ? JSON.stringify(pilot.upgrades) : null,
         pilot.xws || null,
         pilot.xwsaddon || null,
-        pilot.xwsship ? 1 : 0
+        pilot.xwsship ? 1 : 0,
+        pilot.standard ? 1 : 0
       );
       return this.findById(result.lastInsertRowid as number)!;
     } catch (error) {
@@ -107,13 +109,28 @@ export class PilotRepository {
 
     const result: Restrictions = {};
     for (const restriction of restrictions) {
-      const values = JSON.parse(restriction.restriction_values);
+      const rawValue = JSON.parse(restriction.restriction_values);
       const key = restriction.restriction_type as keyof Restrictions;
 
+      // Handle different value types appropriately
       if (key === 'factionOrUnique') {
-        result[key] = values[0];
+        result[key] = rawValue;
+      } else if (
+        key === 'maxPerSquad' ||
+        key === 'minShield' ||
+        key === 'minSkill' ||
+        key === 'minEnergy' ||
+        key === 'agility' ||
+        key === 'maxSkill'
+      ) {
+        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+      } else if (key === 'solitary' || key === 'standard' || key === 'standardized') {
+        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+      } else if (key === 'attackArc' || key === 'chassis') {
+        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
       } else {
-        result[key] = values;
+        // Everything else should be arrays (slots, faction, platform, etc.)
+        result[key] = Array.isArray(rawValue) ? rawValue : [rawValue];
       }
     }
     return result;
@@ -150,20 +167,20 @@ export class PilotRestrictionRepository {
     pilotId: number,
     restrictionType: string,
     operator: string,
-    values: unknown[]
+    value: RestrictionValue
   ): PilotRestrictionRow {
     const result = this.insertRestriction.run(
       pilotId,
       restrictionType,
       operator,
-      JSON.stringify(values)
+      JSON.stringify(value)
     );
     return {
       id: result.lastInsertRowid as number,
       operator,
       pilot_id: pilotId,
       restriction_type: restrictionType,
-      restriction_values: JSON.stringify(values),
+      restriction_values: JSON.stringify(value),
     };
   }
 
@@ -316,13 +333,28 @@ export class UpgradeRepository {
   private buildRestrictionsObject(restrictions: UpgradeRestrictionRow[]): Restrictions {
     const result: Restrictions = {};
     for (const restriction of restrictions) {
-      const values = JSON.parse(restriction.restriction_values);
+      const rawValue = JSON.parse(restriction.restriction_values);
       const key = restriction.restriction_type as keyof Restrictions;
 
+      // Handle different value types appropriately
       if (key === 'factionOrUnique') {
-        result[key] = values[0];
+        result[key] = rawValue;
+      } else if (
+        key === 'maxPerSquad' ||
+        key === 'minShield' ||
+        key === 'minSkill' ||
+        key === 'minEnergy' ||
+        key === 'agility' ||
+        key === 'maxSkill'
+      ) {
+        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+      } else if (key === 'solitary' || key === 'standard' || key === 'standardized') {
+        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+      } else if (key === 'attackArc' || key === 'chassis') {
+        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
       } else {
-        result[key] = values;
+        // Everything else should be arrays (slots, faction, platform, etc.)
+        result[key] = Array.isArray(rawValue) ? rawValue : [rawValue];
       }
     }
     return result;
@@ -355,19 +387,19 @@ export class UpgradeRestrictionRepository {
     upgradeId: number,
     restrictionType: string,
     operator: string,
-    values: unknown[]
+    value: RestrictionValue
   ): UpgradeRestrictionRow {
     const result = this.insertRestriction.run(
       upgradeId,
       restrictionType,
       operator,
-      JSON.stringify(values)
+      JSON.stringify(value)
     );
     return {
       id: result.lastInsertRowid as number,
       operator,
       restriction_type: restrictionType,
-      restriction_values: JSON.stringify(values),
+      restriction_values: JSON.stringify(value),
       upgrade_id: upgradeId,
     };
   }
