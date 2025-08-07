@@ -71,6 +71,7 @@ export interface PilotRow {
   recurring?: number;
   skill: number;
   slots: string; // JSON string
+  standard: number; // 0 or 1
   upgrades?: string; // JSON string
   xws?: string;
   xwsaddon?: string;

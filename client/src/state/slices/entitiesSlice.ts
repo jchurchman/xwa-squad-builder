@@ -107,7 +107,7 @@ const entitiesSlice = createAppSlice({
           },
           {} as { [id: number]: HydratedUpgrade }
         );
-        console.log(upgradesById);
+
         state.upgrades = { ...state.upgrades, ...upgradesById };
         state.upgradeIdsBySlot = upgradeIdsBySlot;
       });

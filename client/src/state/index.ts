@@ -5,6 +5,7 @@ import entitiesReducer from './slices/entitiesSlice';
 import listReducer from './slices/listSlice';
 
 export const store = configureStore({
+  devTools: true,
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
   reducer: {
     api: api.reducer,

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { selectUpgradeSlotOptionsArray, selectUpgradeSlotSelected } from '@selectors';
+import { selectUpgradeSlotOptionsArray } from '@selectors';
 import { chooseUpgrade } from 'src/state/slices/listSlice';
 
 import { useAppDispatch, useAppSelector } from './state';
@@ -18,8 +18,7 @@ export function useUpgradeSelector({ shipId, slotId, slotType }: UpgradeSelector
   const { faction } = useTypedParams();
   const dispatch = useAppDispatch();
 
-  const selected = useAppSelector((state) => selectUpgradeSlotSelected(state, { shipId, slotId }));
-  const options = useAppSelector((state) =>
+  const { options, selected, standard } = useAppSelector((state) =>
     selectUpgradeSlotOptionsArray(state, { faction, shipId, slotId, slotType })
   );
 
@@ -31,6 +30,7 @@ export function useUpgradeSelector({ shipId, slotId, slotType }: UpgradeSelector
   );
 
   return {
+    allowClear: !standard,
     onClear: () => onSelect(),
     onSelect,
     options,

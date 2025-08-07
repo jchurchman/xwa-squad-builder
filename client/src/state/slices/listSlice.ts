@@ -165,8 +165,6 @@ export const choosePilotId = createAsyncThunk<
   { pilotId?: number; shipId: ShipId },
   { state: RootState }
 >('list/choosePilotId', async ({ pilotId, shipId }, { getState }) => {
-  console.log('choosePilotId thunk ', pilotId);
-
   const state = getState();
   const {
     entities: { pilots, platforms, upgrades },
@@ -187,7 +185,6 @@ export const choosePilotId = createAsyncThunk<
   const pilot = pilots[pilotId];
   const selectedUpgrades = createSelectedUpgradesFromPilotAndPlatform(pilot, platform, upgrades);
 
-  console.log({ pilot, selectedUpgrades });
   return {
     pilot,
     shipId,

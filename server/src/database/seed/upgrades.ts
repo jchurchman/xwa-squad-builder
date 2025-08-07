@@ -135,8 +135,10 @@ function buildUpgradeRestrictions(rawUpgrade: ImportedUpgrade) {
     ...(notNil(ship) && { platform: Array.isArray(ship) ? ship : [ship] }),
   };
 
-  if (notNil(also_occupies_upgrades) || notNil(also_occupies_upgrades_xwa)) {
-    restrictions.slots!.concat(also_occupies_upgrades_xwa! || also_occupies_upgrades!);
+  if (notNil(also_occupies_upgrades_xwa)) {
+    restrictions.slots = restrictions.slots!.concat(also_occupies_upgrades_xwa!);
+  } else if (notNil(also_occupies_upgrades)) {
+    restrictions.slots = restrictions.slots!.concat(also_occupies_upgrades!);
   }
 
   if (notNil(standardized) || notNil(standardizedxwa)) {
@@ -159,14 +161,11 @@ function manageRawRestrictions(raw: (number | string)[][]): Partial<Restrictions
 
   raw?.forEach((res) => {
     const [condition, ...values] = res;
-    if (condition === 'Slot') {
-      return;
-    }
     if (condition === 'isUnique' && values[0]) {
       returnObj.maxPerSquad = 1;
     }
     if (condition === 'Action') {
-      returnObj.action = values as string[];
+      returnObj.action = values[0] as string;
     }
     if (condition === 'AttackArc') {
       returnObj.attackArc = values[0] as string;
@@ -186,6 +185,8 @@ function manageRawRestrictions(raw: (number | string)[][]): Partial<Restrictions
         )
       ) {
         returnObj.chassis = values[0] as string;
+      } else {
+        returnObj.keyword = values[0] as string;
       }
     }
     if (condition === 'ShieldsGreaterThan') {

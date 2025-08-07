@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import {
+  Faction,
   HydratedPilot,
   HydratedPlatform,
   HydratedUpgrade,
@@ -28,6 +29,52 @@ if (!fs.existsSync(dataDir)) {
 }
 
 const db = new Database(DB_PATH);
+
+// Type-safe restriction value parser
+type RestrictionParser<T> = (rawValue: unknown) => T;
+
+// Parser functions for each type
+const parsers = {
+  // Arrays that might come as single values
+  arrayValue: <T>(rawValue: unknown): T[] =>
+    Array.isArray(rawValue) ? (rawValue as T[]) : [rawValue as T],
+
+  // Direct value (already correct type)
+  directValue: <T>(rawValue: unknown): T => rawValue as T,
+
+  // Single values that might come as arrays
+  singleValue: <T>(rawValue: unknown): T =>
+    Array.isArray(rawValue) ? (rawValue[0] as T) : (rawValue as T),
+} satisfies Record<string, RestrictionParser<unknown>>;
+
+// Mapping of restriction types to their parsers
+const restrictionParsers: Record<keyof Restrictions, RestrictionParser<unknown>> = {
+  // Single values
+  action: parsers.singleValue<string>,
+  agility: parsers.singleValue<number>,
+  attackArc: parsers.singleValue<string>,
+  // Arrays
+  base: parsers.arrayValue<string>,
+  chassis: parsers.singleValue<string>,
+  faction: parsers.arrayValue<Faction>,
+  // Objects/complex types
+  factionOrUnique: parsers.directValue<{ faction: Faction; uniqueName: string }>,
+  keyword: parsers.arrayValue<string>,
+  maxPerSquad: parsers.singleValue<number>,
+  maxSkill: parsers.singleValue<number>,
+  minEnergy: parsers.singleValue<number>,
+  minShield: parsers.singleValue<number>,
+
+  minSkill: parsers.singleValue<number>,
+  platform: parsers.arrayValue<string>,
+  slotEquipped: parsers.arrayValue<string>,
+  slots: parsers.arrayValue<string>,
+  solitary: parsers.singleValue<boolean>,
+  standard: parsers.singleValue<boolean>,
+  standardized: parsers.singleValue<boolean>,
+
+  upgradesInList: parsers.arrayValue<string>,
+};
 
 export class PilotRepository {
   private insertPilot = db.prepare(`
@@ -104,35 +151,24 @@ export class PilotRepository {
     return rows.map((row) => this.mapRowToPilot(row));
   }
 
-  private buildRestrictionsObject(restrictions: PilotRestrictionRow[]): Restrictions | undefined {
-    if (restrictions.length === 0) return undefined;
-
+  private buildRestrictionsObject(restrictions: PilotRestrictionRow[]): Restrictions {
     const result: Restrictions = {};
+
     for (const restriction of restrictions) {
       const rawValue = JSON.parse(restriction.restriction_values);
       const key = restriction.restriction_type as keyof Restrictions;
 
-      // Handle different value types appropriately
-      if (key === 'factionOrUnique') {
-        result[key] = rawValue;
-      } else if (
-        key === 'maxPerSquad' ||
-        key === 'minShield' ||
-        key === 'minSkill' ||
-        key === 'minEnergy' ||
-        key === 'agility' ||
-        key === 'maxSkill'
-      ) {
-        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-      } else if (key === 'solitary' || key === 'standard' || key === 'standardized') {
-        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-      } else if (key === 'attackArc' || key === 'chassis') {
-        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+      const parser = restrictionParsers[key];
+      if (parser) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (result as any)[key] = parser(rawValue);
       } else {
-        // Everything else should be arrays (slots, faction, platform, etc.)
-        result[key] = Array.isArray(rawValue) ? rawValue : [rawValue];
+        // Fallback for unknown restriction types
+        console.warn(`Unknown restriction type: ${key}`);
+        result[key] = rawValue;
       }
     }
+
     return result;
   }
 
@@ -149,6 +185,7 @@ export class PilotRepository {
         : undefined,
       restrictions: this.buildRestrictionsObject(restrictions),
       slots: JSON.parse(row.slots),
+      standard: row.standard === 1,
       upgrades: row.upgrades ? JSON.parse(row.upgrades) : undefined,
       xwsship: row.xwsship === 1,
     };
@@ -332,31 +369,22 @@ export class UpgradeRepository {
 
   private buildRestrictionsObject(restrictions: UpgradeRestrictionRow[]): Restrictions {
     const result: Restrictions = {};
+
     for (const restriction of restrictions) {
       const rawValue = JSON.parse(restriction.restriction_values);
       const key = restriction.restriction_type as keyof Restrictions;
 
-      // Handle different value types appropriately
-      if (key === 'factionOrUnique') {
-        result[key] = rawValue;
-      } else if (
-        key === 'maxPerSquad' ||
-        key === 'minShield' ||
-        key === 'minSkill' ||
-        key === 'minEnergy' ||
-        key === 'agility' ||
-        key === 'maxSkill'
-      ) {
-        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-      } else if (key === 'solitary' || key === 'standard' || key === 'standardized') {
-        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-      } else if (key === 'attackArc' || key === 'chassis') {
-        result[key] = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+      const parser = restrictionParsers[key];
+      if (parser) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (result as any)[key] = parser(rawValue);
       } else {
-        // Everything else should be arrays (slots, faction, platform, etc.)
-        result[key] = Array.isArray(rawValue) ? rawValue : [rawValue];
+        // Fallback for unknown restriction types
+        console.warn(`Unknown restriction type: ${key}`);
+        result[key] = rawValue;
       }
     }
+
     return result;
   }
 

@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
+import { DefaultOptionType } from 'antd/es/select';
 
 import { SLOT_ORDER } from 'src/constants';
 
@@ -9,9 +10,15 @@ import {
   selectPilotIdsByPlatformMap,
   selectUpgradeIdsBySlot,
 } from './entities';
+import {
+  type HydratedSelectedUpgrades,
+  type HydratedShipState,
+  upgradeIsEnabled,
+  upgradeIsRelevant,
+} from './upgradeLogicHelpers';
 
-import { Faction, HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
-import { RootState, SlotId } from '@types';
+import { Faction, HydratedPilot, HydratedUpgrade } from '@shared/types';
+import { RootState, ShipId, SlotId } from '@types';
 
 type ListSelectorArgs = {
   faction?: Faction;
@@ -24,30 +31,58 @@ function listSelectorArgsForwarder(_: RootState, args: ListSelectorArgs) {
   return args;
 }
 
-export const selectListState = (state: RootState) => state.list;
+const selectListState = (state: RootState) => state.list;
 export const selectListShips = (state: RootState) => state.list.ships;
 export const selectShipOrderIds = (state: RootState) => state.list.shipOrder;
+
+const selectHydratedListState = createSelector(
+  [selectListState, selectAllPilotsMap, selectAllPlatformsMap, selectAllUpgradesMap],
+  (listState, pilotsMap, platformsMap, upgradesMap) => {
+    const { shipOrder, ships } = listState;
+
+    const hydratedShips = shipOrder.reduce(
+      (accum, shipId) => {
+        const { pilot: pilotId, platform: platformId, upgrades: slotMap } = ships[shipId];
+
+        if (!platformId || !pilotId) {
+          return accum;
+        }
+
+        const hydratedUpgrades = Object.entries(slotMap).reduce((acc, [slotId, upgradeId]) => {
+          if (upgradeId !== null) {
+            acc[slotId] = upgradesMap[upgradeId];
+          } else {
+            acc[slotId] = null;
+          }
+
+          return acc;
+        }, {} as HydratedSelectedUpgrades);
+
+        const hydrated = {
+          id: shipId,
+          pilot: pilotsMap[pilotId],
+          platfrom: platformsMap[platformId],
+          upgrades: hydratedUpgrades,
+        };
+
+        accum[shipId] = hydrated;
+
+        return accum;
+      },
+      {} as Record<ShipId, HydratedShipState>
+    );
+    return {
+      shipOrder,
+      ships: hydratedShips,
+    };
+  }
+);
 
 export const selectSpecificShip = createSelector(
   [selectListShips, listSelectorArgsForwarder],
   (listShips, { shipId }) => {
     // console.log('selectSpecificShip recomputing');
     return listShips[shipId!];
-  }
-);
-
-export const selectListPilots = createSelector(
-  [selectShipOrderIds, selectListShips, selectAllPilotsMap],
-  (shipIds, listShips, pilots) => {
-    // console.log('selectListPilots recomputing');
-    if (!shipIds || shipIds.length === 0) return [];
-
-    return shipIds
-      .map((platformId) => {
-        const listPlatform = listShips[platformId];
-        return listPlatform && listPlatform.pilot ? pilots[listPlatform.pilot] : null;
-      })
-      .filter(Boolean);
   }
 );
 
@@ -160,44 +195,10 @@ export const selectShipUpgradeSlots = createSelector(
   }
 );
 
-// TODO: Make this prettier
-function upgradeIsValid(
-  upgrade: HydratedUpgrade,
-  faction: Faction,
-  platform?: HydratedPlatform,
-  pilot?: HydratedPilot
-): boolean {
-  const { upgradeRestrictions } = upgrade;
-  const { name: platformName } = platform || {};
-  const { standard } = pilot || {};
-
-  if (standard && upgradeRestrictions.standard) {
-    return false;
-  }
-
-  if (upgradeRestrictions.platform && !upgradeRestrictions.platform.includes(platformName || '')) {
-    return false;
-  }
-
-  if (upgradeRestrictions.faction && !upgradeRestrictions.faction.includes(faction)) {
-    return false;
-  }
-
-  if (
-    upgradeRestrictions.factionOrUnique?.faction &&
-    upgradeRestrictions.factionOrUnique.faction !== faction
-  ) {
-    return false;
-  }
-
-  if (upgradeRestrictions.standard && upgradeRestrictions.standard) {
-    return false;
-  }
-
-  return true;
-}
-
-const selectIsStandardLoadoutPilot = createSelector(selectShipPilot, (pilot) => pilot?.standard);
+export const selectIsStandardLoadoutPilot = createSelector(
+  selectShipPilot,
+  (pilot) => pilot?.standard
+);
 
 export const selectUpgradeSlotSelected = createSelector(
   [selectShipUpgrades, listSelectorArgsForwarder],
@@ -212,8 +213,7 @@ export const selectUpgradeSlotOptionsArray = createSelector(
     selectUpgradeIdsBySlot,
     selectIsStandardLoadoutPilot,
     selectAllUpgradesMap,
-    selectShipPlatform,
-    selectShipPilot,
+    selectHydratedListState,
     listSelectorArgsForwarder,
   ],
   (
@@ -221,38 +221,75 @@ export const selectUpgradeSlotOptionsArray = createSelector(
     upgradesIdsBySlot,
     standard,
     allUpgradesMap,
-    platform,
-    pilot,
-    { faction, slotId, slotType }
+    hydratedListState,
+    { faction, shipId, slotId, slotType }
   ) => {
     if (!faction || !slotId || !slotType) {
-      return EMPTY_UPGRADES_ARRAY;
+      return {
+        options: EMPTY_UPGRADES_ARRAY,
+        selected: undefined,
+        standard,
+      };
     }
     const selected = selectedUpgradesForShip?.[slotId];
 
     if (standard && selected) {
-      return EMPTY_UPGRADES_ARRAY;
+      return {
+        options: EMPTY_UPGRADES_ARRAY,
+        selected,
+        standard,
+      };
     }
 
     const options = (upgradesIdsBySlot[slotType] || []).reduce((acc, upgradeId) => {
       const upgrade = allUpgradesMap[upgradeId];
-      if (upgradeIsValid(upgrade, faction!, platform, pilot)) {
-        acc.push(upgrade);
+      const isRelevant = upgradeIsRelevant(
+        upgrade,
+        { faction, shipId: shipId!, slotId, slotType },
+        hydratedListState
+      );
+      if (isRelevant) {
+        const enabled = upgradeIsEnabled(
+          upgrade,
+          { faction, shipId: shipId!, slotId, slotType },
+          hydratedListState
+        );
+
+        const label = `${upgrade.name} (${upgrade.points})`;
+        const value = upgrade.id;
+
+        acc.push({
+          disabled: !enabled,
+          label,
+          value,
+        });
       }
       return acc;
-    }, [] as HydratedUpgrade[]);
+    }, [] as DefaultOptionType[]);
 
-    return options;
+    return {
+      options,
+      selected,
+      standard,
+    };
   },
   {
     memoizeOptions: {
-      resultEqualityCheck: (a: HydratedUpgrade[], b: HydratedUpgrade[]) =>
-        a.length === b.length && a.every((item, index) => item === b[index]),
+      resultEqualityCheck: (
+        a: {
+          options: HydratedUpgrade[];
+          selected: HydratedUpgrade | undefined;
+          standard: boolean;
+        },
+        b: {
+          options: HydratedUpgrade[];
+          selected: HydratedUpgrade | undefined;
+          standard: boolean;
+        }
+      ) =>
+        a.options.length === b.options.length &&
+        a.options.every((item, index) => item === b.options[index]) &&
+        a.selected === b.selected,
     },
   }
-);
-
-export const selectHasPilot = createSelector(
-  [selectListPilots, (_: RootState, pilotName: string) => pilotName],
-  (pilots, pilotName) => pilots.some((pilot) => pilot?.name === pilotName)
 );

@@ -20,7 +20,7 @@ type RestrictionValue =
     };
 
 type Restrictions = {
-  action?: string[];
+  action?: string;
   agility?: number;
   attackArc?: string;
   base?: string[];
@@ -30,7 +30,7 @@ type Restrictions = {
     faction: Faction;
     uniqueName: string;
   };
-  keyword?: string[];
+  keyword?: string;
   maxPerSquad?: number;
   maxSkill?: number;
   minEnergy?: number;
@@ -44,6 +44,8 @@ type Restrictions = {
   standardized?: boolean;
   upgradesInList?: string[];
 };
+
+type RestrictionKey = keyof Restrictions;
 
 type PlatformOverride = {
   actions?: string[];
@@ -65,4 +67,4 @@ type PlatformOverride = {
   shields?: number;
 };
 
-export { Faction, Restrictions, PlatformOverride, RestrictionValue };
+export { Faction, Restrictions, PlatformOverride, RestrictionValue, RestrictionKey };

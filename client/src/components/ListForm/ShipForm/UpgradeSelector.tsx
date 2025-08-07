@@ -14,17 +14,17 @@ type UpgradeSelectorProps = {
 export function UpgradeSelector(props: UpgradeSelectorProps) {
   const { shipId, slotId, slotType } = props;
 
-  const { onClear, onSelect, options, selected } = useUpgradeSelector({ shipId, slotId, slotType });
+  const { allowClear, onClear, onSelect, options, selected } = useUpgradeSelector({
+    shipId,
+    slotId,
+    slotType,
+  });
 
   const formattedOptions = useMemo(() => {
     if (options.length === 0 && selected) {
       return [{ label: selected.name, value: selected.id }];
     }
-    return options.map((opt) => ({ label: opt.name, value: opt.id }));
-  }, [options, selected]);
-
-  const allowClear = useMemo(() => {
-    return !(options.length === 0 || selected?.upgradeRestrictions?.standard);
+    return options;
   }, [options, selected]);
 
   return (
