@@ -31,13 +31,6 @@ export function ListForm() {
         New List
       </Button>
 
-      <Button
-        onClick={() => {
-          dispatch(addShip());
-        }}
-      >
-        Add Ship
-      </Button>
       <div className={classes.shipContainer}>
         {shipIds.map((id, index) => (
           <div className={classes.shipRow} key={`${id}.${index}`}>
@@ -45,6 +38,13 @@ export function ListForm() {
           </div>
         ))}
       </div>
+      <Button
+        onClick={() => {
+          dispatch(addShip());
+        }}
+      >
+        Add Ship
+      </Button>
     </>
   );
 }

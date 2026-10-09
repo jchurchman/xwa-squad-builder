@@ -118,7 +118,7 @@ export const selectPilotsByPlatformAndFaction = createSelector(
       return emptyPilotsArr;
     }
 
-    const pilotIdsByPlatform = pilotIdsByPlatformMap[selectedPlatform?.name || ''];
+    const pilotIdsByPlatform = pilotIdsByPlatformMap[selectedPlatform.name];
 
     if (!pilotIdsByPlatform) {
       return emptyPilotsArr;
@@ -127,6 +127,7 @@ export const selectPilotsByPlatformAndFaction = createSelector(
     const platformPilotsByFaction = pilotIdsByPlatform.reduce((accum, id) => {
       const pilot = allPilotsMap[`${id}`];
       if (pilot.faction == faction) {
+        console.log('pilot ', pilot);
         accum.push(pilot);
       }
       return accum;
@@ -241,31 +242,41 @@ export const selectUpgradeSlotOptionsArray = createSelector(
       };
     }
 
-    const options = (upgradesIdsBySlot[slotType] || []).reduce((acc, upgradeId) => {
-      const upgrade = allUpgradesMap[upgradeId];
-      const isRelevant = upgradeIsRelevant(
-        upgrade,
-        { faction, shipId: shipId!, slotId, slotType },
-        hydratedListState
-      );
-      if (isRelevant) {
-        const enabled = upgradeIsEnabled(
+    const options = (upgradesIdsBySlot[slotType] || [])
+      .reduce((acc, upgradeId) => {
+        const upgrade = allUpgradesMap[upgradeId];
+        const isRelevant = upgradeIsRelevant(
           upgrade,
           { faction, shipId: shipId!, slotId, slotType },
           hydratedListState
         );
+        if (isRelevant) {
+          const enabled = upgradeIsEnabled(
+            upgrade,
+            { faction, shipId: shipId!, slotId, slotType },
+            hydratedListState
+          );
 
-        const label = `${upgrade.name} (${upgrade.points})`;
-        const value = upgrade.id;
+          const label = `${upgrade.name} (${upgrade.points})`;
+          const value = upgrade.id;
 
-        acc.push({
-          disabled: !enabled,
-          label,
-          value,
-        });
-      }
-      return acc;
-    }, [] as DefaultOptionType[]);
+          acc.push({
+            disabled: !enabled,
+            label,
+            value,
+          });
+        }
+        return acc;
+      }, [] as DefaultOptionType[])
+      .sort((a, b) => {
+        const pointsA = parseInt(((a.label || '') as string)?.match(/\((\d+)\)$/)?.[1] || '0');
+        const pointsB = parseInt(((b.label || '') as string)?.match(/\((\d+)\)$/)?.[1] || '0');
+        const pointsDiff = pointsA - pointsB;
+        if (!pointsDiff) {
+          return a.label! < b.label! ? -1 : 1;
+        }
+        return pointsDiff;
+      });
 
     return {
       options,

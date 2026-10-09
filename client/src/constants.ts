@@ -2,6 +2,7 @@
 export const SLOT_ORDER = Object.freeze([
   'Talent',
   'Force',
+  'Tactical Relay',
   'Turret',
   'Tech',
   'Sensor',

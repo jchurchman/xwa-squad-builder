@@ -11,7 +11,7 @@ export function useShipUpgradesForm({ shipId }: { shipId: string }): {
   const upgradeSlotMetadata = useAppSelector((state) =>
     selectShipUpgradeSlots(state, { faction, shipId })
   );
-
+  console.log('upgradeSlotMetadata ', upgradeSlotMetadata);
   return {
     upgradeSlotMetadata,
   };

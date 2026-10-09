@@ -75,10 +75,10 @@ const entitiesSlice = createAppSlice({
             const { id, platform } = pilot;
             acc[id] = pilot;
 
-            if (pilotsByPlatform[platform || '']) {
-              pilotsByPlatform[platform || ''].push(id);
+            if (pilotsByPlatform[platform]) {
+              pilotsByPlatform[platform].push(id);
             } else {
-              pilotsByPlatform[platform || ''] = [id];
+              pilotsByPlatform[platform] = [id];
             }
 
             return acc;

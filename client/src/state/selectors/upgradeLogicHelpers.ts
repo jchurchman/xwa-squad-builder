@@ -64,6 +64,9 @@ function meetsArraySubset<T>(subset: T[], superset: T[]): boolean {
   return true;
 }
 
+const meetsSolitary = (isSolitary: boolean, hasConflict: boolean): boolean =>
+  !isSolitary || !hasConflict;
+
 const meetsExactMatch = <T extends number | string>(expected: T, actual: T): boolean =>
   expected === actual;
 
@@ -76,8 +79,8 @@ const meetsMinimum = (expected: number, actual: number): boolean => actual >= ex
 
 const meetsMaximum = (expected: number, actual: number): boolean => actual <= expected;
 
-const meetsArrayExclusion = (expected: boolean, actual: string[]): boolean =>
-  !expected || actual.every((item) => !item);
+const meetsArrayExclusion = (expected: number, actual: number[]): boolean =>
+  !actual.includes(expected);
 
 const meetsAttackArc = (expected: string, actual: number): boolean => actual > 0; // Has attack in the specified arc
 
@@ -100,6 +103,7 @@ const meetsUpgradesInList = (expected: string[], actual: string[]): boolean =>
 const meetsFunctions = {
   action: meetsInclusion,
   agility: meetsExactMatch,
+  alreadyEquipped: meetsArrayExclusion,
   attackArc: meetsAttackArc,
   base: meetsArrayInclusion,
   chassis: meetsExactMatch,
@@ -114,7 +118,7 @@ const meetsFunctions = {
   platform: meetsArrayInclusion,
   slotEquipped: meetsSlotEquipped,
   slots: meetsArraySubset,
-  solitary: meetsArrayExclusion,
+  solitary: meetsSolitary,
   standard: meetsStandard,
   upgradesInList: meetsUpgradesInList,
 } as MeetsFunctions;
@@ -131,6 +135,7 @@ const relevanceChecks: RestrictionKey[] = [
 const enabledChecks: RestrictionKey[] = [
   'action',
   'agility',
+  'alreadyEquipped',
   'attackArc',
   'factionOrUnique',
   'maxPerSquad',
@@ -156,6 +161,24 @@ const restrictionArgsFunctions: RestrictionArgsFunctions = {
     upgrade.upgradeRestrictions.agility,
     list.ships[consumer.shipId].platform?.agility,
   ],
+
+  alreadyEquipped: (upgrade, consumer, list) => {
+    const { id } = upgrade;
+    const ship = list.ships[consumer.shipId];
+
+    // Get upgrades equipped in OTHER slots of the same type
+    const otherUpgradesInSlot: number[] = [];
+    for (const slotId in ship.upgrades) {
+      if (slotId !== consumer.slotId && slotId.startsWith(consumer.slotType.toLowerCase())) {
+        const equippedUpgrade = ship.upgrades[slotId];
+        if (equippedUpgrade) {
+          otherUpgradesInSlot.push(equippedUpgrade.id);
+        }
+      }
+    }
+
+    return [id, otherUpgradesInSlot];
+  },
 
   attackArc: (upgrade, consumer, list) => {
     const expectedArc = upgrade.upgradeRestrictions.attackArc;
@@ -208,8 +231,8 @@ const restrictionArgsFunctions: RestrictionArgsFunctions = {
     // Count existing instances of this upgrade across all ships
     let count = 0;
     for (const shipId of list.shipOrder) {
-      const ship = list.ships[shipId];
-      for (const slotId in ship.upgrades) {
+      const ship = list.ships[shipId] || {};
+      for (const slotId in ship.upgrades || {}) {
         const equippedUpgrade = ship.upgrades[slotId];
         if (equippedUpgrade?.id === upgrade.id) {
           count++;
@@ -277,20 +300,28 @@ const restrictionArgsFunctions: RestrictionArgsFunctions = {
 
   solitary: (upgrade, consumer, list) => {
     const isSolitary = upgrade.upgradeRestrictions.solitary;
-    const ship = list.ships[consumer.shipId];
-
-    // Get other upgrades in the same slot type
-    const otherUpgradesInSlot: string[] = [];
-    for (const slotId in ship.upgrades) {
-      if (slotId !== consumer.slotId && slotId.startsWith(consumer.slotType)) {
-        const equippedUpgrade = ship.upgrades[slotId];
-        if (equippedUpgrade) {
-          otherUpgradesInSlot.push(equippedUpgrade.id.toString());
-        }
-      }
+    if (!isSolitary) {
+      return [false, false];
     }
 
-    return [isSolitary, otherUpgradesInSlot];
+    let hasOtherShipWithSlotOccupied = false;
+    for (const shipId in list.ships) {
+      if (shipId === consumer.shipId) continue; // Skip current ship
+
+      const ship = list.ships[shipId];
+      for (const slotId in ship.upgrades || {}) {
+        if (slotId.startsWith(consumer.slotType.toLowerCase())) {
+          const equippedUpgrade = ship.upgrades[slotId];
+          if (equippedUpgrade) {
+            hasOtherShipWithSlotOccupied = true;
+            break;
+          }
+        }
+      }
+      if (hasOtherShipWithSlotOccupied) break;
+    }
+
+    return [true, hasOtherShipWithSlotOccupied];
   },
 
   standard: (upgrade, consumer, list) => {
@@ -318,7 +349,7 @@ const restrictionArgsFunctions: RestrictionArgsFunctions = {
 
     // Get list of equipped upgrade IDs
     const equippedUpgrades: string[] = [];
-    for (const slotId in ship.upgrades) {
+    for (const slotId in ship.upgrades || {}) {
       const equippedUpgrade = ship.upgrades[slotId];
       if (equippedUpgrade) {
         equippedUpgrades.push(equippedUpgrade.id.toString());

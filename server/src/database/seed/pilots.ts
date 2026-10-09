@@ -1,6 +1,6 @@
 import { notNil } from './common';
 
-import { Faction, Pilot, PlatformOverride } from '@shared/types';
+import { Faction, Pilot, PlatformOverride, Restrictions } from '@shared/types';
 
 type ImportedPilot = {
   applies_condition?: string | string[];
@@ -56,7 +56,6 @@ export function transformPilotsForDb(rawPilots: ImportedPilot[]): TransformedPil
       points,
       pointsxwa,
       recurring,
-      restrictions,
       ship,
       ship_override,
       skill,
@@ -73,6 +72,8 @@ export function transformPilotsForDb(rawPilots: ImportedPilot[]): TransformedPil
     if (skip) {
       return transformed;
     }
+
+    const pilotRestrictions = buildPilotRestrictions(pilot);
 
     const newPilot: Omit<Pilot, 'created_at' | 'id' | 'upgrades'> = {
       ...(notNil(applies_condition) && {
@@ -94,9 +95,6 @@ export function transformPilotsForDb(rawPilots: ImportedPilot[]): TransformedPil
       name,
       points: notNil(pointsxwa) ? pointsxwa : points,
       ...(notNil(recurring) && { recurring }),
-      ...(notNil(restrictions) && {
-        restrictions: { upgradesInList: [restrictions[0][1]] },
-      }),
       platform: ship,
       ...(notNil(ship_override) && { platformOverride: ship_override }),
       skill,
@@ -105,10 +103,29 @@ export function transformPilotsForDb(rawPilots: ImportedPilot[]): TransformedPil
       ...(notNil(xws) && { xws }),
       ...(notNil(xwsaddon) && { xwsaddon }),
       ...(notNil(xwsship) && { xwsship }),
+      restrictions: pilotRestrictions,
     };
 
     transformed.push(newPilot);
 
     return transformed;
   }, [] as TransformedPilot[]);
+}
+
+function buildPilotRestrictions(rawPilot: ImportedPilot) {
+  const { faction, max_per_squad, restrictions: rawRestrictions, ship, unique } = rawPilot;
+
+  const restrictions: Restrictions = {
+    ...(notNil(faction) && { faction: [faction] }),
+    ...(notNil(ship) && { platform: [ship] }),
+    ...((notNil(unique) || notNil(max_per_squad)) && {
+      maxPerSquad: unique ? 1 : max_per_squad,
+    }),
+  };
+
+  if (rawRestrictions && rawRestrictions?.[0]?.[0] === 'Unique') {
+    restrictions.upgradesInList = [rawRestrictions?.[0]?.[1]];
+  }
+
+  return restrictions;
 }

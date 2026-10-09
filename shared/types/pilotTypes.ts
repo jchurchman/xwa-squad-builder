@@ -5,7 +5,13 @@ export type PilotId = number;
 export interface HydratedPilot
   extends Omit<
     PilotRow,
-    'appliesCondition' | 'keywords' | 'platformOverride' | 'slots' | 'upgrades' | 'xwsship'
+    | 'appliesCondition'
+    | 'keywords'
+    | 'platformOverride'
+    | 'slots'
+    | 'standard'
+    | 'upgrades'
+    | 'xwsship'
   > {
   appliesCondition?: string[];
   keywords?: string[];

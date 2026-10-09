@@ -45,7 +45,7 @@ type Restrictions = {
   upgradesInList?: string[];
 };
 
-type RestrictionKey = keyof Restrictions;
+type RestrictionKey = keyof Restrictions | 'alreadyEquipped';
 
 type PlatformOverride = {
   actions?: string[];

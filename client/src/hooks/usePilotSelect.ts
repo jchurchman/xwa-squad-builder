@@ -16,7 +16,15 @@ export function usePilotSelect({ shipId }: { shipId: string }) {
   const selected = useAppSelector((state) => selectShipPilot(state, { shipId }));
 
   const options = useMemo(() => {
-    return pilots.map((pilot) => ({ label: pilot.name, value: pilot.id }));
+    return pilots
+      .sort((a, b) => {
+        const pointsDiff = a.points - b.points;
+        if (!pointsDiff) {
+          return a.name < b.name ? -1 : 1;
+        }
+        return pointsDiff;
+      })
+      .map((pilot) => ({ label: `${pilot.name} (${pilot.points})`, value: pilot.id }));
   }, [pilots]);
 
   const onSelect = useCallback(
