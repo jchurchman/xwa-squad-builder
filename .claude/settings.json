@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(npx eslint *)",
+      "Bash(npx prettier *)",
+      "Bash(npx tsc -b)"
+    ],
+    "ask": [
+      "Bash(npm install*)",
+      "Bash(npm i *)",
+      "Bash(npm ci*)",
+      "Bash(npm uninstall *)",
+      "Bash(npm update*)",
+      "Bash(go get *)",
+      "Bash(go install *)",
+      "Bash(go mod tidy*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push*)",
+      "Bash(git pull*)",
+      "Bash(git checkout *)",
+      "Bash(git switch *)",
+      "Bash(git branch *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)",
+      "Bash(git reset *)",
+      "Bash(git restore *)",
+      "Bash(git stash*)",
+      "Bash(git clean *)",
+      "Bash(git rm *)",
+      "Bash(git mv *)",
+      "Bash(git tag *)",
+      "Bash(git submodule *)",
+      "Bash(rm *)",
+      "Bash(npm run build*)",
+      "Bash(npm run client:build*)",
+      "Bash(npx vite build*)"
+    ],
+    "deny": [
+      "Edit(/.env)",
+      "Edit(**/node_modules/**)",
+      "Edit(/client/dist/**)",
+      "Edit(/server/**)",
+      "Edit(/**/*.db)"
+    ]
+  }
+}
