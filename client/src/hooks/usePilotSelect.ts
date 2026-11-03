@@ -1,7 +1,9 @@
 import { useCallback, useMemo } from 'react';
 
-import { selectPilotsByPlatformAndFaction, selectShipPilot } from '@selectors';
-import { choosePilotId } from 'src/state/slices/listSlice';
+import { selectShipById } from '@selectors';
+import { FACTION_XWS } from 'src/constants';
+import { useListShipsQuery } from 'src/state/slices/apiSlice';
+import { choosePilot } from 'src/state/slices/listSlice';
 
 import { useAppDispatch, useAppSelector } from './state';
 import { useTypedParams } from './useTypedParams';
@@ -10,29 +12,22 @@ export function usePilotSelect({ shipId }: { shipId: string }) {
   const { faction } = useTypedParams();
   const dispatch = useAppDispatch();
 
-  const pilots = useAppSelector((state) =>
-    selectPilotsByPlatformAndFaction(state, { faction, shipId })
-  );
-  const selected = useAppSelector((state) => selectShipPilot(state, { shipId }));
+  // Same query as usePlatformSelect; RTK Query serves it from the cache.
+  const { data: ships } = useListShipsQuery(FACTION_XWS[faction]);
+  const ship = useAppSelector((state) => selectShipById(state, shipId));
 
+  // The backend already sorts pilots by initiative, then name.
   const options = useMemo(() => {
-    return pilots
-      .sort((a, b) => {
-        const pointsDiff = a.points - b.points;
-        if (!pointsDiff) {
-          return a.name < b.name ? -1 : 1;
-        }
-        return pointsDiff;
-      })
-      .map((pilot) => ({ label: `${pilot.name} (${pilot.points})`, value: pilot.id }));
-  }, [pilots]);
+    const platform = ships?.find((s) => s.xws === ship?.platformXws);
+    return (platform?.pilots ?? []).map((pilot) => ({ label: pilot.name, value: pilot.xws }));
+  }, [ships, ship?.platformXws]);
 
   const onSelect = useCallback(
-    (pilotId?: number) => {
-      dispatch(choosePilotId({ pilotId, shipId }));
+    (pilotXws?: string) => {
+      dispatch(choosePilot({ pilotXws, shipId }));
     },
     [dispatch, shipId]
   );
 
-  return { onClear: onSelect, onSelect, options, selected };
+  return { onClear: onSelect, onSelect, options, selected: ship?.pilotXws };
 }

@@ -73,9 +73,15 @@
 
 ## Go (backend)
 
-The Go backend does not exist yet. Until conventions are written here, follow standard Go
-practice: `gofmt`, `go vet`, idiomatic error handling, small packages named for what they
-provide, and table-driven tests next to the code (`foo_test.go`).
+Follow standard Go practice: `gofmt`, `go vet`, idiomatic error handling, small packages named
+for what they provide, and table-driven tests next to the code (`foo_test.go`).
+
+- Entry points go in `backend/cmd/<name>/main.go`; everything else in `backend/internal/`.
+- Name constants in Go's style (`camelCase` unexported, `PascalCase` exported), not
+  `SCREAMING_SNAKE_CASE`.
+- API handlers return `connect.NewError` with a safe public message, and log the underlying
+  error instead of sending it to the client.
+- Never expose database row IDs in the API; use XWS IDs.
 
 ## Tests
 
@@ -89,15 +95,22 @@ provide, and table-driven tests next to the code (`foo_test.go`).
 ```text
 client/              React app
   src/
-    api/             fetch helpers
+    api/             Connect client for the backend (plus a legacy fetch helper)
     assets/          fonts and images
     components/      UI components (shared ones at top level, others nested by feature)
+    gen/             generated from proto/; do not edit
     hooks/           custom hooks used by more than one component
     state/           Redux store
       slices/        state slices and the RTK Query API slice
-      selectors/     selectors and upgrade restriction logic
+      selectors/     selectors
     types/           client-side TypeScript types
-backend/             Go server (planned)
+backend/             Go server
+  cards.version      pinned commit of the card data fork
+  cmd/server/        API server
+  cmd/importcards/   card data import
+  gen/               generated from proto/; do not edit
+  internal/          carddata (read the fork), store (SQLite), cardservice (API handlers)
+proto/               Connect RPC API definitions (buf.yaml, buf.gen.yaml at the repo root)
 server/              legacy Node server (frozen, to be removed)
 shared/              TS types shared with the legacy server (to be replaced)
 docs/                architecture decisions, open questions

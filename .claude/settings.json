@@ -7,7 +7,12 @@
       "Grep",
       "Bash(npx eslint *)",
       "Bash(npx prettier *)",
-      "Bash(npx tsc -b)"
+      "Bash(npx tsc --noEmit*)",
+      "Bash(gofmt -l *)",
+      "Bash(go vet *)",
+      "Bash(go test *)",
+      "Bash(buf lint*)",
+      "Bash(buf generate*)"
     ],
     "ask": [
       "Bash(npm install*)",
@@ -41,11 +46,14 @@
       "Bash(npx vite build*)"
     ],
     "deny": [
+      "Bash(npx tsc -b*)",
       "Edit(/.env)",
       "Edit(**/node_modules/**)",
       "Edit(/client/dist/**)",
       "Edit(/server/**)",
-      "Edit(/**/*.db)"
+      "Edit(/**/*.db)",
+      "Edit(/backend/gen/**)",
+      "Edit(/client/src/gen/**)"
     ]
   }
 }

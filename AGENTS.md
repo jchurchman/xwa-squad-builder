@@ -15,38 +15,61 @@ The project is mid-transition. Know which part you are touching:
 | Path       | State                                                                                                |
 | ---------- | ---------------------------------------------------------------------------------------------------- |
 | `client/`  | Active. React app; kept through the rewrite.                                                         |
-| `backend/` | Planned. New Go server. Does not exist yet.                                                          |
-| `server/`  | Legacy Node/Express server. Frozen: do not modify or fix. Will be removed.                           |
+| `backend/` | Active. Go server and card import. Serves ships and pilots; upgrades and points are not built yet.   |
+| `proto/`   | Active. Connect RPC API definitions. Generated code lives in `backend/gen/` and `client/src/gen/`.   |
+| `server/`  | Legacy Node/Express server. Frozen and no longer used by the client. Will be removed.                |
 | `shared/`  | TypeScript types shared by `client/` and the legacy `server/`. Will be replaced by the API contract. |
 | `docs/`    | Architecture decisions and open questions for XWA.                                                   |
+
+Upgrade selection is hidden in the client until upgrades are served by the Go backend.
 
 ## Stack
 
 - **Client:** React 19, TypeScript, Vite, antd 5, Redux Toolkit + RTK Query, react-router 7, SCSS
   modules.
-- **Backend (planned):** Go, SQLite, Discord OAuth.
-- **API (planned):** Connect RPC. Protobuf definitions generate both the Go server code and the
-  TypeScript types the client uses.
-- **Card definitions (planned):** a fork of
-  [xwing-data2](https://github.com/xwingtmg/xwing-data2), keyed by [XWS](https://github.com/elistevens/xws-spec) IDs.
+- **Backend:** Go, SQLite (pure-Go `modernc.org/sqlite` driver). Discord OAuth is planned.
+- **API:** Connect RPC (connect-go v2, connect-web). Protobuf definitions in `proto/` generate both
+  the Go server code and the TypeScript types the client uses.
+- **Card definitions:** the [jchurchman/xwing-data2](https://github.com/jchurchman/xwing-data2) fork,
+  keyed by [XWS](https://github.com/elistevens/xws-spec) IDs. `backend/cards.version` pins the
+  commit to import.
+
+Requires Go and the [Buf CLI](https://buf.build/docs/cli/installation/) (`brew install go
+bufbuild/buf/buf`).
 
 ## Commands
 
+Run from the repository root:
+
 ```bash
-npm i              # install all workspaces
-npm run client:dev # client on http://localhost:5173, proxies /api to :3001
+npm i                  # install all npm workspaces
+npm run backend:import # download the pinned card data into backend/xwa.db (run once, and after changing cards.version)
+npm run dev            # Go backend on :3001 and client on http://localhost:5173 (proxies /api to :3001)
+npm run generate       # lint proto/ and regenerate Go + TypeScript code after editing a .proto file
 ```
+
+To import from a local checkout of the fork instead of downloading, set `CARD_DATA_PATH` to its
+path when running `backend:import`.
 
 Verification for client changes:
 
 ```bash
-npx eslint <files>   # lint specific files
-npx tsc -b           # type-check, run from client/
+npx eslint <files>                # lint specific files
+(cd client && npx tsc --noEmit)   # type-check; never run plain `tsc -b`, it writes .js files into src/
 npx prettier --check <files>
 ```
 
-There is no test runner yet. Vitest is the intended choice for the client; adding it requires
-approval (package install). Go commands will be added here when `backend/` exists.
+Verification for backend changes (run from `backend/`):
+
+```bash
+gofmt -l .        # lists unformatted files; must print nothing
+go vet ./...
+go test ./...     # or a single package, e.g. go test ./internal/store
+```
+
+The client has no test runner yet. Vitest is the intended choice; adding it requires approval
+(package install). Never edit generated code in `backend/gen/` or `client/src/gen/`; change the
+`.proto` file and run `npm run generate`.
 
 ## Domain vocabulary
 

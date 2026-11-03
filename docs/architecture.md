@@ -34,7 +34,8 @@ it. The React client in `client/` is kept.
 
 [xwing-data2](https://github.com/xwingtmg/xwing-data2) is MIT-licensed JSON for every ship, pilot,
 and upgrade, split by faction and card type, with card text and image URLs. Its last commit was in
-January 2025 and it has no XWA content. So we fork it and:
+January 2025 and it has no XWA content. So we fork it
+([jchurchman/xwing-data2](https://github.com/jchurchman/xwing-data2)) and:
 
 - add XWA cards and XWA card changes to the fork;
 - extend its restriction format for XWA-only card restrictions;
@@ -44,10 +45,11 @@ January 2025 and it has no XWA content. So we fork it and:
 
 How the backend gets the card data:
 
-- A file in this repo (e.g. `data/cards.version`) pins the fork commit to use.
-- The backend's import command downloads that exact commit from GitHub and loads it into SQLite.
-- For local card editing, an environment variable points the import at a local checkout of the
-  fork instead of downloading.
+- `backend/cards.version` pins the fork commit to use, as `owner/repo@commit`.
+- The import command (`backend/cmd/importcards`) downloads that exact commit from GitHub and
+  loads it into SQLite.
+- For local card editing, `CARD_DATA_PATH` points the import at a local checkout of the fork
+  instead of downloading.
 - Updating cards means changing the pinned commit and re-running the import.
 
 A git submodule was considered and rejected: it pins just as well, but every clone, pull, and

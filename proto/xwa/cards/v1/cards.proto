@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package xwa.cards.v1;
+
+option go_package = "github.com/jchurchman/xwa-squad-builder/backend/gen/xwa/cards/v1;cardsv1";
+
+// CardService serves card definitions imported from the xwing-data2 fork.
+service CardService {
+  // ListShips returns every ship flown by a faction, each with that faction's pilots.
+  rpc ListShips(ListShipsRequest) returns (ListShipsResponse);
+}
+
+message ListShipsRequest {
+  // XWS faction ID, e.g. "rebelalliance".
+  string faction_xws = 1;
+}
+
+message ListShipsResponse {
+  repeated Ship ships = 1;
+}
+
+message Ship {
+  string xws = 1;
+  string name = 2;
+  repeated Pilot pilots = 3;
+}
+
+message Pilot {
+  string xws = 1;
+  string name = 2;
+  int32 initiative = 3;
+}
