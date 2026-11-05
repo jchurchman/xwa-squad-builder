@@ -87,7 +87,7 @@ func (s *Store) ListShips(ctx context.Context, factionXWS string) ([]FactionShip
 		FROM pilots p
 		JOIN ships s ON s.xws = p.ship_xws
 		WHERE p.faction_xws = ?
-		ORDER BY s.name, p.initiative, p.name`, factionXWS)
+		ORDER BY s.name, s.xws, p.initiative, p.name`, factionXWS)
 	if err != nil {
 		return nil, err
 	}
