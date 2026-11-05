@@ -1,31 +1,28 @@
 import { useCallback, useMemo } from 'react';
 
-import { selectPlatformsByFaction, selectShipPlatform } from '@selectors';
-import { choosePlatformId } from 'src/state/slices/listSlice';
+import { selectShipById } from '@selectors';
+import { choosePlatform } from 'src/state/slices/listSlice';
 
 import { useAppDispatch, useAppSelector } from './state';
-import { useTypedParams } from './useTypedParams';
+import { useFactionShips } from './useFactionShips';
 
 export function usePlatformSelect({ shipId }: { shipId: string }) {
-  const { faction } = useTypedParams();
   const dispatch = useAppDispatch();
 
-  const platforms = useAppSelector((state) => selectPlatformsByFaction(state, faction));
-  const selected = useAppSelector((state) => selectShipPlatform(state, { shipId }));
+  const { isLoading, ships } = useFactionShips();
+  const selected = useAppSelector((state) => selectShipById(state, shipId)?.platformXws);
 
-  const options = useMemo(() => {
-    return platforms.map((platform) => ({
-      label: platform.name,
-      value: platform.id,
-    }));
-  }, [platforms]);
+  const options = useMemo(
+    () => ships.map((ship) => ({ label: ship.name, value: ship.xws })),
+    [ships]
+  );
 
   const onSelect = useCallback(
-    (platformId?: number) => {
-      dispatch(choosePlatformId({ platformId, shipId }));
+    (platformXws?: string) => {
+      dispatch(choosePlatform({ platformXws, shipId }));
     },
     [dispatch, shipId]
   );
 
-  return { onClear: onSelect, onSelect, options, selected };
+  return { isLoading, onClear: onSelect, onSelect, options, selected };
 }

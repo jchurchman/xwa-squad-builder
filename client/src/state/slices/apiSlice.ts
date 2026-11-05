@@ -1,46 +1,24 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { HydratedPilot, HydratedPlatform, HydratedUpgrade } from '@shared/types';
+import { cardServiceClient } from '@api';
+import type { Ship } from 'src/gen/xwa/cards/v1/cards_pb';
 
+// Endpoints call the generated Connect client instead of building HTTP requests themselves.
 export const api = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  baseQuery: fakeBaseQuery<string>(),
   endpoints: (builder) => ({
-    fetchAllPilots: builder.query<HydratedPilot[], void>({
-      query: () => '/pilots/all',
-    }),
-    fetchAllPlatforms: builder.query<HydratedPlatform[], void>({
-      query: () => '/platforms/all',
-    }),
-    fetchAllUpgrades: builder.query<HydratedUpgrade[], void>({
-      query: () => '/upgrades/all',
-    }),
-    fetchPilotsByPlatform: builder.query<HydratedPilot[], string>({
-      providesTags: ['Pilot'],
-      query: (platformName) => `/pilots?platform=${encodeURIComponent(platformName)}`,
-    }),
-
-    fetchPlatformsByFaction: builder.query<HydratedPlatform[], string>({
-      providesTags: ['Platform'],
-      query: (faction) => `/platforms?faction=${encodeURIComponent(faction)}`,
-    }),
-
-    fetchUpgradesBySlots: builder.query<HydratedUpgrade[], string[]>({
-      providesTags: ['Upgrade'],
-      query: (slots) => {
-        const slotsParam = slots.map((slot) => `slots=${encodeURIComponent(slot)}`).join('&');
-        return `/upgrades?${slotsParam}`;
+    listShips: builder.query<Ship[], string>({
+      queryFn: async (factionXws) => {
+        try {
+          const { ships } = await cardServiceClient.listShips({ factionXws });
+          return { data: ships };
+        } catch (error) {
+          return { error: String(error) };
+        }
       },
     }),
   }),
   reducerPath: 'api',
-  tagTypes: ['Platform', 'Pilot', 'Upgrade'],
 });
 
-export const {
-  useFetchAllPilotsQuery,
-  useFetchAllPlatformsQuery,
-  useFetchAllUpgradesQuery,
-  useFetchPilotsByPlatformQuery,
-  useFetchPlatformsByFactionQuery,
-  useFetchUpgradesBySlotsQuery,
-} = api;
+export const { useListShipsQuery } = api;

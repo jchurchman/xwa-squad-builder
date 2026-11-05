@@ -7,7 +7,8 @@ Living record of how the XWA Squad Builder is put together. Each decision has a 
   flag that you did.
 - **Open:** undecided; do not build on it.
 
-Questions that only XWA can answer are tracked in [xwa-questions.md](xwa-questions.md).
+Questions that only XWA can answer are tracked in [xwa-questions.md](xwa-questions.md). Some
+decisions rest on working assumptions recorded there; they are marked "(working assumption)".
 
 ## Goals
 
@@ -33,95 +34,156 @@ it. The React client in `client/` is kept.
 
 [xwing-data2](https://github.com/xwingtmg/xwing-data2) is MIT-licensed JSON for every ship, pilot,
 and upgrade, split by faction and card type, with card text and image URLs. Its last commit was in
-January 2025 and it has no XWA content. So we fork it and:
+January 2025 and it has no XWA content. So we fork it
+([jchurchman/xwing-data2](https://github.com/jchurchman/xwing-data2)) and:
 
 - add XWA cards and XWA card changes to the fork;
-- extend its restriction format for XWA-only rules (e.g. the restricted list, if it is
-  card-level);
-- ignore the `cost` and `loadout` fields embedded in card files for XWA points (see D4);
+- extend its restriction format for XWA-only card restrictions;
+- ignore the pilot `cost`, `loadout`, and `slots` fields and the upgrade `cost` field embedded in
+  card files, since XWA changes those in its points versions (see D4);
 - propose changes upstream where they are useful beyond this project.
-
-Card text is shown from the data; images are linked by URL, as YASB does, not stored.
 
 How the backend gets the card data:
 
-- A file in this repo (e.g. `data/cards.version`) pins the fork commit to use.
-- The backend's import command downloads that exact commit from GitHub and loads it into SQLite.
-- For local card editing, an environment variable points the import at a local checkout of the
-  fork instead of downloading.
+- `backend/cards.version` pins the fork commit to use, as `owner/repo@commit`.
+- The import command (`backend/cmd/importcards`) downloads that exact commit from GitHub and
+  loads it into SQLite.
+- For local card editing, `CARD_DATA_PATH` points the import at a local checkout of the fork
+  instead of downloading.
 - Updating cards means changing the pinned commit and re-running the import.
 
 A git submodule was considered and rejected: it pins just as well, but every clone, pull, and
 card change needs extra submodule steps that are easy to forget.
 
+**Card text, images, and attribution** (working assumption, Q2 and Q3):
+
+- Card text is shown from the data. Images are linked by URL, as YASB does, not stored.
+- Every page carries an attribution footer, matching the one on xwing.life:
+
+  > A volunteer, not-for-profit fan community. Not affiliated with Lucasfilm, Disney, Atomic
+  > Mass Games, Asmodee, or FFG. Star Wars © Lucasfilm Ltd. X-Wing© Atomic Mass Games. All
+  > trademarks belong to their respective owners.
+
 ### D3. Cards are identified by type + XWS ID — Accepted
 
 XWS IDs are unique per card type, not globally. Each card type gets its own table (`ships`,
 `pilots`, `upgrades`) with the XWS ID as that table's key, so uniqueness is per table and
-collisions between types never matter. Anything that refers to a card from outside its table
-(a points CSV row, a restricted list entry) must also say which type it is.
+collisions between types never matter. Anything that refers to a specific card from outside its
+table (such as a points CSV row) must also say which type it is.
+
+The restricted list is the exception: it works by card name, not card ID (see D4).
 
 Database auto-increment IDs are never exposed outside the backend. Saved lists, URLs, and CSVs
 use XWS IDs, so they survive a re-import.
 
 ### D4. Points are versioned in the database — Accepted
 
+A points version holds everything XWA changes in a points release: squad points, loadout values,
+pilot upgrade slots, upgrade costs, and the restricted list.
+
 ```text
 points_versions
-  id, source (xwa | amg), label, status (draft | testing | published),
-  based_on_version_id, created_at, status_changed_at
+  id, source (xwa | amg), label, effective_date,
+  status (draft | testing | published), based_on_version_id, created_at, status_changed_at
 
-pilot_costs    (version_id, pilot_xws,   cost, loadout)
-upgrade_costs  (version_id, upgrade_xws, cost)
+pilot_costs        (version_id, pilot_xws, cost, loadout, slots)
+upgrade_costs      (version_id, upgrade_xws, faction, cost)
+restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
 ```
 
-- Every version holds a full copy of all costs (about 1,300 rows), not a diff. Copies are cheap
-  at this size and make reading any version trivial.
-- **Lifecycle:** draft → testing → draft → testing → … → published.
-  - Each source has at most one draft at a time. Only drafts are editable.
-  - Sending a draft to testers locks it as a `testing` version. A new draft is created
-    immediately as a copy of that testing version, and the team edits that while waiting for
-    feedback.
-  - Every tester round is kept, so there is a history of exactly what testers saw.
-  - Publishing promotes the newest `testing` version to `published`, since that is what testers
-    validated. The next draft is a copy of it.
+- **Labels** follow XWA's naming, e.g. `50P 2.1.1`. The effective date comes from the points
+  release document.
+- **Pilot slots** are the list of upgrade slots a pilot has, duplicates included (e.g. two
+  Torpedo slots). They live in the points version because XWA can change them during the points
+  and playtesting cycle.
+- **Upgrade costs** are one cost per upgrade. A row with an empty `faction` applies to every
+  faction; a row with a faction overrides it for that faction, for cross-faction upgrades priced
+  differently per faction. XWA does not currently vary costs by ship size, initiative, or agility.
+- **Restricted entries** mirror the columns of XWA's restricted list (see D5). `faction` is one of
+  the seven factions or `Generic`; `kind` is `Pilot` or `Upgrade`; `ship_or_type` is the pilot's
+  ship or the upgrade's type. The rule itself counts same-named ships and upgrades together (see
+  D8).
+- Every version holds a full copy of all of the above (roughly 1,300 rows plus the restricted
+  list), not a diff. Copies are
+  cheap at this size and make reading any version trivial.
+- **Formats:** XWA does not distinguish Standard from Extended, and Epic uses the same points and
+  restricted list. So versions have no format dimension.
+
+**Lifecycle:** draft → testing → draft → testing → … → published.
+
+- Each source has one draft at a time, shared by the whole points team. Only drafts are editable.
+- Sending a draft to testers locks it as a `testing` version. A new draft is created immediately
+  as a copy of that testing version, and the team edits that while waiting for feedback.
+- Each tester round is fixed: a testing version never changes. Every round is kept, so there is a
+  history of exactly what testers saw.
+- Publishing promotes the newest `testing` version to `published`, since that is what testers
+  validated. The next draft is a copy of it.
 - Testers see one version at a time: the newest `testing` version.
 - The public sees the current published version plus the two before it.
 - AMG's official points are imported as `source = amg` versions from xwing-data2's cost fields.
   They are read-only.
 
-Open within D4:
+### D5. Points admin UI and CSV round-trip — Accepted
 
-- Whether the restricted list belongs to a points version (see XWA questions). If it does, it
-  becomes a `restricted_cards (version_id, card_type, xws)` table.
-- AMG upgrade costs vary by ship size, initiative, or agility. Whether XWA does the same decides
-  if `upgrade_costs` needs more than one `cost` column (see XWA questions).
+We define the points format (working assumption, Q4). The points team edits the shared draft in
+two ways:
 
-### D5. CSV upload changes only what differs — Accepted
+- **In the admin UI**, directly.
+- **By CSV:** download the draft as a CSV in our format, edit it in a spreadsheet, and upload it
+  back.
 
-The points team uploads a CSV to update the current draft. Expected columns (pending a sample of
-the team's real spreadsheet): `card_type, xws, cost, loadout`.
+There are two CSV files, each downloaded from and uploaded to the draft.
 
+**Points CSV**
+
+- Columns: `card_type, xws, name, faction, cost, loadout, slots`.
+  - `name` is for readability and is ignored on upload.
+  - `faction` is only used for per-faction upgrade costs; otherwise empty.
+  - `loadout` and `slots` are only used for pilots.
+  - `slots` is a semicolon-separated list, repeats allowed, e.g.
+    `Talent;Torpedo;Torpedo;Modification`. Uploads accept slots in any order and sort them into
+    a fixed slot order, borrowed from YASB (the current client already has this order as
+    `SLOT_ORDER` in `client/src/constants.ts`). Downloads always use the sorted order.
 - Rows whose values match the draft are ignored, so uploading a whole file with a few changes
-  only changes those few.
-- Unknown `card_type`/`xws` pairs or invalid values reject the whole upload, with a list of the
-  bad rows. Nothing is partially applied.
-- The uploader sees a preview of changed rows (old → new) and confirms before it is applied.
-- Uploads only ever touch a draft. Testing and published versions are not edited.
+  only changes those few. Rows missing from the file are left unchanged.
+
+**Restricted list CSV**
+
+- Columns match XWA's existing restricted list: `Faction, Kind, Ship/Type, Name, Restricted`.
+  - `Faction`: one of the seven factions, or `Generic`.
+  - `Kind`: `Pilot` or `Upgrade`.
+  - `Ship/Type`: the pilot's ship, or the upgrade's type.
+  - `Name`: the pilot or upgrade name. Must match a card of that kind and ship/type, which
+    catches typos.
+  - `Restricted`: the maximum number of copies allowed in a list.
+- An upload replaces the whole restricted list, unlike the points CSV. The list is
+  short and sparse, so "rows missing from the file are left unchanged" would leave no way to
+  remove an entry by CSV. The preview shows added, removed, and changed entries.
+
+**Rules for both**
+
+- An upload whose columns do not exactly match the format is rejected.
+- Invalid rows reject the whole upload, with a list of the bad rows. Nothing is partially
+  applied.
+- The uploader sees a preview of the changes (old → new) and confirms before they are applied.
+- Uploads only ever touch the draft. Testing and published versions are not edited.
 
 ### D6. Roles and Discord login — Accepted
 
-Login uses Discord OAuth. Roles:
+Login uses Discord OAuth. Roles are cumulative; each includes everything above it:
 
-| Role        | Can                                                   |
-| ----------- | ----------------------------------------------------- |
-| anonymous   | build and share lists against published versions      |
-| user        | the above, plus save lists to their account           |
-| tester      | the above, plus use the version in testing            |
-| points team | the above, plus upload CSVs and change version status |
+| Role        | Adds                                                                         |
+| ----------- | ---------------------------------------------------------------------------- |
+| anonymous   | build, share, and export lists against published versions                    |
+| user        | save lists to their account                                                  |
+| tester      | build and export lists against the version in testing                        |
+| points team | edit the draft (UI or CSV), send it to testers, grant and revoke tester role |
+| points lead | publish a version                                                            |
+| admin       | grant and revoke any role                                                    |
 
-Roles are granted manually by an admin. How the first admin is set (config or a CLI command) is
-an implementation detail.
+- Points team members manage tester roles (working assumption, Q9).
+- Any points team member can send a draft to testers. Only points team leads publish (Q8).
+- How the first admin is set (config or a CLI command) is an implementation detail.
 
 ### D7. Lists — Accepted
 
@@ -130,19 +192,43 @@ an implementation detail.
 - **Saved to an account:** stored in the database as XWS JSON plus the points version ID it was
   built against. When a newer version is published, the app can show how the list changed
   (e.g. "now 4 points over").
+- **XWS export** is available to everyone, including testers building against the testing
+  version, so lists can be loaded into Tabletop Simulator's X-Wing mod.
+- **Draft points confidentiality:** testing points are only served to logged-in testers. This is
+  a login wall, not leak prevention (testers can export lists, and XWA accepts that). A shared
+  link opened by someone who is not a tester shows the list priced with published points.
 - XWS has no field for a points version. If one is needed in exported lists, that is a candidate
   contribution to xws-spec.
 
 ### D8. Rules are declarative data, evaluated in both client and backend — Accepted
 
 YASB expresses some rules as arbitrary functions. We will not. Every restriction is a typed
-entry in the card JSON (e.g. "requires faction", "max per squad", "requires slot equipped").
+entry in the data:
+
+- **Card restrictions** live in the card JSON (e.g. "requires faction", "max per squad",
+  "requires slot equipped").
+- **Points-version rules** use data from the points version:
+  - **Slots:** every upgrade needs a free slot of its type on the pilot. A pilot with one
+    Modification slot can equip only one Modification, however cheap.
+  - **Loadout:** the total point cost of a ship's upgrades cannot exceed its loadout value. Slots
+    and loadout apply together: a pilot with one Talent slot, one Modification slot, and 17
+    loadout who equips a 12-point Talent can only add a Modification costing 5 or less.
+  - **Restricted list:** for each entry, the number of pilots and upgrades in the squad with that
+    name cannot exceed `max_copies`.
+    - An entry applies only to lists of its faction; a `Generic` entry applies to every faction.
+    - Counting is by name only, across pilots and upgrades, like the `unique` rule: a `Pilot`
+      entry for "Han Solo" also counts a "Han Solo" crew upgrade. Unlike `unique`, the limit
+      can be more than 1. `Kind` and `Ship/Type` identify the card for validation and display;
+      they do not narrow what is counted.
+    - Standard loadout pilots count if their loadout includes the named ability or upgrade.
+
+Evaluation:
 
 - The client evaluates rules for instant feedback while building.
 - The backend evaluates them again when a list is saved to an account.
 - Two implementations (TypeScript and Go) can drift apart. To prevent that, rule test cases live
   as shared JSON fixtures that both test suites run.
-- A new XWA rule type means adding it to the fork's format and to both evaluators. This is
+- A new XWA rule type means adding it to the data format and to both evaluators. This is
   acceptable because rule changes are rare.
 
 ### D9. Connect RPC is the API contract — Accepted
@@ -153,7 +239,7 @@ Protobuf files define every request and response. Code generated from them repla
 - TypeScript: `protoc-gen-es` generates message types and service definitions. The client calls
   the backend through `@connectrpc/connect-web`.
 
-**Proposed** details:
+Setup:
 
 - `.proto` files live in a top-level `proto/` directory.
 - The Buf CLI runs code generation for both languages from one config.
@@ -174,4 +260,3 @@ hosting possible later:
 - Card changes over time: if XWA changes a card's text or removes a card, do older points
   versions need the older card definition?
 - Translations (the client routes include a language segment, `/:lang/:faction`).
-- Formats beyond standard play (epic, quick builds).

@@ -5,8 +5,6 @@ import { SearchableSelect } from '@components';
 import { useAppDispatch, useShipForm } from '@hooks';
 import { deleteShip } from 'src/state/slices/listSlice';
 
-import { ShipUpgradesForm } from './ShipUpgradesForm';
-
 import classes from './ShipForm.module.scss';
 
 type ShipFormProps = {
@@ -28,11 +26,12 @@ export function ShipForm({ shipId }: ShipFormProps) {
         <SearchableSelect
           allowClear
           className={classes.platformSelect}
+          loading={platform.isLoading}
           onChange={platform.onSelect}
           onClear={platform.onClear}
           options={platform.options}
           placeholder="Select a ship"
-          value={platform.selected?.id}
+          value={platform.selected}
         />
         {platform.selected && (
           <SearchableSelect
@@ -42,12 +41,12 @@ export function ShipForm({ shipId }: ShipFormProps) {
             onClear={pilot.onClear}
             options={pilot.options}
             placeholder="Select a pilot"
-            value={pilot.selected?.id}
+            value={pilot.selected}
           />
         )}
       </div>
       {/** TODO: Add pilot ponts/loadout */}
-      <ShipUpgradesForm shipId={shipId} />
+      {/** TODO: Restore upgrade selection once upgrades are served by the Go backend */}
       <Button
         danger
         icon={<CloseOutlined />}

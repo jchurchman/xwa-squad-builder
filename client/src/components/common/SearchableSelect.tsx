@@ -2,8 +2,8 @@ import { Select, SelectProps } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 
 interface SearchableSelectProps
-  extends Omit<SelectProps<number>, 'onSearch' | 'showSearch' | 'filterOption' | 'onChange'> {
-  onChange?: (value: number) => void;
+  extends Omit<SelectProps<string>, 'onSearch' | 'showSearch' | 'filterOption' | 'onChange'> {
+  onChange?: (value: string) => void;
 }
 
 function filterOptions(inputValue: string, option?: DefaultOptionType) {
@@ -18,14 +18,14 @@ export function SearchableSelect({
   options = [],
   ...selectProps
 }: SearchableSelectProps) {
-  const handleChange = (value: number) => {
+  const handleChange = (value: string) => {
     if (onChange) {
       onChange(value);
     }
   };
 
   return (
-    <Select<number>
+    <Select<string>
       {...selectProps}
       filterOption={filterOptions}
       onChange={handleChange}
