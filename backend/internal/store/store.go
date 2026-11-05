@@ -79,15 +79,31 @@ func (s *Store) ReplaceCards(ctx context.Context, cards *carddata.Cards) error {
 	return tx.Commit()
 }
 
+// HasCards reports whether the card import has run and loaded at least one pilot.
+func (s *Store) HasCards(ctx context.Context) (bool, error) {
+	var tableExists bool
+	if err := s.db.QueryRowContext(ctx,
+		"SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'pilots')",
+	).Scan(&tableExists); err != nil || !tableExists {
+		return false, err
+	}
+
+	var hasPilots bool
+	err := s.db.QueryRowContext(ctx, "SELECT EXISTS (SELECT 1 FROM pilots)").Scan(&hasPilots)
+	return hasPilots, err
+}
+
 // ListShips returns the ships a faction flies, sorted by name, each with that faction's pilots
 // sorted by initiative and then name.
 func (s *Store) ListShips(ctx context.Context, factionXWS string) ([]FactionShip, error) {
+	// Sorting by xws after name keeps each ship's rows together even if two ships share a name;
+	// the grouping below relies on that.
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT s.xws, s.name, p.xws, p.name, p.initiative
 		FROM pilots p
 		JOIN ships s ON s.xws = p.ship_xws
 		WHERE p.faction_xws = ?
-		ORDER BY s.name, p.initiative, p.name`, factionXWS)
+		ORDER BY s.name, s.xws, p.initiative, p.name`, factionXWS)
 	if err != nil {
 		return nil, err
 	}

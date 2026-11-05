@@ -58,6 +58,51 @@ func TestListShipsFiltersByFactionAndSorts(t *testing.T) {
 	}
 }
 
+func TestListShipsKeepsSameNamedShipsSeparate(t *testing.T) {
+	ctx := context.Background()
+	st := openTestStore(t)
+	cards := &carddata.Cards{
+		Ships: []carddata.Ship{
+			{XWS: "shipa", Name: "Same Name"},
+			{XWS: "shipb", Name: "Same Name"},
+		},
+		Pilots: []carddata.Pilot{
+			{XWS: "a1", Name: "A", Initiative: 1, ShipXWS: "shipa", FactionXWS: "rebelalliance"},
+			{XWS: "b2", Name: "B", Initiative: 2, ShipXWS: "shipb", FactionXWS: "rebelalliance"},
+			{XWS: "a3", Name: "C", Initiative: 3, ShipXWS: "shipa", FactionXWS: "rebelalliance"},
+		},
+	}
+	if err := st.ReplaceCards(ctx, cards); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := st.ListShips(ctx, "rebelalliance")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || len(got[0].Pilots) != 2 || len(got[1].Pilots) != 1 {
+		t.Errorf("ListShips = %+v, want shipa with 2 pilots then shipb with 1", got)
+	}
+}
+
+func TestHasCards(t *testing.T) {
+	ctx := context.Background()
+	st := openTestStore(t)
+
+	has, err := st.HasCards(ctx)
+	if err != nil || has {
+		t.Fatalf("before import: HasCards = %v, %v; want false, nil", has, err)
+	}
+
+	if err := st.ReplaceCards(ctx, testCards); err != nil {
+		t.Fatal(err)
+	}
+	has, err = st.HasCards(ctx)
+	if err != nil || !has {
+		t.Fatalf("after import: HasCards = %v, %v; want true, nil", has, err)
+	}
+}
+
 func TestReplaceCardsCanRunTwice(t *testing.T) {
 	ctx := context.Background()
 	st := openTestStore(t)

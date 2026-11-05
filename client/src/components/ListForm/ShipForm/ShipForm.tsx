@@ -26,6 +26,7 @@ export function ShipForm({ shipId }: ShipFormProps) {
         <SearchableSelect
           allowClear
           className={classes.platformSelect}
+          loading={platform.isLoading}
           onChange={platform.onSelect}
           onClear={platform.onClear}
           options={platform.options}

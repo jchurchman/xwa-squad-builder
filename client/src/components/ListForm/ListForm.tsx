@@ -1,8 +1,8 @@
-import { Button } from 'antd';
+import { Alert, Button } from 'antd';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import { useAppDispatch, useTypedParams } from '@hooks';
+import { useAppDispatch, useFactionShips, useTypedParams } from '@hooks';
 import { selectShipOrderIds } from '@selectors';
 import { addShip, newList } from 'src/state/slices/listSlice';
 
@@ -12,17 +12,27 @@ import classes from './ListForm.module.scss';
 
 export function ListForm() {
   const { faction } = useTypedParams();
+  const { isError } = useFactionShips();
   const shipIds = useSelector(selectShipOrderIds);
   const dispatch = useAppDispatch();
+
+  // A list belongs to one faction. Start a new one whenever the faction in the URL changes,
+  // including through the browser's Back and Forward buttons.
+  useEffect(() => {
+    dispatch(newList());
+  }, [faction, dispatch]);
 
   useEffect(() => {
     if (shipIds.length === 0) {
       dispatch(newList());
     }
-  }, [faction, shipIds, dispatch]);
+  }, [shipIds, dispatch]);
 
   return (
     <>
+      {isError && (
+        <Alert message="Could not load ships. Check that the backend is running." type="error" />
+      )}
       <Button
         onClick={() => {
           dispatch(newList());

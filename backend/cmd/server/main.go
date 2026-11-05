@@ -1,7 +1,11 @@
 // Command server runs the XWA Squad Builder API.
+//
+// TODO: serve the built client from this server too (architecture doc, D10). Until then,
+// `npm start` runs the API only.
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"net/http"
@@ -37,6 +41,15 @@ func main() {
 		log.Fatal(err)
 	}
 	defer st.Close()
+
+	// Without card data every request would quietly return nothing, so refuse to start.
+	hasCards, err := st.HasCards(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !hasCards {
+		log.Fatalf("no card data in %s: run `npm run backend:import` first", *dbPath)
+	}
 
 	rpcServer := connect.NewServer()
 	cardsv1connect.RegisterCardServiceHandler(rpcServer, cardservice.New(st))

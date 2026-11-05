@@ -2,6 +2,8 @@ node_modules
 
 **/*.db
 
+backend/bin/
+
 .husky/
 
 .vscode/
