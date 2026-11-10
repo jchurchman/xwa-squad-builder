@@ -120,3 +120,24 @@ func TestReplaceCardsCanRunTwice(t *testing.T) {
 		t.Errorf("after re-import got %+v, want one ship with one pilot", got)
 	}
 }
+
+func TestReplaceCardsRecreatesOutdatedTables(t *testing.T) {
+	ctx := context.Background()
+	st := openTestStore(t)
+	// A ships table from an older schema, missing the name column.
+	if _, err := st.db.ExecContext(ctx, "CREATE TABLE ships (xws TEXT PRIMARY KEY)"); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := st.ReplaceCards(ctx, testCards); err != nil {
+		t.Fatalf("import over outdated tables: %v", err)
+	}
+
+	got, err := st.ListShips(ctx, "galacticempire")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].Name != "TIE/ln Fighter" {
+		t.Errorf("ListShips = %+v, want the TIE/ln Fighter", got)
+	}
+}
