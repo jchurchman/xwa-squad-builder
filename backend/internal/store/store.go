@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"encoding/json"
 	"fmt"
 
 	"github.com/jchurchman/xwa-squad-builder/backend/internal/carddata"
@@ -24,8 +25,7 @@ type Store struct {
 
 // FactionShip is a ship together with the pilots one faction flies it with.
 type FactionShip struct {
-	XWS    string
-	Name   string
+	carddata.Ship
 	Pilots []carddata.Pilot
 }
 
@@ -57,16 +57,21 @@ func (s *Store) ReplaceCards(ctx context.Context, cards *carddata.Cards) error {
 
 	for _, ship := range cards.Ships {
 		if _, err := tx.ExecContext(ctx,
-			"INSERT INTO ships (xws, name) VALUES (?, ?)", ship.XWS, ship.Name,
+			"INSERT INTO ships (xws, name, size, actions, arcs) VALUES (?, ?, ?, ?, ?)",
+			ship.XWS, ship.Name, ship.Size, toJSON(ship.Actions), toJSON(ship.Arcs),
 		); err != nil {
 			return fmt.Errorf("inserting ship %q: %w", ship.XWS, err)
 		}
 	}
 
 	for _, p := range cards.Pilots {
-		if _, err := tx.ExecContext(ctx,
-			"INSERT INTO pilots (xws, name, initiative, ship_xws, faction_xws) VALUES (?, ?, ?, ?, ?)",
-			p.XWS, p.Name, p.Initiative, p.ShipXWS, p.FactionXWS,
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO pilots (xws, name, initiative, limited, ship_xws, faction_xws, slots,
+				standard_loadout, keywords, ship_ability, ship_actions, force_sides)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			p.XWS, p.Name, p.Initiative, p.Limited, p.ShipXWS, p.FactionXWS, toJSON(p.Slots),
+			toJSON(p.StandardLoadout), toJSON(p.Keywords), p.ShipAbility, toJSON(p.ShipActions),
+			toJSON(p.ForceSides),
 		); err != nil {
 			return fmt.Errorf("inserting pilot %q: %w", p.XWS, err)
 		}
@@ -95,7 +100,9 @@ func (s *Store) ListShips(ctx context.Context, factionXWS string) ([]FactionShip
 	// Sorting by xws after name keeps each ship's rows together even if two ships share a name;
 	// the grouping below relies on that.
 	rows, err := s.db.QueryContext(ctx, `
-		SELECT s.xws, s.name, p.xws, p.name, p.initiative
+		SELECT s.xws, s.name, s.size, s.actions, s.arcs,
+			p.xws, p.name, p.initiative, p.limited, p.slots, p.standard_loadout, p.keywords,
+			p.ship_ability, p.ship_actions, p.force_sides
 		FROM pilots p
 		JOIN ships s ON s.xws = p.ship_xws
 		WHERE p.faction_xws = ?
@@ -107,18 +114,61 @@ func (s *Store) ListShips(ctx context.Context, factionXWS string) ([]FactionShip
 
 	var ships []FactionShip
 	for rows.Next() {
-		var shipXWS, shipName string
+		var ship carddata.Ship
+		var shipActions, shipArcs string
 		pilot := carddata.Pilot{FactionXWS: factionXWS}
-		if err := rows.Scan(&shipXWS, &shipName, &pilot.XWS, &pilot.Name, &pilot.Initiative); err != nil {
+		var slots, standardLoadout, keywords, pilotActions, forceSides string
+
+		if err := rows.Scan(
+			&ship.XWS, &ship.Name, &ship.Size, &shipActions, &shipArcs,
+			&pilot.XWS, &pilot.Name, &pilot.Initiative, &pilot.Limited, &slots, &standardLoadout,
+			&keywords, &pilot.ShipAbility, &pilotActions, &forceSides,
+		); err != nil {
 			return nil, err
 		}
-		pilot.ShipXWS = shipXWS
+		pilot.ShipXWS = ship.XWS
 
-		if len(ships) == 0 || ships[len(ships)-1].XWS != shipXWS {
-			ships = append(ships, FactionShip{XWS: shipXWS, Name: shipName})
+		if err := decodeJSONColumns(
+			jsonColumn{shipActions, &ship.Actions},
+			jsonColumn{shipArcs, &ship.Arcs},
+			jsonColumn{slots, &pilot.Slots},
+			jsonColumn{standardLoadout, &pilot.StandardLoadout},
+			jsonColumn{keywords, &pilot.Keywords},
+			jsonColumn{pilotActions, &pilot.ShipActions},
+			jsonColumn{forceSides, &pilot.ForceSides},
+		); err != nil {
+			return nil, fmt.Errorf("pilot %q: %w", pilot.XWS, err)
+		}
+
+		if len(ships) == 0 || ships[len(ships)-1].XWS != ship.XWS {
+			ships = append(ships, FactionShip{Ship: ship})
 		}
 		last := &ships[len(ships)-1]
 		last.Pilots = append(last.Pilots, pilot)
 	}
 	return ships, rows.Err()
+}
+
+// jsonColumn pairs a JSON column's raw text with the value to decode it into.
+type jsonColumn struct {
+	raw  string
+	dest any
+}
+
+func decodeJSONColumns(columns ...jsonColumn) error {
+	for _, c := range columns {
+		if err := json.Unmarshal([]byte(c.raw), c.dest); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func toJSON(v any) string {
+	data, err := json.Marshal(v)
+	if err != nil {
+		// Only plain slices and structs are stored, which always marshal.
+		panic(fmt.Sprintf("marshaling %T: %v", v, err))
+	}
+	return string(data)
 }

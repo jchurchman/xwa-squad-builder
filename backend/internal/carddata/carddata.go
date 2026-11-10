@@ -7,12 +7,25 @@ import (
 	"io/fs"
 )
 
-const manifestPath = "data/manifest.json"
+const (
+	manifestPath = "data/manifest.json"
+	attackStat   = "attack"
+)
+
+// Action is a ship action, e.g. a white Focus.
+type Action struct {
+	Type       string `json:"type"`
+	Difficulty string `json:"difficulty,omitempty"`
+}
 
 // Ship is a ship chassis. The same ship can be flown by several factions.
 type Ship struct {
-	XWS  string
-	Name string
+	XWS     string
+	Name    string
+	Size    string
+	Actions []Action
+	// Arcs the ship has a primary attack in.
+	Arcs []string
 }
 
 // Pilot is a pilot card. Each pilot belongs to exactly one ship and one faction.
@@ -20,8 +33,17 @@ type Pilot struct {
 	XWS        string
 	Name       string
 	Initiative int
+	Limited    int
 	ShipXWS    string
 	FactionXWS string
+	// Slots are read from the card data until points versions exist (see docs/architecture.md).
+	Slots           []string
+	StandardLoadout []string
+	Keywords        []string
+	ShipAbility     string
+	// ShipActions replaces the ship's actions for this pilot when not empty.
+	ShipActions []Action
+	ForceSides  []string
 }
 
 // Cards is everything loaded from the card data.
@@ -38,17 +60,37 @@ type manifest struct {
 }
 
 type shipFile struct {
-	XWS    string `json:"xws"`
-	Name   string `json:"name"`
-	Pilots []struct {
-		XWS        string `json:"xws"`
-		Name       string `json:"name"`
-		Initiative int    `json:"initiative"`
-	} `json:"pilots"`
+	XWS     string   `json:"xws"`
+	Name    string   `json:"name"`
+	Size    string   `json:"size"`
+	Actions []Action `json:"actions"`
+	Stats   []struct {
+		Type string `json:"type"`
+		Arc  string `json:"arc"`
+	} `json:"stats"`
+	Pilots []pilotEntry `json:"pilots"`
 }
 
-// Load reads the manifest and every ship file it lists. fsys must be rooted at the top of the
-// xwing-data2 repository (the directory containing data/).
+// pilotEntry is one pilot in a ship file.
+type pilotEntry struct {
+	XWS             string   `json:"xws"`
+	Name            string   `json:"name"`
+	Initiative      int      `json:"initiative"`
+	Limited         int      `json:"limited"`
+	Slots           []string `json:"slots"`
+	StandardLoadout []string `json:"standardLoadout"`
+	Keywords        []string `json:"keywords"`
+	ShipAbility     *struct {
+		Name string `json:"name"`
+	} `json:"shipAbility"`
+	ShipActions []Action `json:"shipActions"`
+	Force       *struct {
+		Side []string `json:"side"`
+	} `json:"force"`
+}
+
+// Load reads the manifest and every ship file it lists. fsys must be rooted at the
+// top of the xwing-data2 repository (the directory containing data/).
 func Load(fsys fs.FS) (*Cards, error) {
 	var m manifest
 	if err := readJSON(fsys, manifestPath, &m); err != nil {
@@ -68,7 +110,7 @@ func Load(fsys fs.FS) (*Cards, error) {
 
 			if !seenShips[sf.XWS] {
 				seenShips[sf.XWS] = true
-				cards.Ships = append(cards.Ships, Ship{XWS: sf.XWS, Name: sf.Name})
+				cards.Ships = append(cards.Ships, shipFileToShip(sf))
 			}
 
 			for _, p := range sf.Pilots {
@@ -76,18 +118,44 @@ func Load(fsys fs.FS) (*Cards, error) {
 					return nil, fmt.Errorf("duplicate pilot xws %q in %s (first seen in %s)", p.XWS, path, previous)
 				}
 				seenPilots[p.XWS] = path
-				cards.Pilots = append(cards.Pilots, Pilot{
-					XWS:        p.XWS,
-					Name:       p.Name,
-					Initiative: p.Initiative,
-					ShipXWS:    sf.XWS,
-					FactionXWS: faction.Faction,
-				})
+
+				cards.Pilots = append(cards.Pilots, pilotEntryToPilot(p, sf.XWS, faction.Faction))
 			}
 		}
 	}
-
 	return cards, nil
+}
+
+func shipFileToShip(sf shipFile) Ship {
+	ship := Ship{XWS: sf.XWS, Name: sf.Name, Size: sf.Size, Actions: sf.Actions}
+	for _, stat := range sf.Stats {
+		if stat.Type == attackStat {
+			ship.Arcs = append(ship.Arcs, stat.Arc)
+		}
+	}
+	return ship
+}
+
+func pilotEntryToPilot(p pilotEntry, shipXWS, factionXWS string) Pilot {
+	pilot := Pilot{
+		XWS:             p.XWS,
+		Name:            p.Name,
+		Initiative:      p.Initiative,
+		Limited:         p.Limited,
+		ShipXWS:         shipXWS,
+		FactionXWS:      factionXWS,
+		Slots:           p.Slots,
+		StandardLoadout: p.StandardLoadout,
+		Keywords:        p.Keywords,
+		ShipActions:     p.ShipActions,
+	}
+	if p.ShipAbility != nil {
+		pilot.ShipAbility = p.ShipAbility.Name
+	}
+	if p.Force != nil {
+		pilot.ForceSides = p.Force.Side
+	}
+	return pilot
 }
 
 func readJSON(fsys fs.FS, path string, v any) error {

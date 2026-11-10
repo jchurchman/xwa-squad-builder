@@ -40,7 +40,8 @@ January 2025 and it has no XWA content. So we fork it
 - add XWA cards and XWA card changes to the fork;
 - extend its restriction format for XWA-only card restrictions;
 - ignore the pilot `cost`, `loadout`, and `slots` fields and the upgrade `cost` field embedded in
-  card files, since XWA changes those in its points versions (see D4);
+  card files, since XWA changes those in its points versions (see D4). **Temporary:** until
+  points versions exist, the import reads pilot `slots` from the card files as a stand-in;
 - propose changes upstream where they are useful beyond this project.
 
 How the backend gets the card data:

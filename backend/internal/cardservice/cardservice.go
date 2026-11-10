@@ -8,6 +8,7 @@ import (
 	"connectrpc.com/connect/v2"
 
 	cardsv1 "github.com/jchurchman/xwa-squad-builder/backend/gen/xwa/cards/v1"
+	"github.com/jchurchman/xwa-squad-builder/backend/internal/carddata"
 	"github.com/jchurchman/xwa-squad-builder/backend/internal/store"
 )
 
@@ -46,13 +47,34 @@ func (s *Service) ListShips(ctx context.Context, req *cardsv1.ListShipsRequest) 
 }
 
 func factionShipToProto(ship store.FactionShip) *cardsv1.Ship {
-	out := &cardsv1.Ship{Xws: ship.XWS, Name: ship.Name}
+	out := &cardsv1.Ship{
+		Xws:     ship.XWS,
+		Name:    ship.Name,
+		Size:    ship.Size,
+		Actions: actionsToProto(ship.Actions),
+		Arcs:    ship.Arcs,
+	}
 	for _, p := range ship.Pilots {
 		out.Pilots = append(out.Pilots, &cardsv1.Pilot{
-			Xws:        p.XWS,
-			Name:       p.Name,
-			Initiative: int32(p.Initiative),
+			Xws:             p.XWS,
+			Name:            p.Name,
+			Initiative:      int32(p.Initiative),
+			Limited:         int32(p.Limited),
+			Slots:           p.Slots,
+			StandardLoadout: p.StandardLoadout,
+			Keywords:        p.Keywords,
+			ShipAbility:     p.ShipAbility,
+			ShipActions:     actionsToProto(p.ShipActions),
+			ForceSides:      p.ForceSides,
 		})
+	}
+	return out
+}
+
+func actionsToProto(actions []carddata.Action) []*cardsv1.Action {
+	out := make([]*cardsv1.Action, 0, len(actions))
+	for _, a := range actions {
+		out = append(out, &cardsv1.Action{Type: a.Type, Difficulty: a.Difficulty})
 	}
 	return out
 }

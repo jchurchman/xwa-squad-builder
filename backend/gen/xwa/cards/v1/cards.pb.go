@@ -111,10 +111,15 @@ func (x *ListShipsResponse) GetShips() []*Ship {
 }
 
 type Ship struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Xws           string                 `protobuf:"bytes,1,opt,name=xws,proto3" json:"xws,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Pilots        []*Pilot               `protobuf:"bytes,3,rep,name=pilots,proto3" json:"pilots,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Xws    string                 `protobuf:"bytes,1,opt,name=xws,proto3" json:"xws,omitempty"`
+	Name   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Pilots []*Pilot               `protobuf:"bytes,3,rep,name=pilots,proto3" json:"pilots,omitempty"`
+	// "Small", "Medium", "Large", or "Huge".
+	Size    string    `protobuf:"bytes,4,opt,name=size,proto3" json:"size,omitempty"`
+	Actions []*Action `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty"`
+	// Arcs the ship has a primary attack in, e.g. "Front Arc", "Rear Arc".
+	Arcs          []string `protobuf:"bytes,6,rep,name=arcs,proto3" json:"arcs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,11 +175,46 @@ func (x *Ship) GetPilots() []*Pilot {
 	return nil
 }
 
+func (x *Ship) GetSize() string {
+	if x != nil {
+		return x.Size
+	}
+	return ""
+}
+
+func (x *Ship) GetActions() []*Action {
+	if x != nil {
+		return x.Actions
+	}
+	return nil
+}
+
+func (x *Ship) GetArcs() []string {
+	if x != nil {
+		return x.Arcs
+	}
+	return nil
+}
+
 type Pilot struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Xws           string                 `protobuf:"bytes,1,opt,name=xws,proto3" json:"xws,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Initiative    int32                  `protobuf:"varint,3,opt,name=initiative,proto3" json:"initiative,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Xws        string                 `protobuf:"bytes,1,opt,name=xws,proto3" json:"xws,omitempty"`
+	Name       string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Initiative int32                  `protobuf:"varint,3,opt,name=initiative,proto3" json:"initiative,omitempty"`
+	// Maximum copies of this card name in a squad. 0 means no limit.
+	Limited int32 `protobuf:"varint,4,opt,name=limited,proto3" json:"limited,omitempty"`
+	// Upgrade slots, e.g. "Talent", "Torpedo". Empty for standard loadout pilots.
+	// Read from the card data until points versions exist.
+	Slots []string `protobuf:"bytes,5,rep,name=slots,proto3" json:"slots,omitempty"`
+	// Upgrade XWS IDs a standard loadout pilot always flies with.
+	StandardLoadout []string `protobuf:"bytes,6,rep,name=standard_loadout,json=standardLoadout,proto3" json:"standard_loadout,omitempty"`
+	Keywords        []string `protobuf:"bytes,7,rep,name=keywords,proto3" json:"keywords,omitempty"`
+	// Name of the pilot's ship ability, e.g. "Autothrusters". Empty if none.
+	ShipAbility string `protobuf:"bytes,8,opt,name=ship_ability,json=shipAbility,proto3" json:"ship_ability,omitempty"`
+	// Replaces the ship's actions for this pilot when not empty.
+	ShipActions []*Action `protobuf:"bytes,9,rep,name=ship_actions,json=shipActions,proto3" json:"ship_actions,omitempty"`
+	// "light" and/or "dark" for Force users.
+	ForceSides    []string `protobuf:"bytes,10,rep,name=force_sides,json=forceSides,proto3" json:"force_sides,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,6 +270,108 @@ func (x *Pilot) GetInitiative() int32 {
 	return 0
 }
 
+func (x *Pilot) GetLimited() int32 {
+	if x != nil {
+		return x.Limited
+	}
+	return 0
+}
+
+func (x *Pilot) GetSlots() []string {
+	if x != nil {
+		return x.Slots
+	}
+	return nil
+}
+
+func (x *Pilot) GetStandardLoadout() []string {
+	if x != nil {
+		return x.StandardLoadout
+	}
+	return nil
+}
+
+func (x *Pilot) GetKeywords() []string {
+	if x != nil {
+		return x.Keywords
+	}
+	return nil
+}
+
+func (x *Pilot) GetShipAbility() string {
+	if x != nil {
+		return x.ShipAbility
+	}
+	return ""
+}
+
+func (x *Pilot) GetShipActions() []*Action {
+	if x != nil {
+		return x.ShipActions
+	}
+	return nil
+}
+
+func (x *Pilot) GetForceSides() []string {
+	if x != nil {
+		return x.ForceSides
+	}
+	return nil
+}
+
+type Action struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Type  string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// "White", "Red", etc.
+	Difficulty    string `protobuf:"bytes,2,opt,name=difficulty,proto3" json:"difficulty,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Action) Reset() {
+	*x = Action{}
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Action) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Action) ProtoMessage() {}
+
+func (x *Action) ProtoReflect() protoreflect.Message {
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Action.ProtoReflect.Descriptor instead.
+func (*Action) Descriptor() ([]byte, []int) {
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Action) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *Action) GetDifficulty() string {
+	if x != nil {
+		return x.Difficulty
+	}
+	return ""
+}
+
 var File_xwa_cards_v1_cards_proto protoreflect.FileDescriptor
 
 const file_xwa_cards_v1_cards_proto_rawDesc = "" +
@@ -239,17 +381,34 @@ const file_xwa_cards_v1_cards_proto_rawDesc = "" +
 	"\vfaction_xws\x18\x01 \x01(\tR\n" +
 	"factionXws\"=\n" +
 	"\x11ListShipsResponse\x12(\n" +
-	"\x05ships\x18\x01 \x03(\v2\x12.xwa.cards.v1.ShipR\x05ships\"Y\n" +
+	"\x05ships\x18\x01 \x03(\v2\x12.xwa.cards.v1.ShipR\x05ships\"\xb1\x01\n" +
 	"\x04Ship\x12\x10\n" +
 	"\x03xws\x18\x01 \x01(\tR\x03xws\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12+\n" +
-	"\x06pilots\x18\x03 \x03(\v2\x13.xwa.cards.v1.PilotR\x06pilots\"M\n" +
+	"\x06pilots\x18\x03 \x03(\v2\x13.xwa.cards.v1.PilotR\x06pilots\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\tR\x04size\x12.\n" +
+	"\aactions\x18\x05 \x03(\v2\x14.xwa.cards.v1.ActionR\aactions\x12\x12\n" +
+	"\x04arcs\x18\x06 \x03(\tR\x04arcs\"\xc1\x02\n" +
 	"\x05Pilot\x12\x10\n" +
 	"\x03xws\x18\x01 \x01(\tR\x03xws\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
 	"\n" +
 	"initiative\x18\x03 \x01(\x05R\n" +
-	"initiative2[\n" +
+	"initiative\x12\x18\n" +
+	"\alimited\x18\x04 \x01(\x05R\alimited\x12\x14\n" +
+	"\x05slots\x18\x05 \x03(\tR\x05slots\x12)\n" +
+	"\x10standard_loadout\x18\x06 \x03(\tR\x0fstandardLoadout\x12\x1a\n" +
+	"\bkeywords\x18\a \x03(\tR\bkeywords\x12!\n" +
+	"\fship_ability\x18\b \x01(\tR\vshipAbility\x127\n" +
+	"\fship_actions\x18\t \x03(\v2\x14.xwa.cards.v1.ActionR\vshipActions\x12\x1f\n" +
+	"\vforce_sides\x18\n" +
+	" \x03(\tR\n" +
+	"forceSides\"<\n" +
+	"\x06Action\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1e\n" +
+	"\n" +
+	"difficulty\x18\x02 \x01(\tR\n" +
+	"difficulty2[\n" +
 	"\vCardService\x12L\n" +
 	"\tListShips\x12\x1e.xwa.cards.v1.ListShipsRequest\x1a\x1f.xwa.cards.v1.ListShipsResponseBJZHgithub.com/jchurchman/xwa-squad-builder/backend/gen/xwa/cards/v1;cardsv1b\x06proto3"
 
@@ -265,23 +424,26 @@ func file_xwa_cards_v1_cards_proto_rawDescGZIP() []byte {
 	return file_xwa_cards_v1_cards_proto_rawDescData
 }
 
-var file_xwa_cards_v1_cards_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_xwa_cards_v1_cards_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_xwa_cards_v1_cards_proto_goTypes = []any{
 	(*ListShipsRequest)(nil),  // 0: xwa.cards.v1.ListShipsRequest
 	(*ListShipsResponse)(nil), // 1: xwa.cards.v1.ListShipsResponse
 	(*Ship)(nil),              // 2: xwa.cards.v1.Ship
 	(*Pilot)(nil),             // 3: xwa.cards.v1.Pilot
+	(*Action)(nil),            // 4: xwa.cards.v1.Action
 }
 var file_xwa_cards_v1_cards_proto_depIdxs = []int32{
 	2, // 0: xwa.cards.v1.ListShipsResponse.ships:type_name -> xwa.cards.v1.Ship
 	3, // 1: xwa.cards.v1.Ship.pilots:type_name -> xwa.cards.v1.Pilot
-	0, // 2: xwa.cards.v1.CardService.ListShips:input_type -> xwa.cards.v1.ListShipsRequest
-	1, // 3: xwa.cards.v1.CardService.ListShips:output_type -> xwa.cards.v1.ListShipsResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4, // 2: xwa.cards.v1.Ship.actions:type_name -> xwa.cards.v1.Action
+	4, // 3: xwa.cards.v1.Pilot.ship_actions:type_name -> xwa.cards.v1.Action
+	0, // 4: xwa.cards.v1.CardService.ListShips:input_type -> xwa.cards.v1.ListShipsRequest
+	1, // 5: xwa.cards.v1.CardService.ListShips:output_type -> xwa.cards.v1.ListShipsResponse
+	5, // [5:6] is the sub-list for method output_type
+	4, // [4:5] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_xwa_cards_v1_cards_proto_init() }
@@ -295,7 +457,7 @@ func file_xwa_cards_v1_cards_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_xwa_cards_v1_cards_proto_rawDesc), len(file_xwa_cards_v1_cards_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

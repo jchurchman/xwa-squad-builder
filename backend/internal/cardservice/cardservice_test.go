@@ -38,9 +38,14 @@ func TestListShipsHidesStoreErrors(t *testing.T) {
 
 func TestListShipsConvertsShips(t *testing.T) {
 	svc := New(fakeShips{ships: []store.FactionShip{{
-		XWS:    "t65xwing",
-		Name:   "T-65 X-wing",
-		Pilots: []carddata.Pilot{{XWS: "lukeskywalker", Name: "Luke Skywalker", Initiative: 5}},
+		Ship: carddata.Ship{
+			XWS: "t65xwing", Name: "T-65 X-wing", Size: "Small",
+			Actions: []carddata.Action{{Type: "Focus", Difficulty: "White"}},
+		},
+		Pilots: []carddata.Pilot{{
+			XWS: "lukeskywalker", Name: "Luke Skywalker", Initiative: 5, Limited: 1,
+			Slots: []string{"Force Power"}, ForceSides: []string{"light"},
+		}},
 	}}})
 
 	res, err := svc.ListShips(context.Background(), &cardsv1.ListShipsRequest{FactionXws: "rebelalliance"})
@@ -51,7 +56,11 @@ func TestListShipsConvertsShips(t *testing.T) {
 		t.Fatalf("got %d ships, want 1", len(res.GetShips()))
 	}
 	ship := res.GetShips()[0]
-	if ship.GetXws() != "t65xwing" || len(ship.GetPilots()) != 1 || ship.GetPilots()[0].GetInitiative() != 5 {
+	if ship.GetSize() != "Small" || ship.GetActions()[0].GetType() != "Focus" {
 		t.Errorf("unexpected ship %v", ship)
+	}
+	pilot := ship.GetPilots()[0]
+	if pilot.GetLimited() != 1 || pilot.GetSlots()[0] != "Force Power" || pilot.GetForceSides()[0] != "light" {
+		t.Errorf("unexpected pilot %v", pilot)
 	}
 }

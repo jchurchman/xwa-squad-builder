@@ -23,10 +23,35 @@ message Ship {
   string xws = 1;
   string name = 2;
   repeated Pilot pilots = 3;
+  // "Small", "Medium", "Large", or "Huge".
+  string size = 4;
+  repeated Action actions = 5;
+  // Arcs the ship has a primary attack in, e.g. "Front Arc", "Rear Arc".
+  repeated string arcs = 6;
 }
 
 message Pilot {
   string xws = 1;
   string name = 2;
   int32 initiative = 3;
+  // Maximum copies of this card name in a squad. 0 means no limit.
+  int32 limited = 4;
+  // Upgrade slots, e.g. "Talent", "Torpedo". Empty for standard loadout pilots.
+  // Read from the card data until points versions exist.
+  repeated string slots = 5;
+  // Upgrade XWS IDs a standard loadout pilot always flies with.
+  repeated string standard_loadout = 6;
+  repeated string keywords = 7;
+  // Name of the pilot's ship ability, e.g. "Autothrusters". Empty if none.
+  string ship_ability = 8;
+  // Replaces the ship's actions for this pilot when not empty.
+  repeated Action ship_actions = 9;
+  // "light" and/or "dark" for Force users.
+  repeated string force_sides = 10;
+}
+
+message Action {
+  string type = 1;
+  // "White", "Red", etc.
+  string difficulty = 2;
 }
