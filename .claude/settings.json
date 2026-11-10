@@ -8,6 +8,7 @@
       "Bash(npx eslint *)",
       "Bash(npx prettier *)",
       "Bash(npx tsc --noEmit*)",
+      "Bash(npx vitest run *)",
       "Bash(gofmt -l *)",
       "Bash(go vet *)",
       "Bash(go test *)",

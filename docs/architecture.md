@@ -213,6 +213,12 @@ entry in the data:
     `{factions: [Scum], names: [Darth Vader]}` reads "Scum, or a squad including Darth Vader".
   - The import rejects any restriction key it does not recognize, so a new kind of restriction
     in the fork fails loudly instead of being ignored.
+  - Enforced in the client today: factions, ships, sizes, actions (difficulty too, when given),
+    keywords, ship abilities, names in the squad, equipped slot types, arcs, Force side,
+    solitary, the `limited` copy count by name across pilots and upgrades, and room for
+    upgrades that occupy more than one slot. Code: `client/src/rules/upgradeRules.ts`.
+  - Not enforced yet: `standardized` and `non-limited`. Both are about the whole list rather than
+    one ship, and belong with list validation.
 - **Points-version rules** use data from the points version:
   - **Slots:** every upgrade needs a free slot of its type on the pilot. A pilot with one
     Modification slot can equip only one Modification, however cheap.
@@ -236,6 +242,16 @@ Evaluation:
   as shared JSON fixtures that both test suites run.
 - A new XWA rule type means adding it to the data format and to both evaluators. This is
   acceptable because rule changes are rare.
+- Today only the client evaluates rules, since lists cannot be saved yet. The Go evaluator and
+  the shared fixtures come with saving lists. The client's cases are in
+  `client/src/rules/__tests__/upgradeRules.test.ts` and are the starting point for those fixtures.
+- Until points versions exist, the client shows no points and does not check loadout.
+
+Open within D8:
+
+- **Solitary.** The client allows a solitary upgrade only if no other ship in the squad has an
+  upgrade of the same type. This follows the previous YASB-based code; confirm against the
+  current rules text.
 
 ### D9. Connect RPC is the API contract — Accepted
 
