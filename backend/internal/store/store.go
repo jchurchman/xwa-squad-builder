@@ -12,8 +12,10 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// cardSchema drops and recreates the card tables. It runs at the start of every import.
+//
 //go:embed schema.sql
-var schema string
+var cardSchema string
 
 // Store wraps the database connection.
 type Store struct {
@@ -27,15 +29,11 @@ type FactionShip struct {
 	Pilots []carddata.Pilot
 }
 
-// Open opens (creating if needed) the database at path and applies the schema.
+// Open opens (creating if needed) the database at path. Card tables exist only after an import.
 func Open(path string) (*Store, error) {
 	db, err := sql.Open("sqlite", "file:"+path+"?_pragma=foreign_keys(1)")
 	if err != nil {
 		return nil, err
-	}
-	if _, err := db.Exec(schema); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("applying schema: %w", err)
 	}
 	return &Store{db: db}, nil
 }
@@ -45,7 +43,7 @@ func (s *Store) Close() error {
 	return s.db.Close()
 }
 
-// ReplaceCards swaps all card rows for cards in one transaction.
+// ReplaceCards recreates the card tables and fills them from cards, in one transaction.
 func (s *Store) ReplaceCards(ctx context.Context, cards *carddata.Cards) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -53,10 +51,8 @@ func (s *Store) ReplaceCards(ctx context.Context, cards *carddata.Cards) error {
 	}
 	defer tx.Rollback()
 
-	for _, stmt := range []string{"DELETE FROM pilots", "DELETE FROM ships"} {
-		if _, err := tx.ExecContext(ctx, stmt); err != nil {
-			return err
-		}
+	if _, err := tx.ExecContext(ctx, cardSchema); err != nil {
+		return fmt.Errorf("creating card tables: %w", err)
 	}
 
 	for _, ship := range cards.Ships {

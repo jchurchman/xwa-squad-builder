@@ -1,12 +1,16 @@
--- Card tables are owned by the card import, which replaces their contents on every run.
+-- Card tables are owned by the card import, which drops and recreates them on every run, so
+-- changing this file needs no migration: re-run the import.
 -- Rows are keyed by XWS ID so other tables can refer to cards across re-imports.
 
-CREATE TABLE IF NOT EXISTS ships (
+DROP TABLE IF EXISTS pilots;
+DROP TABLE IF EXISTS ships;
+
+CREATE TABLE ships (
   xws TEXT PRIMARY KEY,
   name TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS pilots (
+CREATE TABLE pilots (
   xws TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   initiative INTEGER NOT NULL,
@@ -14,4 +18,4 @@ CREATE TABLE IF NOT EXISTS pilots (
   faction_xws TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS pilots_faction_xws ON pilots (faction_xws);
+CREATE INDEX pilots_faction_xws ON pilots (faction_xws);
