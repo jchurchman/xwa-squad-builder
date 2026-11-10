@@ -4,6 +4,7 @@
 -- List-valued columns hold JSON arrays.
 
 DROP TABLE IF EXISTS pilots;
+DROP TABLE IF EXISTS upgrades;
 DROP TABLE IF EXISTS ships;
 
 CREATE TABLE ships (
@@ -30,3 +31,12 @@ CREATE TABLE pilots (
 );
 
 CREATE INDEX pilots_faction_xws ON pilots (faction_xws);
+
+CREATE TABLE upgrades (
+  xws TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  limited INTEGER NOT NULL,
+  standard_loadout_only INTEGER NOT NULL,
+  slots TEXT NOT NULL,
+  restrictions TEXT NOT NULL
+);

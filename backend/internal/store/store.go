@@ -77,6 +77,16 @@ func (s *Store) ReplaceCards(ctx context.Context, cards *carddata.Cards) error {
 		}
 	}
 
+	for _, u := range cards.Upgrades {
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO upgrades (xws, name, limited, standard_loadout_only, slots, restrictions)
+			VALUES (?, ?, ?, ?, ?, ?)`,
+			u.XWS, u.Name, u.Limited, u.StandardLoadoutOnly, toJSON(u.Slots), toJSON(u.Restrictions),
+		); err != nil {
+			return fmt.Errorf("inserting upgrade %q: %w", u.XWS, err)
+		}
+	}
+
 	return tx.Commit()
 }
 
@@ -147,6 +157,35 @@ func (s *Store) ListShips(ctx context.Context, factionXWS string) ([]FactionShip
 		last.Pilots = append(last.Pilots, pilot)
 	}
 	return ships, rows.Err()
+}
+
+// ListUpgrades returns every upgrade, sorted by name.
+func (s *Store) ListUpgrades(ctx context.Context) ([]carddata.Upgrade, error) {
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT xws, name, limited, standard_loadout_only, slots, restrictions
+		FROM upgrades
+		ORDER BY name, xws`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var upgrades []carddata.Upgrade
+	for rows.Next() {
+		var u carddata.Upgrade
+		var slots, restrictions string
+		if err := rows.Scan(&u.XWS, &u.Name, &u.Limited, &u.StandardLoadoutOnly, &slots, &restrictions); err != nil {
+			return nil, err
+		}
+		if err := decodeJSONColumns(
+			jsonColumn{slots, &u.Slots},
+			jsonColumn{restrictions, &u.Restrictions},
+		); err != nil {
+			return nil, fmt.Errorf("upgrade %q: %w", u.XWS, err)
+		}
+		upgrades = append(upgrades, u)
+	}
+	return upgrades, rows.Err()
 }
 
 // jsonColumn pairs a JSON column's raw text with the value to decode it into.

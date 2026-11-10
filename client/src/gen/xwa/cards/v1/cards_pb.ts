@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file xwa/cards/v1/cards.proto.
  */
 export const file_xwa_cards_v1_cards: GenFile = /*@__PURE__*/
-  fileDesc("Chh4d2EvY2FyZHMvdjEvY2FyZHMucHJvdG8SDHh3YS5jYXJkcy52MSInChBMaXN0U2hpcHNSZXF1ZXN0EhMKC2ZhY3Rpb25feHdzGAEgASgJIjYKEUxpc3RTaGlwc1Jlc3BvbnNlEiEKBXNoaXBzGAEgAygLMhIueHdhLmNhcmRzLnYxLlNoaXAiiQEKBFNoaXASCwoDeHdzGAEgASgJEgwKBG5hbWUYAiABKAkSIwoGcGlsb3RzGAMgAygLMhMueHdhLmNhcmRzLnYxLlBpbG90EgwKBHNpemUYBCABKAkSJQoHYWN0aW9ucxgFIAMoCzIULnh3YS5jYXJkcy52MS5BY3Rpb24SDAoEYXJjcxgGIAMoCSLZAQoFUGlsb3QSCwoDeHdzGAEgASgJEgwKBG5hbWUYAiABKAkSEgoKaW5pdGlhdGl2ZRgDIAEoBRIPCgdsaW1pdGVkGAQgASgFEg0KBXNsb3RzGAUgAygJEhgKEHN0YW5kYXJkX2xvYWRvdXQYBiADKAkSEAoIa2V5d29yZHMYByADKAkSFAoMc2hpcF9hYmlsaXR5GAggASgJEioKDHNoaXBfYWN0aW9ucxgJIAMoCzIULnh3YS5jYXJkcy52MS5BY3Rpb24SEwoLZm9yY2Vfc2lkZXMYCiADKAkiKgoGQWN0aW9uEgwKBHR5cGUYASABKAkSEgoKZGlmZmljdWx0eRgCIAEoCTJbCgtDYXJkU2VydmljZRJMCglMaXN0U2hpcHMSHi54d2EuY2FyZHMudjEuTGlzdFNoaXBzUmVxdWVzdBofLnh3YS5jYXJkcy52MS5MaXN0U2hpcHNSZXNwb25zZUJKWkhnaXRodWIuY29tL2pjaHVyY2htYW4veHdhLXNxdWFkLWJ1aWxkZXIvYmFja2VuZC9nZW4veHdhL2NhcmRzL3YxO2NhcmRzdjFiBnByb3RvMw");
+  fileDesc("Chh4d2EvY2FyZHMvdjEvY2FyZHMucHJvdG8SDHh3YS5jYXJkcy52MSInChBMaXN0U2hpcHNSZXF1ZXN0EhMKC2ZhY3Rpb25feHdzGAEgASgJIjYKEUxpc3RTaGlwc1Jlc3BvbnNlEiEKBXNoaXBzGAEgAygLMhIueHdhLmNhcmRzLnYxLlNoaXAiFQoTTGlzdFVwZ3JhZGVzUmVxdWVzdCI/ChRMaXN0VXBncmFkZXNSZXNwb25zZRInCgh1cGdyYWRlcxgBIAMoCzIVLnh3YS5jYXJkcy52MS5VcGdyYWRlIokBCgRTaGlwEgsKA3h3cxgBIAEoCRIMCgRuYW1lGAIgASgJEiMKBnBpbG90cxgDIAMoCzITLnh3YS5jYXJkcy52MS5QaWxvdBIMCgRzaXplGAQgASgJEiUKB2FjdGlvbnMYBSADKAsyFC54d2EuY2FyZHMudjEuQWN0aW9uEgwKBGFyY3MYBiADKAki2QEKBVBpbG90EgsKA3h3cxgBIAEoCRIMCgRuYW1lGAIgASgJEhIKCmluaXRpYXRpdmUYAyABKAUSDwoHbGltaXRlZBgEIAEoBRINCgVzbG90cxgFIAMoCRIYChBzdGFuZGFyZF9sb2Fkb3V0GAYgAygJEhAKCGtleXdvcmRzGAcgAygJEhQKDHNoaXBfYWJpbGl0eRgIIAEoCRIqCgxzaGlwX2FjdGlvbnMYCSADKAsyFC54d2EuY2FyZHMudjEuQWN0aW9uEhMKC2ZvcmNlX3NpZGVzGAogAygJIioKBkFjdGlvbhIMCgR0eXBlGAEgASgJEhIKCmRpZmZpY3VsdHkYAiABKAkimQEKB1VwZ3JhZGUSCwoDeHdzGAEgASgJEgwKBG5hbWUYAiABKAkSDQoFc2xvdHMYAyADKAkSDwoHbGltaXRlZBgEIAEoBRIdChVzdGFuZGFyZF9sb2Fkb3V0X29ubHkYBSABKAgSNAoMcmVzdHJpY3Rpb25zGAYgAygLMh4ueHdhLmNhcmRzLnYxLlJlc3RyaWN0aW9uR3JvdXAiqQIKEFJlc3RyaWN0aW9uR3JvdXASEAoIZmFjdGlvbnMYASADKAkSDQoFc2hpcHMYAiADKAkSDQoFc2l6ZXMYAyADKAkSJQoHYWN0aW9ucxgEIAMoCzIULnh3YS5jYXJkcy52MS5BY3Rpb24SEAoIa2V5d29yZHMYBSADKAkSFgoOc2hpcF9hYmlsaXRpZXMYBiADKAkSDQoFbmFtZXMYByADKAkSEAoIZXF1aXBwZWQYCCADKAkSDAoEYXJjcxgJIAMoCRITCgtmb3JjZV9zaWRlcxgKIAMoCRIQCghzb2xpdGFyeRgLIAEoCBIUCgxzdGFuZGFyZGl6ZWQYDCABKAgSGAoLbm9uX2xpbWl0ZWQYDSABKAhIAIgBAUIOCgxfbm9uX2xpbWl0ZWQysgEKC0NhcmRTZXJ2aWNlEkwKCUxpc3RTaGlwcxIeLnh3YS5jYXJkcy52MS5MaXN0U2hpcHNSZXF1ZXN0Gh8ueHdhLmNhcmRzLnYxLkxpc3RTaGlwc1Jlc3BvbnNlElUKDExpc3RVcGdyYWRlcxIhLnh3YS5jYXJkcy52MS5MaXN0VXBncmFkZXNSZXF1ZXN0GiIueHdhLmNhcmRzLnYxLkxpc3RVcGdyYWRlc1Jlc3BvbnNlQkpaSGdpdGh1Yi5jb20vamNodXJjaG1hbi94d2Etc3F1YWQtYnVpbGRlci9iYWNrZW5kL2dlbi94d2EvY2FyZHMvdjE7Y2FyZHN2MWIGcHJvdG8z");
 
 /**
  * @generated from message xwa.cards.v1.ListShipsRequest
@@ -47,6 +47,36 @@ export type ListShipsResponse = Message<"xwa.cards.v1.ListShipsResponse"> & {
  */
 export const ListShipsResponseSchema: GenMessage<ListShipsResponse> = /*@__PURE__*/
   messageDesc(file_xwa_cards_v1_cards, 1);
+
+/**
+ * @generated from message xwa.cards.v1.ListUpgradesRequest
+ */
+export type ListUpgradesRequest = Message<"xwa.cards.v1.ListUpgradesRequest"> & {
+};
+
+/**
+ * Describes the message xwa.cards.v1.ListUpgradesRequest.
+ * Use `create(ListUpgradesRequestSchema)` to create a new message.
+ */
+export const ListUpgradesRequestSchema: GenMessage<ListUpgradesRequest> = /*@__PURE__*/
+  messageDesc(file_xwa_cards_v1_cards, 2);
+
+/**
+ * @generated from message xwa.cards.v1.ListUpgradesResponse
+ */
+export type ListUpgradesResponse = Message<"xwa.cards.v1.ListUpgradesResponse"> & {
+  /**
+   * @generated from field: repeated xwa.cards.v1.Upgrade upgrades = 1;
+   */
+  upgrades: Upgrade[];
+};
+
+/**
+ * Describes the message xwa.cards.v1.ListUpgradesResponse.
+ * Use `create(ListUpgradesResponseSchema)` to create a new message.
+ */
+export const ListUpgradesResponseSchema: GenMessage<ListUpgradesResponse> = /*@__PURE__*/
+  messageDesc(file_xwa_cards_v1_cards, 3);
 
 /**
  * @generated from message xwa.cards.v1.Ship
@@ -92,7 +122,7 @@ export type Ship = Message<"xwa.cards.v1.Ship"> & {
  * Use `create(ShipSchema)` to create a new message.
  */
 export const ShipSchema: GenMessage<Ship> = /*@__PURE__*/
-  messageDesc(file_xwa_cards_v1_cards, 2);
+  messageDesc(file_xwa_cards_v1_cards, 4);
 
 /**
  * @generated from message xwa.cards.v1.Pilot
@@ -167,7 +197,7 @@ export type Pilot = Message<"xwa.cards.v1.Pilot"> & {
  * Use `create(PilotSchema)` to create a new message.
  */
 export const PilotSchema: GenMessage<Pilot> = /*@__PURE__*/
-  messageDesc(file_xwa_cards_v1_cards, 3);
+  messageDesc(file_xwa_cards_v1_cards, 5);
 
 /**
  * @generated from message xwa.cards.v1.Action
@@ -191,7 +221,146 @@ export type Action = Message<"xwa.cards.v1.Action"> & {
  * Use `create(ActionSchema)` to create a new message.
  */
 export const ActionSchema: GenMessage<Action> = /*@__PURE__*/
-  messageDesc(file_xwa_cards_v1_cards, 4);
+  messageDesc(file_xwa_cards_v1_cards, 6);
+
+/**
+ * @generated from message xwa.cards.v1.Upgrade
+ */
+export type Upgrade = Message<"xwa.cards.v1.Upgrade"> & {
+  /**
+   * @generated from field: string xws = 1;
+   */
+  xws: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * Every slot the upgrade occupies. The first is the slot it is chosen from.
+   *
+   * @generated from field: repeated string slots = 3;
+   */
+  slots: string[];
+
+  /**
+   * Maximum copies of this card name in a squad. 0 means no limit.
+   *
+   * @generated from field: int32 limited = 4;
+   */
+  limited: number;
+
+  /**
+   * Only available as part of a standard loadout, never chosen directly.
+   *
+   * @generated from field: bool standard_loadout_only = 5;
+   */
+  standardLoadoutOnly: boolean;
+
+  /**
+   * A ship can equip the upgrade only if it meets every group.
+   *
+   * @generated from field: repeated xwa.cards.v1.RestrictionGroup restrictions = 6;
+   */
+  restrictions: RestrictionGroup[];
+};
+
+/**
+ * Describes the message xwa.cards.v1.Upgrade.
+ * Use `create(UpgradeSchema)` to create a new message.
+ */
+export const UpgradeSchema: GenMessage<Upgrade> = /*@__PURE__*/
+  messageDesc(file_xwa_cards_v1_cards, 7);
+
+/**
+ * A ship meets a group if it meets at least one of the conditions set in it.
+ *
+ * @generated from message xwa.cards.v1.RestrictionGroup
+ */
+export type RestrictionGroup = Message<"xwa.cards.v1.RestrictionGroup"> & {
+  /**
+   * @generated from field: repeated string factions = 1;
+   */
+  factions: string[];
+
+  /**
+   * Ship XWS IDs.
+   *
+   * @generated from field: repeated string ships = 2;
+   */
+  ships: string[];
+
+  /**
+   * @generated from field: repeated string sizes = 3;
+   */
+  sizes: string[];
+
+  /**
+   * An action the ship has. A difficulty, when set, must also match.
+   *
+   * @generated from field: repeated xwa.cards.v1.Action actions = 4;
+   */
+  actions: Action[];
+
+  /**
+   * @generated from field: repeated string keywords = 5;
+   */
+  keywords: string[];
+
+  /**
+   * @generated from field: repeated string ship_abilities = 6;
+   */
+  shipAbilities: string[];
+
+  /**
+   * Card names that must be in the squad.
+   *
+   * @generated from field: repeated string names = 7;
+   */
+  names: string[];
+
+  /**
+   * Upgrade slot types that must already be filled on the ship.
+   *
+   * @generated from field: repeated string equipped = 8;
+   */
+  equipped: string[];
+
+  /**
+   * @generated from field: repeated string arcs = 9;
+   */
+  arcs: string[];
+
+  /**
+   * @generated from field: repeated string force_sides = 10;
+   */
+  forceSides: string[];
+
+  /**
+   * @generated from field: bool solitary = 11;
+   */
+  solitary: boolean;
+
+  /**
+   * Recorded but not enforced yet: these apply to the whole list, not one ship.
+   *
+   * @generated from field: bool standardized = 12;
+   */
+  standardized: boolean;
+
+  /**
+   * @generated from field: optional bool non_limited = 13;
+   */
+  nonLimited?: boolean | undefined;
+};
+
+/**
+ * Describes the message xwa.cards.v1.RestrictionGroup.
+ * Use `create(RestrictionGroupSchema)` to create a new message.
+ */
+export const RestrictionGroupSchema: GenMessage<RestrictionGroup> = /*@__PURE__*/
+  messageDesc(file_xwa_cards_v1_cards, 8);
 
 /**
  * CardService serves card definitions imported from the xwing-data2 fork.
@@ -208,6 +377,16 @@ export const CardService: GenService<{
     methodKind: "unary";
     input: typeof ListShipsRequestSchema;
     output: typeof ListShipsResponseSchema;
+  },
+  /**
+   * ListUpgrades returns every upgrade card. Restrictions decide which ones a ship can equip.
+   *
+   * @generated from rpc xwa.cards.v1.CardService.ListUpgrades
+   */
+  listUpgrades: {
+    methodKind: "unary";
+    input: typeof ListUpgradesRequestSchema;
+    output: typeof ListUpgradesResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_xwa_cards_v1_cards, 0);

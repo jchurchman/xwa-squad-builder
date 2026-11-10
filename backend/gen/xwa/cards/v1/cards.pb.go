@@ -110,6 +110,86 @@ func (x *ListShipsResponse) GetShips() []*Ship {
 	return nil
 }
 
+type ListUpgradesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListUpgradesRequest) Reset() {
+	*x = ListUpgradesRequest{}
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUpgradesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUpgradesRequest) ProtoMessage() {}
+
+func (x *ListUpgradesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUpgradesRequest.ProtoReflect.Descriptor instead.
+func (*ListUpgradesRequest) Descriptor() ([]byte, []int) {
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{2}
+}
+
+type ListUpgradesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Upgrades      []*Upgrade             `protobuf:"bytes,1,rep,name=upgrades,proto3" json:"upgrades,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListUpgradesResponse) Reset() {
+	*x = ListUpgradesResponse{}
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUpgradesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUpgradesResponse) ProtoMessage() {}
+
+func (x *ListUpgradesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUpgradesResponse.ProtoReflect.Descriptor instead.
+func (*ListUpgradesResponse) Descriptor() ([]byte, []int) {
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListUpgradesResponse) GetUpgrades() []*Upgrade {
+	if x != nil {
+		return x.Upgrades
+	}
+	return nil
+}
+
 type Ship struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	Xws    string                 `protobuf:"bytes,1,opt,name=xws,proto3" json:"xws,omitempty"`
@@ -126,7 +206,7 @@ type Ship struct {
 
 func (x *Ship) Reset() {
 	*x = Ship{}
-	mi := &file_xwa_cards_v1_cards_proto_msgTypes[2]
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -138,7 +218,7 @@ func (x *Ship) String() string {
 func (*Ship) ProtoMessage() {}
 
 func (x *Ship) ProtoReflect() protoreflect.Message {
-	mi := &file_xwa_cards_v1_cards_proto_msgTypes[2]
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -151,7 +231,7 @@ func (x *Ship) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ship.ProtoReflect.Descriptor instead.
 func (*Ship) Descriptor() ([]byte, []int) {
-	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{2}
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Ship) GetXws() string {
@@ -221,7 +301,7 @@ type Pilot struct {
 
 func (x *Pilot) Reset() {
 	*x = Pilot{}
-	mi := &file_xwa_cards_v1_cards_proto_msgTypes[3]
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +313,7 @@ func (x *Pilot) String() string {
 func (*Pilot) ProtoMessage() {}
 
 func (x *Pilot) ProtoReflect() protoreflect.Message {
-	mi := &file_xwa_cards_v1_cards_proto_msgTypes[3]
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +326,7 @@ func (x *Pilot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Pilot.ProtoReflect.Descriptor instead.
 func (*Pilot) Descriptor() ([]byte, []int) {
-	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{3}
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Pilot) GetXws() string {
@@ -330,7 +410,7 @@ type Action struct {
 
 func (x *Action) Reset() {
 	*x = Action{}
-	mi := &file_xwa_cards_v1_cards_proto_msgTypes[4]
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -342,7 +422,7 @@ func (x *Action) String() string {
 func (*Action) ProtoMessage() {}
 
 func (x *Action) ProtoReflect() protoreflect.Message {
-	mi := &file_xwa_cards_v1_cards_proto_msgTypes[4]
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +435,7 @@ func (x *Action) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Action.ProtoReflect.Descriptor instead.
 func (*Action) Descriptor() ([]byte, []int) {
-	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{4}
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Action) GetType() string {
@@ -372,6 +452,240 @@ func (x *Action) GetDifficulty() string {
 	return ""
 }
 
+type Upgrade struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Xws   string                 `protobuf:"bytes,1,opt,name=xws,proto3" json:"xws,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Every slot the upgrade occupies. The first is the slot it is chosen from.
+	Slots []string `protobuf:"bytes,3,rep,name=slots,proto3" json:"slots,omitempty"`
+	// Maximum copies of this card name in a squad. 0 means no limit.
+	Limited int32 `protobuf:"varint,4,opt,name=limited,proto3" json:"limited,omitempty"`
+	// Only available as part of a standard loadout, never chosen directly.
+	StandardLoadoutOnly bool `protobuf:"varint,5,opt,name=standard_loadout_only,json=standardLoadoutOnly,proto3" json:"standard_loadout_only,omitempty"`
+	// A ship can equip the upgrade only if it meets every group.
+	Restrictions  []*RestrictionGroup `protobuf:"bytes,6,rep,name=restrictions,proto3" json:"restrictions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Upgrade) Reset() {
+	*x = Upgrade{}
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Upgrade) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Upgrade) ProtoMessage() {}
+
+func (x *Upgrade) ProtoReflect() protoreflect.Message {
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Upgrade.ProtoReflect.Descriptor instead.
+func (*Upgrade) Descriptor() ([]byte, []int) {
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *Upgrade) GetXws() string {
+	if x != nil {
+		return x.Xws
+	}
+	return ""
+}
+
+func (x *Upgrade) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Upgrade) GetSlots() []string {
+	if x != nil {
+		return x.Slots
+	}
+	return nil
+}
+
+func (x *Upgrade) GetLimited() int32 {
+	if x != nil {
+		return x.Limited
+	}
+	return 0
+}
+
+func (x *Upgrade) GetStandardLoadoutOnly() bool {
+	if x != nil {
+		return x.StandardLoadoutOnly
+	}
+	return false
+}
+
+func (x *Upgrade) GetRestrictions() []*RestrictionGroup {
+	if x != nil {
+		return x.Restrictions
+	}
+	return nil
+}
+
+// A ship meets a group if it meets at least one of the conditions set in it.
+type RestrictionGroup struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Factions []string               `protobuf:"bytes,1,rep,name=factions,proto3" json:"factions,omitempty"`
+	// Ship XWS IDs.
+	Ships []string `protobuf:"bytes,2,rep,name=ships,proto3" json:"ships,omitempty"`
+	Sizes []string `protobuf:"bytes,3,rep,name=sizes,proto3" json:"sizes,omitempty"`
+	// An action the ship has. A difficulty, when set, must also match.
+	Actions       []*Action `protobuf:"bytes,4,rep,name=actions,proto3" json:"actions,omitempty"`
+	Keywords      []string  `protobuf:"bytes,5,rep,name=keywords,proto3" json:"keywords,omitempty"`
+	ShipAbilities []string  `protobuf:"bytes,6,rep,name=ship_abilities,json=shipAbilities,proto3" json:"ship_abilities,omitempty"`
+	// Card names that must be in the squad.
+	Names []string `protobuf:"bytes,7,rep,name=names,proto3" json:"names,omitempty"`
+	// Upgrade slot types that must already be filled on the ship.
+	Equipped   []string `protobuf:"bytes,8,rep,name=equipped,proto3" json:"equipped,omitempty"`
+	Arcs       []string `protobuf:"bytes,9,rep,name=arcs,proto3" json:"arcs,omitempty"`
+	ForceSides []string `protobuf:"bytes,10,rep,name=force_sides,json=forceSides,proto3" json:"force_sides,omitempty"`
+	Solitary   bool     `protobuf:"varint,11,opt,name=solitary,proto3" json:"solitary,omitempty"`
+	// Recorded but not enforced yet: these apply to the whole list, not one ship.
+	Standardized  bool  `protobuf:"varint,12,opt,name=standardized,proto3" json:"standardized,omitempty"`
+	NonLimited    *bool `protobuf:"varint,13,opt,name=non_limited,json=nonLimited,proto3,oneof" json:"non_limited,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RestrictionGroup) Reset() {
+	*x = RestrictionGroup{}
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RestrictionGroup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RestrictionGroup) ProtoMessage() {}
+
+func (x *RestrictionGroup) ProtoReflect() protoreflect.Message {
+	mi := &file_xwa_cards_v1_cards_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RestrictionGroup.ProtoReflect.Descriptor instead.
+func (*RestrictionGroup) Descriptor() ([]byte, []int) {
+	return file_xwa_cards_v1_cards_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RestrictionGroup) GetFactions() []string {
+	if x != nil {
+		return x.Factions
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetShips() []string {
+	if x != nil {
+		return x.Ships
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetSizes() []string {
+	if x != nil {
+		return x.Sizes
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetActions() []*Action {
+	if x != nil {
+		return x.Actions
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetKeywords() []string {
+	if x != nil {
+		return x.Keywords
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetShipAbilities() []string {
+	if x != nil {
+		return x.ShipAbilities
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetNames() []string {
+	if x != nil {
+		return x.Names
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetEquipped() []string {
+	if x != nil {
+		return x.Equipped
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetArcs() []string {
+	if x != nil {
+		return x.Arcs
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetForceSides() []string {
+	if x != nil {
+		return x.ForceSides
+	}
+	return nil
+}
+
+func (x *RestrictionGroup) GetSolitary() bool {
+	if x != nil {
+		return x.Solitary
+	}
+	return false
+}
+
+func (x *RestrictionGroup) GetStandardized() bool {
+	if x != nil {
+		return x.Standardized
+	}
+	return false
+}
+
+func (x *RestrictionGroup) GetNonLimited() bool {
+	if x != nil && x.NonLimited != nil {
+		return *x.NonLimited
+	}
+	return false
+}
+
 var File_xwa_cards_v1_cards_proto protoreflect.FileDescriptor
 
 const file_xwa_cards_v1_cards_proto_rawDesc = "" +
@@ -381,7 +695,10 @@ const file_xwa_cards_v1_cards_proto_rawDesc = "" +
 	"\vfaction_xws\x18\x01 \x01(\tR\n" +
 	"factionXws\"=\n" +
 	"\x11ListShipsResponse\x12(\n" +
-	"\x05ships\x18\x01 \x03(\v2\x12.xwa.cards.v1.ShipR\x05ships\"\xb1\x01\n" +
+	"\x05ships\x18\x01 \x03(\v2\x12.xwa.cards.v1.ShipR\x05ships\"\x15\n" +
+	"\x13ListUpgradesRequest\"I\n" +
+	"\x14ListUpgradesResponse\x121\n" +
+	"\bupgrades\x18\x01 \x03(\v2\x15.xwa.cards.v1.UpgradeR\bupgrades\"\xb1\x01\n" +
 	"\x04Ship\x12\x10\n" +
 	"\x03xws\x18\x01 \x01(\tR\x03xws\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12+\n" +
@@ -408,9 +725,35 @@ const file_xwa_cards_v1_cards_proto_rawDesc = "" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1e\n" +
 	"\n" +
 	"difficulty\x18\x02 \x01(\tR\n" +
-	"difficulty2[\n" +
+	"difficulty\"\xd7\x01\n" +
+	"\aUpgrade\x12\x10\n" +
+	"\x03xws\x18\x01 \x01(\tR\x03xws\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05slots\x18\x03 \x03(\tR\x05slots\x12\x18\n" +
+	"\alimited\x18\x04 \x01(\x05R\alimited\x122\n" +
+	"\x15standard_loadout_only\x18\x05 \x01(\bR\x13standardLoadoutOnly\x12B\n" +
+	"\frestrictions\x18\x06 \x03(\v2\x1e.xwa.cards.v1.RestrictionGroupR\frestrictions\"\xaa\x03\n" +
+	"\x10RestrictionGroup\x12\x1a\n" +
+	"\bfactions\x18\x01 \x03(\tR\bfactions\x12\x14\n" +
+	"\x05ships\x18\x02 \x03(\tR\x05ships\x12\x14\n" +
+	"\x05sizes\x18\x03 \x03(\tR\x05sizes\x12.\n" +
+	"\aactions\x18\x04 \x03(\v2\x14.xwa.cards.v1.ActionR\aactions\x12\x1a\n" +
+	"\bkeywords\x18\x05 \x03(\tR\bkeywords\x12%\n" +
+	"\x0eship_abilities\x18\x06 \x03(\tR\rshipAbilities\x12\x14\n" +
+	"\x05names\x18\a \x03(\tR\x05names\x12\x1a\n" +
+	"\bequipped\x18\b \x03(\tR\bequipped\x12\x12\n" +
+	"\x04arcs\x18\t \x03(\tR\x04arcs\x12\x1f\n" +
+	"\vforce_sides\x18\n" +
+	" \x03(\tR\n" +
+	"forceSides\x12\x1a\n" +
+	"\bsolitary\x18\v \x01(\bR\bsolitary\x12\"\n" +
+	"\fstandardized\x18\f \x01(\bR\fstandardized\x12$\n" +
+	"\vnon_limited\x18\r \x01(\bH\x00R\n" +
+	"nonLimited\x88\x01\x01B\x0e\n" +
+	"\f_non_limited2\xb2\x01\n" +
 	"\vCardService\x12L\n" +
-	"\tListShips\x12\x1e.xwa.cards.v1.ListShipsRequest\x1a\x1f.xwa.cards.v1.ListShipsResponseBJZHgithub.com/jchurchman/xwa-squad-builder/backend/gen/xwa/cards/v1;cardsv1b\x06proto3"
+	"\tListShips\x12\x1e.xwa.cards.v1.ListShipsRequest\x1a\x1f.xwa.cards.v1.ListShipsResponse\x12U\n" +
+	"\fListUpgrades\x12!.xwa.cards.v1.ListUpgradesRequest\x1a\".xwa.cards.v1.ListUpgradesResponseBJZHgithub.com/jchurchman/xwa-squad-builder/backend/gen/xwa/cards/v1;cardsv1b\x06proto3"
 
 var (
 	file_xwa_cards_v1_cards_proto_rawDescOnce sync.Once
@@ -424,26 +767,35 @@ func file_xwa_cards_v1_cards_proto_rawDescGZIP() []byte {
 	return file_xwa_cards_v1_cards_proto_rawDescData
 }
 
-var file_xwa_cards_v1_cards_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_xwa_cards_v1_cards_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_xwa_cards_v1_cards_proto_goTypes = []any{
-	(*ListShipsRequest)(nil),  // 0: xwa.cards.v1.ListShipsRequest
-	(*ListShipsResponse)(nil), // 1: xwa.cards.v1.ListShipsResponse
-	(*Ship)(nil),              // 2: xwa.cards.v1.Ship
-	(*Pilot)(nil),             // 3: xwa.cards.v1.Pilot
-	(*Action)(nil),            // 4: xwa.cards.v1.Action
+	(*ListShipsRequest)(nil),     // 0: xwa.cards.v1.ListShipsRequest
+	(*ListShipsResponse)(nil),    // 1: xwa.cards.v1.ListShipsResponse
+	(*ListUpgradesRequest)(nil),  // 2: xwa.cards.v1.ListUpgradesRequest
+	(*ListUpgradesResponse)(nil), // 3: xwa.cards.v1.ListUpgradesResponse
+	(*Ship)(nil),                 // 4: xwa.cards.v1.Ship
+	(*Pilot)(nil),                // 5: xwa.cards.v1.Pilot
+	(*Action)(nil),               // 6: xwa.cards.v1.Action
+	(*Upgrade)(nil),              // 7: xwa.cards.v1.Upgrade
+	(*RestrictionGroup)(nil),     // 8: xwa.cards.v1.RestrictionGroup
 }
 var file_xwa_cards_v1_cards_proto_depIdxs = []int32{
-	2, // 0: xwa.cards.v1.ListShipsResponse.ships:type_name -> xwa.cards.v1.Ship
-	3, // 1: xwa.cards.v1.Ship.pilots:type_name -> xwa.cards.v1.Pilot
-	4, // 2: xwa.cards.v1.Ship.actions:type_name -> xwa.cards.v1.Action
-	4, // 3: xwa.cards.v1.Pilot.ship_actions:type_name -> xwa.cards.v1.Action
-	0, // 4: xwa.cards.v1.CardService.ListShips:input_type -> xwa.cards.v1.ListShipsRequest
-	1, // 5: xwa.cards.v1.CardService.ListShips:output_type -> xwa.cards.v1.ListShipsResponse
-	5, // [5:6] is the sub-list for method output_type
-	4, // [4:5] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4, // 0: xwa.cards.v1.ListShipsResponse.ships:type_name -> xwa.cards.v1.Ship
+	7, // 1: xwa.cards.v1.ListUpgradesResponse.upgrades:type_name -> xwa.cards.v1.Upgrade
+	5, // 2: xwa.cards.v1.Ship.pilots:type_name -> xwa.cards.v1.Pilot
+	6, // 3: xwa.cards.v1.Ship.actions:type_name -> xwa.cards.v1.Action
+	6, // 4: xwa.cards.v1.Pilot.ship_actions:type_name -> xwa.cards.v1.Action
+	8, // 5: xwa.cards.v1.Upgrade.restrictions:type_name -> xwa.cards.v1.RestrictionGroup
+	6, // 6: xwa.cards.v1.RestrictionGroup.actions:type_name -> xwa.cards.v1.Action
+	0, // 7: xwa.cards.v1.CardService.ListShips:input_type -> xwa.cards.v1.ListShipsRequest
+	2, // 8: xwa.cards.v1.CardService.ListUpgrades:input_type -> xwa.cards.v1.ListUpgradesRequest
+	1, // 9: xwa.cards.v1.CardService.ListShips:output_type -> xwa.cards.v1.ListShipsResponse
+	3, // 10: xwa.cards.v1.CardService.ListUpgrades:output_type -> xwa.cards.v1.ListUpgradesResponse
+	9, // [9:11] is the sub-list for method output_type
+	7, // [7:9] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_xwa_cards_v1_cards_proto_init() }
@@ -451,13 +803,14 @@ func file_xwa_cards_v1_cards_proto_init() {
 	if File_xwa_cards_v1_cards_proto != nil {
 		return
 	}
+	file_xwa_cards_v1_cards_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_xwa_cards_v1_cards_proto_rawDesc), len(file_xwa_cards_v1_cards_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

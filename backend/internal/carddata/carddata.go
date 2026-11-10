@@ -2,6 +2,7 @@
 package carddata
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/fs"
@@ -46,10 +47,39 @@ type Pilot struct {
 	ForceSides  []string
 }
 
+// Upgrade is an upgrade card. Two-sided upgrades are described by their first side.
+type Upgrade struct {
+	XWS                 string
+	Name                string
+	Slots               []string
+	Limited             int
+	StandardLoadoutOnly bool
+	Restrictions        []RestrictionGroup
+}
+
+// RestrictionGroup is met when at least one of its conditions is met. An upgrade's groups must
+// all be met.
+type RestrictionGroup struct {
+	Factions      []string `json:"factions,omitempty"`
+	Ships         []string `json:"ships,omitempty"`
+	Sizes         []string `json:"sizes,omitempty"`
+	Actions       []Action `json:"actions,omitempty"`
+	Keywords      []string `json:"keywords,omitempty"`
+	ShipAbilities []string `json:"shipAbilities,omitempty"`
+	Names         []string `json:"names,omitempty"`
+	Equipped      []string `json:"equipped,omitempty"`
+	Arcs          []string `json:"arcs,omitempty"`
+	ForceSides    []string `json:"forceSides,omitempty"`
+	Solitary      bool     `json:"solitary,omitempty"`
+	Standardized  bool     `json:"standardized,omitempty"`
+	NonLimited    *bool    `json:"nonLimited,omitempty"`
+}
+
 // Cards is everything loaded from the card data.
 type Cards struct {
-	Ships  []Ship
-	Pilots []Pilot
+	Ships    []Ship
+	Pilots   []Pilot
+	Upgrades []Upgrade
 }
 
 type manifest struct {
@@ -57,6 +87,7 @@ type manifest struct {
 		Faction string   `json:"faction"`
 		Ships   []string `json:"ships"`
 	} `json:"pilots"`
+	Upgrades []string `json:"upgrades"`
 }
 
 type shipFile struct {
@@ -89,7 +120,38 @@ type pilotEntry struct {
 	} `json:"force"`
 }
 
-// Load reads the manifest and every ship file it lists. fsys must be rooted at the
+// upgradeEntry is one upgrade in an upgrade file.
+type upgradeEntry struct {
+	XWS                 string `json:"xws"`
+	Name                string `json:"name"`
+	Limited             int    `json:"limited"`
+	StandardLoadoutOnly bool   `json:"standardLoadoutOnly"`
+	Sides               []struct {
+		Type  string   `json:"type"`
+		Slots []string `json:"slots"`
+	} `json:"sides"`
+	Restrictions []json.RawMessage `json:"restrictions"`
+}
+
+// rawRestriction mirrors xwing-data2's restriction format. Unknown keys are rejected so that a
+// new kind of restriction in the data fails the import instead of being silently ignored.
+type rawRestriction struct {
+	Factions    []string `json:"factions"`
+	Ships       []string `json:"ships"`
+	Sizes       []string `json:"sizes"`
+	Action      *Action  `json:"action"`
+	Keywords    []string `json:"keywords"`
+	ShipAbility []string `json:"shipAbility"`
+	Names       []string `json:"names"`
+	Equipped    []string `json:"equipped"`
+	Arcs        []string `json:"arcs"`
+	ForceSide   []string `json:"force_side"`
+	Solitary    bool     `json:"solitary"`
+	Standard    bool     `json:"standardized"`
+	NonLimited  *bool    `json:"non-limited"`
+}
+
+// Load reads the manifest and every ship and upgrade file it lists. fsys must be rooted at the
 // top of the xwing-data2 repository (the directory containing data/).
 func Load(fsys fs.FS) (*Cards, error) {
 	var m manifest
@@ -97,7 +159,20 @@ func Load(fsys fs.FS) (*Cards, error) {
 		return nil, err
 	}
 
-	cards := &Cards{}
+	ships, pilots, err := loadShipsAndPilots(fsys, m)
+	if err != nil {
+		return nil, err
+	}
+	upgrades, err := loadUpgrades(fsys, m)
+	if err != nil {
+		return nil, err
+	}
+	return &Cards{Ships: ships, Pilots: pilots, Upgrades: upgrades}, nil
+}
+
+func loadShipsAndPilots(fsys fs.FS, m manifest) ([]Ship, []Pilot, error) {
+	var ships []Ship
+	var pilots []Pilot
 	seenShips := map[string]bool{}
 	seenPilots := map[string]string{}
 
@@ -105,25 +180,25 @@ func Load(fsys fs.FS) (*Cards, error) {
 		for _, path := range faction.Ships {
 			var sf shipFile
 			if err := readJSON(fsys, path, &sf); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			if !seenShips[sf.XWS] {
 				seenShips[sf.XWS] = true
-				cards.Ships = append(cards.Ships, shipFileToShip(sf))
+				ships = append(ships, shipFileToShip(sf))
 			}
 
 			for _, p := range sf.Pilots {
 				if previous, ok := seenPilots[p.XWS]; ok {
-					return nil, fmt.Errorf("duplicate pilot xws %q in %s (first seen in %s)", p.XWS, path, previous)
+					return nil, nil, fmt.Errorf("duplicate pilot xws %q in %s (first seen in %s)", p.XWS, path, previous)
 				}
 				seenPilots[p.XWS] = path
 
-				cards.Pilots = append(cards.Pilots, pilotEntryToPilot(p, sf.XWS, faction.Faction))
+				pilots = append(pilots, pilotEntryToPilot(p, sf.XWS, faction.Faction))
 			}
 		}
 	}
-	return cards, nil
+	return ships, pilots, nil
 }
 
 func shipFileToShip(sf shipFile) Ship {
@@ -156,6 +231,87 @@ func pilotEntryToPilot(p pilotEntry, shipXWS, factionXWS string) Pilot {
 		pilot.ForceSides = p.Force.Side
 	}
 	return pilot
+}
+
+func loadUpgrades(fsys fs.FS, m manifest) ([]Upgrade, error) {
+	var upgrades []Upgrade
+	seen := map[string]string{}
+
+	for _, path := range m.Upgrades {
+		var entries []upgradeEntry
+		if err := readJSON(fsys, path, &entries); err != nil {
+			return nil, err
+		}
+
+		for _, u := range entries {
+			if previous, ok := seen[u.XWS]; ok {
+				return nil, fmt.Errorf("duplicate upgrade xws %q in %s (first seen in %s)", u.XWS, path, previous)
+			}
+			seen[u.XWS] = path
+
+			upgrade, err := upgradeEntryToUpgrade(u)
+			if err != nil {
+				return nil, fmt.Errorf("upgrade %q in %s: %w", u.XWS, path, err)
+			}
+			upgrades = append(upgrades, upgrade)
+		}
+	}
+	return upgrades, nil
+}
+
+func upgradeEntryToUpgrade(u upgradeEntry) (Upgrade, error) {
+	if len(u.Sides) == 0 {
+		return Upgrade{}, fmt.Errorf("no sides")
+	}
+	slots := u.Sides[0].Slots
+	if len(slots) == 0 {
+		slots = []string{u.Sides[0].Type}
+	}
+
+	upgrade := Upgrade{
+		XWS:                 u.XWS,
+		Name:                u.Name,
+		Slots:               slots,
+		Limited:             u.Limited,
+		StandardLoadoutOnly: u.StandardLoadoutOnly,
+	}
+	for _, raw := range u.Restrictions {
+		group, err := parseRestriction(raw)
+		if err != nil {
+			return Upgrade{}, err
+		}
+		upgrade.Restrictions = append(upgrade.Restrictions, group)
+	}
+	return upgrade, nil
+}
+
+func parseRestriction(raw json.RawMessage) (RestrictionGroup, error) {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.DisallowUnknownFields()
+
+	var r rawRestriction
+	if err := dec.Decode(&r); err != nil {
+		return RestrictionGroup{}, fmt.Errorf("parsing restriction %s: %w", raw, err)
+	}
+
+	group := RestrictionGroup{
+		Factions:      r.Factions,
+		Ships:         r.Ships,
+		Sizes:         r.Sizes,
+		Keywords:      r.Keywords,
+		ShipAbilities: r.ShipAbility,
+		Names:         r.Names,
+		Equipped:      r.Equipped,
+		Arcs:          r.Arcs,
+		ForceSides:    r.ForceSide,
+		Solitary:      r.Solitary,
+		Standardized:  r.Standard,
+		NonLimited:    r.NonLimited,
+	}
+	if r.Action != nil {
+		group.Actions = []Action{*r.Action}
+	}
+	return group, nil
 }
 
 func readJSON(fsys fs.FS, path string, v any) error {
