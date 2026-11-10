@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file xwa/cards/v1/cards.proto.
  */
 export const file_xwa_cards_v1_cards: GenFile = /*@__PURE__*/
-  fileDesc("Chh4d2EvY2FyZHMvdjEvY2FyZHMucHJvdG8SDHh3YS5jYXJkcy52MSInChBMaXN0U2hpcHNSZXF1ZXN0EhMKC2ZhY3Rpb25feHdzGAEgASgJIjYKEUxpc3RTaGlwc1Jlc3BvbnNlEiEKBXNoaXBzGAEgAygLMhIueHdhLmNhcmRzLnYxLlNoaXAiRgoEU2hpcBILCgN4d3MYASABKAkSDAoEbmFtZRgCIAEoCRIjCgZwaWxvdHMYAyADKAsyEy54d2EuY2FyZHMudjEuUGlsb3QiNgoFUGlsb3QSCwoDeHdzGAEgASgJEgwKBG5hbWUYAiABKAkSEgoKaW5pdGlhdGl2ZRgDIAEoBTJbCgtDYXJkU2VydmljZRJMCglMaXN0U2hpcHMSHi54d2EuY2FyZHMudjEuTGlzdFNoaXBzUmVxdWVzdBofLnh3YS5jYXJkcy52MS5MaXN0U2hpcHNSZXNwb25zZUJKWkhnaXRodWIuY29tL2pjaHVyY2htYW4veHdhLXNxdWFkLWJ1aWxkZXIvYmFja2VuZC9nZW4veHdhL2NhcmRzL3YxO2NhcmRzdjFiBnByb3RvMw");
+  fileDesc("Chh4d2EvY2FyZHMvdjEvY2FyZHMucHJvdG8SDHh3YS5jYXJkcy52MSInChBMaXN0U2hpcHNSZXF1ZXN0EhMKC2ZhY3Rpb25feHdzGAEgASgJIjYKEUxpc3RTaGlwc1Jlc3BvbnNlEiEKBXNoaXBzGAEgAygLMhIueHdhLmNhcmRzLnYxLlNoaXAiiQEKBFNoaXASCwoDeHdzGAEgASgJEgwKBG5hbWUYAiABKAkSIwoGcGlsb3RzGAMgAygLMhMueHdhLmNhcmRzLnYxLlBpbG90EgwKBHNpemUYBCABKAkSJQoHYWN0aW9ucxgFIAMoCzIULnh3YS5jYXJkcy52MS5BY3Rpb24SDAoEYXJjcxgGIAMoCSLZAQoFUGlsb3QSCwoDeHdzGAEgASgJEgwKBG5hbWUYAiABKAkSEgoKaW5pdGlhdGl2ZRgDIAEoBRIPCgdsaW1pdGVkGAQgASgFEg0KBXNsb3RzGAUgAygJEhgKEHN0YW5kYXJkX2xvYWRvdXQYBiADKAkSEAoIa2V5d29yZHMYByADKAkSFAoMc2hpcF9hYmlsaXR5GAggASgJEioKDHNoaXBfYWN0aW9ucxgJIAMoCzIULnh3YS5jYXJkcy52MS5BY3Rpb24SEwoLZm9yY2Vfc2lkZXMYCiADKAkiKgoGQWN0aW9uEgwKBHR5cGUYASABKAkSEgoKZGlmZmljdWx0eRgCIAEoCTJbCgtDYXJkU2VydmljZRJMCglMaXN0U2hpcHMSHi54d2EuY2FyZHMudjEuTGlzdFNoaXBzUmVxdWVzdBofLnh3YS5jYXJkcy52MS5MaXN0U2hpcHNSZXNwb25zZUJKWkhnaXRodWIuY29tL2pjaHVyY2htYW4veHdhLXNxdWFkLWJ1aWxkZXIvYmFja2VuZC9nZW4veHdhL2NhcmRzL3YxO2NhcmRzdjFiBnByb3RvMw");
 
 /**
  * @generated from message xwa.cards.v1.ListShipsRequest
@@ -66,6 +66,25 @@ export type Ship = Message<"xwa.cards.v1.Ship"> & {
    * @generated from field: repeated xwa.cards.v1.Pilot pilots = 3;
    */
   pilots: Pilot[];
+
+  /**
+   * "Small", "Medium", "Large", or "Huge".
+   *
+   * @generated from field: string size = 4;
+   */
+  size: string;
+
+  /**
+   * @generated from field: repeated xwa.cards.v1.Action actions = 5;
+   */
+  actions: Action[];
+
+  /**
+   * Arcs the ship has a primary attack in, e.g. "Front Arc", "Rear Arc".
+   *
+   * @generated from field: repeated string arcs = 6;
+   */
+  arcs: string[];
 };
 
 /**
@@ -93,6 +112,54 @@ export type Pilot = Message<"xwa.cards.v1.Pilot"> & {
    * @generated from field: int32 initiative = 3;
    */
   initiative: number;
+
+  /**
+   * Maximum copies of this card name in a squad. 0 means no limit.
+   *
+   * @generated from field: int32 limited = 4;
+   */
+  limited: number;
+
+  /**
+   * Upgrade slots, e.g. "Talent", "Torpedo". Empty for standard loadout pilots.
+   * Read from the card data until points versions exist.
+   *
+   * @generated from field: repeated string slots = 5;
+   */
+  slots: string[];
+
+  /**
+   * Upgrade XWS IDs a standard loadout pilot always flies with.
+   *
+   * @generated from field: repeated string standard_loadout = 6;
+   */
+  standardLoadout: string[];
+
+  /**
+   * @generated from field: repeated string keywords = 7;
+   */
+  keywords: string[];
+
+  /**
+   * Name of the pilot's ship ability, e.g. "Autothrusters". Empty if none.
+   *
+   * @generated from field: string ship_ability = 8;
+   */
+  shipAbility: string;
+
+  /**
+   * Replaces the ship's actions for this pilot when not empty.
+   *
+   * @generated from field: repeated xwa.cards.v1.Action ship_actions = 9;
+   */
+  shipActions: Action[];
+
+  /**
+   * "light" and/or "dark" for Force users.
+   *
+   * @generated from field: repeated string force_sides = 10;
+   */
+  forceSides: string[];
 };
 
 /**
@@ -101,6 +168,30 @@ export type Pilot = Message<"xwa.cards.v1.Pilot"> & {
  */
 export const PilotSchema: GenMessage<Pilot> = /*@__PURE__*/
   messageDesc(file_xwa_cards_v1_cards, 3);
+
+/**
+ * @generated from message xwa.cards.v1.Action
+ */
+export type Action = Message<"xwa.cards.v1.Action"> & {
+  /**
+   * @generated from field: string type = 1;
+   */
+  type: string;
+
+  /**
+   * "White", "Red", etc.
+   *
+   * @generated from field: string difficulty = 2;
+   */
+  difficulty: string;
+};
+
+/**
+ * Describes the message xwa.cards.v1.Action.
+ * Use `create(ActionSchema)` to create a new message.
+ */
+export const ActionSchema: GenMessage<Action> = /*@__PURE__*/
+  messageDesc(file_xwa_cards_v1_cards, 4);
 
 /**
  * CardService serves card definitions imported from the xwing-data2 fork.

@@ -7,27 +7,46 @@ import (
 	"testing/fstest"
 )
 
-const testManifest = `{"pilots": [
-	{"faction": "rebelalliance", "ships": ["data/pilots/rebel/tie.json", "data/pilots/rebel/xwing.json"]},
-	{"faction": "galacticempire", "ships": ["data/pilots/empire/tie.json"]}
-]}`
+const testManifest = `{
+	"pilots": [
+		{"faction": "rebelalliance", "ships": ["data/pilots/rebel/tie.json", "data/pilots/rebel/xwing.json"]},
+		{"faction": "galacticempire", "ships": ["data/pilots/empire/tie.json"]}
+	]
+}`
 
-func TestLoad(t *testing.T) {
-	fsys := fstest.MapFS{
+const testXWing = `{
+	"xws": "t65xwing", "name": "T-65 X-wing", "size": "Small",
+	"actions": [{"type": "Focus", "difficulty": "White"}, {"type": "Barrel Roll", "difficulty": "White", "linked": {"type": "Focus", "difficulty": "Red"}}],
+	"stats": [{"type": "attack", "arc": "Front Arc", "value": 3}, {"type": "agility", "value": 2}],
+	"pilots": [{
+		"xws": "lukeskywalker", "name": "Luke Skywalker", "initiative": 5, "limited": 1,
+		"slots": ["Force Power", "Astromech"], "keywords": ["X-wing"],
+		"force": {"value": 2, "side": ["light"]}
+	}]
+}`
+
+func testFS() fstest.MapFS {
+	return fstest.MapFS{
 		manifestPath:                   {Data: []byte(testManifest)},
-		"data/pilots/rebel/tie.json":   {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "pilots": [{"xws": "sabinewren-tielnfighter", "name": "Sabine Wren", "initiative": 3}]}`)},
-		"data/pilots/rebel/xwing.json": {Data: []byte(`{"xws": "t65xwing", "name": "T-65 X-wing", "pilots": [{"xws": "lukeskywalker", "name": "Luke Skywalker", "initiative": 5}]}`)},
-		"data/pilots/empire/tie.json":  {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3}]}`)},
+		"data/pilots/rebel/tie.json":   {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "sabinewren-tielnfighter", "name": "Sabine Wren", "initiative": 3}]}`)},
+		"data/pilots/rebel/xwing.json": {Data: []byte(testXWing)},
+		"data/pilots/empire/tie.json":  {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3, "standardLoadout": ["admiralozzel"], "shipAbility": {"name": "Autothrusters"}}]}`)},
 	}
+}
 
-	cards, err := Load(fsys)
+func TestLoadShipsAndPilots(t *testing.T) {
+	cards, err := Load(testFS())
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	wantShips := []Ship{
-		{XWS: "tielnfighter", Name: "TIE/ln Fighter"},
-		{XWS: "t65xwing", Name: "T-65 X-wing"},
+		{XWS: "tielnfighter", Name: "TIE/ln Fighter", Size: "Small"},
+		{
+			XWS: "t65xwing", Name: "T-65 X-wing", Size: "Small",
+			Actions: []Action{{Type: "Focus", Difficulty: "White"}, {Type: "Barrel Roll", Difficulty: "White"}},
+			Arcs:    []string{"Front Arc"},
+		},
 	}
 	if !reflect.DeepEqual(cards.Ships, wantShips) {
 		t.Errorf("ships = %+v, want %+v", cards.Ships, wantShips)
@@ -35,8 +54,14 @@ func TestLoad(t *testing.T) {
 
 	wantPilots := []Pilot{
 		{XWS: "sabinewren-tielnfighter", Name: "Sabine Wren", Initiative: 3, ShipXWS: "tielnfighter", FactionXWS: "rebelalliance"},
-		{XWS: "lukeskywalker", Name: "Luke Skywalker", Initiative: 5, ShipXWS: "t65xwing", FactionXWS: "rebelalliance"},
-		{XWS: "blacksquadronace", Name: "Black Squadron Ace", Initiative: 3, ShipXWS: "tielnfighter", FactionXWS: "galacticempire"},
+		{
+			XWS: "lukeskywalker", Name: "Luke Skywalker", Initiative: 5, Limited: 1, ShipXWS: "t65xwing", FactionXWS: "rebelalliance",
+			Slots: []string{"Force Power", "Astromech"}, Keywords: []string{"X-wing"}, ForceSides: []string{"light"},
+		},
+		{
+			XWS: "blacksquadronace", Name: "Black Squadron Ace", Initiative: 3, ShipXWS: "tielnfighter", FactionXWS: "galacticempire",
+			StandardLoadout: []string{"admiralozzel"}, ShipAbility: "Autothrusters",
+		},
 	}
 	if !reflect.DeepEqual(cards.Pilots, wantPilots) {
 		t.Errorf("pilots = %+v, want %+v", cards.Pilots, wantPilots)

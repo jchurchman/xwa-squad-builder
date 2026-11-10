@@ -9,18 +9,40 @@ import (
 	"github.com/jchurchman/xwa-squad-builder/backend/internal/carddata"
 )
 
-var testCards = &carddata.Cards{
-	Ships: []carddata.Ship{
-		{XWS: "tielnfighter", Name: "TIE/ln Fighter"},
-		{XWS: "t65xwing", Name: "T-65 X-wing"},
-	},
-	Pilots: []carddata.Pilot{
-		{XWS: "lukeskywalker", Name: "Luke Skywalker", Initiative: 5, ShipXWS: "t65xwing", FactionXWS: "rebelalliance"},
-		{XWS: "bluesquadronescort", Name: "Blue Squadron Escort", Initiative: 2, ShipXWS: "t65xwing", FactionXWS: "rebelalliance"},
-		{XWS: "sabinewren-tielnfighter", Name: "Sabine Wren", Initiative: 3, ShipXWS: "tielnfighter", FactionXWS: "rebelalliance"},
-		{XWS: "blacksquadronace", Name: "Black Squadron Ace", Initiative: 3, ShipXWS: "tielnfighter", FactionXWS: "galacticempire"},
-	},
-}
+var (
+	testXWing = carddata.Ship{
+		XWS: "t65xwing", Name: "T-65 X-wing", Size: "Small",
+		Actions: []carddata.Action{{Type: "Focus", Difficulty: "White"}},
+		Arcs:    []string{"Front Arc"},
+	}
+	testTIE = carddata.Ship{XWS: "tielnfighter", Name: "TIE/ln Fighter", Size: "Small"}
+
+	testLuke = carddata.Pilot{
+		XWS: "lukeskywalker", Name: "Luke Skywalker", Initiative: 5, Limited: 1,
+		ShipXWS: "t65xwing", FactionXWS: "rebelalliance",
+		Slots: []string{"Force Power", "Astromech"}, Keywords: []string{"X-wing"},
+		ForceSides: []string{"light"},
+	}
+	testEscort = carddata.Pilot{
+		XWS: "bluesquadronescort", Name: "Blue Squadron Escort", Initiative: 2,
+		ShipXWS: "t65xwing", FactionXWS: "rebelalliance", Slots: []string{"Astromech"},
+	}
+	testSabine = carddata.Pilot{
+		XWS: "sabinewren-tielnfighter", Name: "Sabine Wren", Initiative: 3,
+		ShipXWS: "tielnfighter", FactionXWS: "rebelalliance",
+		StandardLoadout: []string{"r2d2"}, ShipAbility: "Autothrusters",
+		ShipActions: []carddata.Action{{Type: "Evade", Difficulty: "White"}},
+	}
+	testBlackAce = carddata.Pilot{
+		XWS: "blacksquadronace", Name: "Black Squadron Ace", Initiative: 3,
+		ShipXWS: "tielnfighter", FactionXWS: "galacticempire",
+	}
+
+	testCards = &carddata.Cards{
+		Ships:  []carddata.Ship{testTIE, testXWing},
+		Pilots: []carddata.Pilot{testLuke, testEscort, testSabine, testBlackAce},
+	}
+)
 
 func openTestStore(t *testing.T) *Store {
 	t.Helper()
@@ -45,13 +67,8 @@ func TestListShipsFiltersByFactionAndSorts(t *testing.T) {
 	}
 
 	want := []FactionShip{
-		{XWS: "t65xwing", Name: "T-65 X-wing", Pilots: []carddata.Pilot{
-			{XWS: "bluesquadronescort", Name: "Blue Squadron Escort", Initiative: 2, ShipXWS: "t65xwing", FactionXWS: "rebelalliance"},
-			{XWS: "lukeskywalker", Name: "Luke Skywalker", Initiative: 5, ShipXWS: "t65xwing", FactionXWS: "rebelalliance"},
-		}},
-		{XWS: "tielnfighter", Name: "TIE/ln Fighter", Pilots: []carddata.Pilot{
-			{XWS: "sabinewren-tielnfighter", Name: "Sabine Wren", Initiative: 3, ShipXWS: "tielnfighter", FactionXWS: "rebelalliance"},
-		}},
+		{Ship: testXWing, Pilots: []carddata.Pilot{testEscort, testLuke}},
+		{Ship: testTIE, Pilots: []carddata.Pilot{testSabine}},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("ListShips = %+v, want %+v", got, want)
