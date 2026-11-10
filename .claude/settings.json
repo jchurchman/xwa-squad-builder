@@ -11,6 +11,7 @@
       "Bash(gofmt -l *)",
       "Bash(go vet *)",
       "Bash(go test *)",
+      "Bash(golangci-lint run*)",
       "Bash(buf lint*)",
       "Bash(buf generate*)"
     ],

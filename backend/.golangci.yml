@@ -1,0 +1,15 @@
+version: "2"
+
+linters:
+  settings:
+    errcheck:
+      # Cleanup calls whose errors are safe to ignore. *os.File is left out on
+      # purpose: a failed Close after writing can mean lost data.
+      exclude-functions:
+        - (*database/sql.DB).Close
+        - (*database/sql.Rows).Close
+        - (*database/sql.Tx).Rollback
+        - (*compress/gzip.Reader).Close
+        - (io.ReadCloser).Close
+        - (*github.com/jchurchman/xwa-squad-builder/backend/internal/store.Store).Close
+        - os.RemoveAll

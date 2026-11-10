@@ -1,4 +1,6 @@
 node_modules
+.DS_Store
+.claude/settings.local.json
 
 **/*.db
 
@@ -9,3 +11,5 @@ backend/bin/
 .vscode/
 
 data/
+
+*.scratch.md

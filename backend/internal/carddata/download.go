@@ -104,7 +104,7 @@ func writeFile(path string, r io.Reader) error {
 		return err
 	}
 	if _, err := io.Copy(f, r); err != nil {
-		f.Close()
+		_ = f.Close() // the copy error is the one worth returning
 		return err
 	}
 	return f.Close()

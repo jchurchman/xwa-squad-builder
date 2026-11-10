@@ -36,7 +36,10 @@ export default defineConfig([
       react: pluginReact,
     },
     rules: {
+      complexity: ['error', 10],
       indent: ['warn', 2],
+      'max-depth': ['error', 3],
+      'no-nested-ternary': 'error',
       'perfectionist/sort-imports': [
         'error',
         {
