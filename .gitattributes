@@ -1,0 +1,5 @@
+# Collapse generated files in GitHub diffs so reviews focus on hand-written code.
+backend/gen/** linguist-generated=true
+client/src/gen/** linguist-generated=true
+backend/go.sum linguist-generated=true
+package-lock.json linguist-generated=true
