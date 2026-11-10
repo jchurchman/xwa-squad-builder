@@ -26,6 +26,8 @@ const (
 const (
 	// CardServiceListShipsProcedure is the procedure name of the CardService's ListShips RPC.
 	CardServiceListShipsProcedure = "/xwa.cards.v1.CardService/ListShips"
+	// CardServiceListUpgradesProcedure is the procedure name of the CardService's ListUpgrades RPC.
+	CardServiceListUpgradesProcedure = "/xwa.cards.v1.CardService/ListUpgrades"
 )
 
 var (
@@ -36,12 +38,21 @@ var (
 			Procedure:  CardServiceListShipsProcedure,
 		}
 	})
+	cardServiceListUpgradesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_xwa_cards_v1_cards_proto.Services().ByName("CardService").Methods().ByName("ListUpgrades"),
+			Procedure:  CardServiceListUpgradesProcedure,
+		}
+	})
 )
 
 // CardServiceClient is a client for the xwa.cards.v1.CardService service.
 type CardServiceClient interface {
 	// ListShips returns every ship flown by a faction, each with that faction's pilots.
 	ListShips(context.Context, *v1.ListShipsRequest) (*v1.ListShipsResponse, error)
+	// ListUpgrades returns every upgrade card. Restrictions decide which ones a ship can equip.
+	ListUpgrades(context.Context, *v1.ListUpgradesRequest) (*v1.ListUpgradesResponse, error)
 }
 
 // NewCardServiceClient constructs a client for the xwa.cards.v1.CardService service. Multiple
@@ -54,6 +65,8 @@ func NewCardServiceClient(client *connect.Client) CardServiceClient {
 type CardServiceHandler interface {
 	// ListShips returns every ship flown by a faction, each with that faction's pilots.
 	ListShips(context.Context, *v1.ListShipsRequest) (*v1.ListShipsResponse, error)
+	// ListUpgrades returns every upgrade card. Restrictions decide which ones a ship can equip.
+	ListUpgrades(context.Context, *v1.ListUpgradesRequest) (*v1.ListUpgradesResponse, error)
 }
 
 // RegisterCardServiceHandler registers svc as the xwa.cards.v1.CardService implementation on
@@ -62,6 +75,7 @@ func RegisterCardServiceHandler(server *connect.Server, svc CardServiceHandler) 
 	adapter := cardServiceHandler{svc: svc}
 	server.Register(
 		connect.Method{Spec: cardServiceListShipsSpec(), Handler: adapter.listShips},
+		connect.Method{Spec: cardServiceListUpgradesSpec(), Handler: adapter.listUpgrades},
 	)
 }
 
@@ -70,6 +84,10 @@ type UnimplementedCardServiceHandler struct{}
 
 func (UnimplementedCardServiceHandler) ListShips(context.Context, *v1.ListShipsRequest) (*v1.ListShipsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "xwa.cards.v1.CardService.ListShips is not implemented")
+}
+
+func (UnimplementedCardServiceHandler) ListUpgrades(context.Context, *v1.ListUpgradesRequest) (*v1.ListUpgradesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "xwa.cards.v1.CardService.ListUpgrades is not implemented")
 }
 
 type cardServiceClient struct {
@@ -84,6 +102,14 @@ func (c *cardServiceClient) ListShips(ctx context.Context, req *v1.ListShipsRequ
 	return &res, nil
 }
 
+func (c *cardServiceClient) ListUpgrades(ctx context.Context, req *v1.ListUpgradesRequest) (*v1.ListUpgradesResponse, error) {
+	var res v1.ListUpgradesResponse
+	if err := c.client.CallUnary(ctx, cardServiceListUpgradesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 type cardServiceHandler struct{ svc CardServiceHandler }
 
 func (h cardServiceHandler) listShips(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
@@ -92,6 +118,18 @@ func (h cardServiceHandler) listShips(ctx context.Context, _ connect.Spec, strea
 		return err
 	}
 	res, err := h.svc.ListShips(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h cardServiceHandler) listUpgrades(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListUpgradesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListUpgrades(ctx, &req)
 	if err != nil {
 		return err
 	}

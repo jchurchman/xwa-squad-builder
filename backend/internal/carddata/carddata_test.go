@@ -11,7 +11,8 @@ const testManifest = `{
 	"pilots": [
 		{"faction": "rebelalliance", "ships": ["data/pilots/rebel/tie.json", "data/pilots/rebel/xwing.json"]},
 		{"faction": "galacticempire", "ships": ["data/pilots/empire/tie.json"]}
-	]
+	],
+	"upgrades": ["data/upgrades/crew.json"]
 }`
 
 const testXWing = `{
@@ -25,12 +26,25 @@ const testXWing = `{
 	}]
 }`
 
+const testUpgrades = `[
+	{
+		"xws": "000", "name": "0-0-0", "limited": 1,
+		"sides": [{"type": "Crew", "slots": ["Crew"]}],
+		"restrictions": [{"factions": ["scumandvillainy"], "names": ["Darth Vader"]}, {"action": {"type": "Calculate"}}]
+	},
+	{
+		"xws": "admiralozzel", "name": "Admiral Ozzel", "limited": 1, "standardLoadoutOnly": true,
+		"sides": [{"type": "Command", "slots": ["Command", "Crew"]}]
+	}
+]`
+
 func testFS() fstest.MapFS {
 	return fstest.MapFS{
 		manifestPath:                   {Data: []byte(testManifest)},
 		"data/pilots/rebel/tie.json":   {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "sabinewren-tielnfighter", "name": "Sabine Wren", "initiative": 3}]}`)},
 		"data/pilots/rebel/xwing.json": {Data: []byte(testXWing)},
 		"data/pilots/empire/tie.json":  {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3, "standardLoadout": ["admiralozzel"], "shipAbility": {"name": "Autothrusters"}}]}`)},
+		"data/upgrades/crew.json":      {Data: []byte(testUpgrades)},
 	}
 }
 
@@ -65,6 +79,39 @@ func TestLoadShipsAndPilots(t *testing.T) {
 	}
 	if !reflect.DeepEqual(cards.Pilots, wantPilots) {
 		t.Errorf("pilots = %+v, want %+v", cards.Pilots, wantPilots)
+	}
+}
+
+func TestLoadUpgrades(t *testing.T) {
+	cards, err := Load(testFS())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := []Upgrade{
+		{
+			XWS: "000", Name: "0-0-0", Slots: []string{"Crew"}, Limited: 1,
+			Restrictions: []RestrictionGroup{
+				{Factions: []string{"scumandvillainy"}, Names: []string{"Darth Vader"}},
+				{Actions: []Action{{Type: "Calculate"}}},
+			},
+		},
+		{XWS: "admiralozzel", Name: "Admiral Ozzel", Slots: []string{"Command", "Crew"}, Limited: 1, StandardLoadoutOnly: true},
+	}
+	if !reflect.DeepEqual(cards.Upgrades, want) {
+		t.Errorf("upgrades = %+v, want %+v", cards.Upgrades, want)
+	}
+}
+
+func TestLoadRejectsUnknownRestrictions(t *testing.T) {
+	fsys := testFS()
+	fsys["data/upgrades/crew.json"] = &fstest.MapFile{Data: []byte(
+		`[{"xws": "x", "name": "X", "sides": [{"type": "Crew"}], "restrictions": [{"pointsBelow": 5}]}]`,
+	)}
+
+	_, err := Load(fsys)
+	if err == nil || !strings.Contains(err.Error(), "pointsBelow") {
+		t.Fatalf("err = %v, want an error naming the unknown restriction", err)
 	}
 }
 

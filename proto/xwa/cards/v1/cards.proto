@@ -8,6 +8,8 @@ option go_package = "github.com/jchurchman/xwa-squad-builder/backend/gen/xwa/car
 service CardService {
   // ListShips returns every ship flown by a faction, each with that faction's pilots.
   rpc ListShips(ListShipsRequest) returns (ListShipsResponse);
+  // ListUpgrades returns every upgrade card. Restrictions decide which ones a ship can equip.
+  rpc ListUpgrades(ListUpgradesRequest) returns (ListUpgradesResponse);
 }
 
 message ListShipsRequest {
@@ -17,6 +19,12 @@ message ListShipsRequest {
 
 message ListShipsResponse {
   repeated Ship ships = 1;
+}
+
+message ListUpgradesRequest {}
+
+message ListUpgradesResponse {
+  repeated Upgrade upgrades = 1;
 }
 
 message Ship {
@@ -54,4 +62,39 @@ message Action {
   string type = 1;
   // "White", "Red", etc.
   string difficulty = 2;
+}
+
+message Upgrade {
+  string xws = 1;
+  string name = 2;
+  // Every slot the upgrade occupies. The first is the slot it is chosen from.
+  repeated string slots = 3;
+  // Maximum copies of this card name in a squad. 0 means no limit.
+  int32 limited = 4;
+  // Only available as part of a standard loadout, never chosen directly.
+  bool standard_loadout_only = 5;
+  // A ship can equip the upgrade only if it meets every group.
+  repeated RestrictionGroup restrictions = 6;
+}
+
+// A ship meets a group if it meets at least one of the conditions set in it.
+message RestrictionGroup {
+  repeated string factions = 1;
+  // Ship XWS IDs.
+  repeated string ships = 2;
+  repeated string sizes = 3;
+  // An action the ship has. A difficulty, when set, must also match.
+  repeated Action actions = 4;
+  repeated string keywords = 5;
+  repeated string ship_abilities = 6;
+  // Card names that must be in the squad.
+  repeated string names = 7;
+  // Upgrade slot types that must already be filled on the ship.
+  repeated string equipped = 8;
+  repeated string arcs = 9;
+  repeated string force_sides = 10;
+  bool solitary = 11;
+  // Recorded but not enforced yet: these apply to the whole list, not one ship.
+  bool standardized = 12;
+  optional bool non_limited = 13;
 }

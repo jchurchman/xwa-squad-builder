@@ -72,6 +72,7 @@ func run(ctx context.Context, dbPath, pinPath string) error {
 	if err := st.ReplaceCards(ctx, cards); err != nil {
 		return err
 	}
-	log.Printf("imported %d ships and %d pilots into %s", len(cards.Ships), len(cards.Pilots), dbPath)
+	log.Printf("imported %d ships, %d pilots, and %d upgrades into %s",
+		len(cards.Ships), len(cards.Pilots), len(cards.Upgrades), dbPath)
 	return nil
 }

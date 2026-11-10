@@ -38,9 +38,21 @@ var (
 		ShipXWS: "tielnfighter", FactionXWS: "galacticempire",
 	}
 
+	testZeroZeroZero = carddata.Upgrade{
+		XWS: "000", Name: "0-0-0", Slots: []string{"Crew"}, Limited: 1,
+		Restrictions: []carddata.RestrictionGroup{
+			{Factions: []string{"scumandvillainy"}, Names: []string{"Darth Vader"}},
+		},
+	}
+	testOzzel = carddata.Upgrade{
+		XWS: "admiralozzel", Name: "Admiral Ozzel", Slots: []string{"Command", "Crew"},
+		Limited: 1, StandardLoadoutOnly: true,
+	}
+
 	testCards = &carddata.Cards{
-		Ships:  []carddata.Ship{testTIE, testXWing},
-		Pilots: []carddata.Pilot{testLuke, testEscort, testSabine, testBlackAce},
+		Ships:    []carddata.Ship{testTIE, testXWing},
+		Pilots:   []carddata.Pilot{testLuke, testEscort, testSabine, testBlackAce},
+		Upgrades: []carddata.Upgrade{testOzzel, testZeroZeroZero},
 	}
 )
 
@@ -156,5 +168,23 @@ func TestReplaceCardsRecreatesOutdatedTables(t *testing.T) {
 	}
 	if len(got) != 1 || got[0].Name != "TIE/ln Fighter" {
 		t.Errorf("ListShips = %+v, want the TIE/ln Fighter", got)
+	}
+}
+
+func TestListUpgradesSortsByName(t *testing.T) {
+	ctx := context.Background()
+	st := openTestStore(t)
+	if err := st.ReplaceCards(ctx, testCards); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := st.ListUpgrades(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := []carddata.Upgrade{testZeroZeroZero, testOzzel}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ListUpgrades = %+v, want %+v", got, want)
 	}
 }

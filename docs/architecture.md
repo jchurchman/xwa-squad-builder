@@ -208,6 +208,11 @@ entry in the data:
 
 - **Card restrictions** live in the card JSON (e.g. "requires faction", "max per squad",
   "requires slot equipped").
+  - An upgrade's `restrictions` is a list of groups. Every group must be met; a group is met when
+    **any one** of its conditions is. This matches the cards: 0-0-0's single group
+    `{factions: [Scum], names: [Darth Vader]}` reads "Scum, or a squad including Darth Vader".
+  - The import rejects any restriction key it does not recognize, so a new kind of restriction
+    in the fork fails loudly instead of being ignored.
 - **Points-version rules** use data from the points version:
   - **Slots:** every upgrade needs a free slot of its type on the pilot. A pilot with one
     Modification slot can equip only one Modification, however cheap.
