@@ -7,7 +7,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run client:test && npm run backend:test",
     "dev": "concurrently \"npm run backend:dev\" \"npm run client:dev\"",
     "backend:dev": "cd backend && go run ./cmd/server",
     "backend:import": "cd backend && go run ./cmd/importcards",
@@ -20,7 +20,8 @@
     "server:build": "npm run build --workspace=server",
     "server:start": "npm run start --workspace=server",
     "client:dev": "npm run dev --workspace=client",
-    "client:build": "npm run build --workspace=client"
+    "client:build": "npm run build --workspace=client",
+    "client:test": "npm run test --workspace=client"
   },
   "workspaces": [
     "server",
