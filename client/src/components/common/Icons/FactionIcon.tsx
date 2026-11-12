@@ -1,9 +1,9 @@
-import { slugify } from '@shared/utils';
 import classNames from 'classnames';
 
-import classes from './Icons.module.scss';
+import type { Faction } from '@/constants';
+import { slugify } from '@/utils/slugify';
 
-import { Faction } from '@shared/types';
+import classes from './Icons.module.scss';
 
 type IconProps = {
   active?: boolean;

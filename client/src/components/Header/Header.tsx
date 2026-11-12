@@ -1,7 +1,7 @@
-import { slugify } from '@shared/utils';
 import cn from 'classnames';
 
 import { useTypedParams } from '@/hooks/useTypedParams';
+import { slugify } from '@/utils/slugify';
 
 import { AuthButtons } from './AuthButtons/AuthButtons';
 import { FactionSelector } from './FactionSelector/FactionSelector';

@@ -1,14 +1,27 @@
-import { Faction } from '@shared/types';
+import type { ValueOf } from '@/types/utility';
+
+/** Faction display names, used in routes. */
+export const FACTION = {
+  EMPIRE: 'Galactic Empire',
+  FIRST_ORDER: 'First Order',
+  REBELS: 'Rebel Alliance',
+  REPUBLIC: 'Galactic Republic',
+  RESISTANCE: 'Resistance',
+  SCUM: 'Scum and Villainy',
+  SEPARATISTS: 'Separatist Alliance',
+} as const;
+
+export type Faction = ValueOf<typeof FACTION>;
 
 // Maps the faction names used in routes to the XWS faction IDs the backend expects.
 export const FACTION_XWS: Record<Faction, string> = Object.freeze({
-  [Faction.empire]: 'galacticempire',
-  [Faction.firstorder]: 'firstorder',
-  [Faction.rebels]: 'rebelalliance',
-  [Faction.republic]: 'galacticrepublic',
-  [Faction.resistance]: 'resistance',
-  [Faction.scum]: 'scumandvillainy',
-  [Faction.separatists]: 'separatistalliance',
+  [FACTION.EMPIRE]: 'galacticempire',
+  [FACTION.FIRST_ORDER]: 'firstorder',
+  [FACTION.REBELS]: 'rebelalliance',
+  [FACTION.REPUBLIC]: 'galacticrepublic',
+  [FACTION.RESISTANCE]: 'resistance',
+  [FACTION.SCUM]: 'scumandvillainy',
+  [FACTION.SEPARATISTS]: 'separatistalliance',
 });
 
 // TODO: Slot enum type

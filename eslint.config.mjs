@@ -61,7 +61,7 @@ export default defineConfig([
               groupName: 'my-assets',
             },
             {
-              elementNamePattern: ['^@/types/', '^@shared/types'],
+              elementNamePattern: ['^@/types/'],
               groupName: 'my-types',
             },
             {
