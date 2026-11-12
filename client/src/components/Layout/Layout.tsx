@@ -1,9 +1,8 @@
 import { Navigate, Outlet, useParams } from 'react-router';
 
-import { useTypedParams } from '@hooks';
-import { isFaction } from 'src/utils/isFaction';
-
-import { Header } from '../Header';
+import { Header } from '@/components/Header/Header';
+import { useTypedParams } from '@/hooks/useTypedParams';
+import { isFaction } from '@/utils/isFaction';
 
 import classes from './Layout.module.scss';
 

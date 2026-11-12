@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
-import { selectShipById } from '@selectors';
-import { choosePilot } from 'src/state/slices/listSlice';
+import { selectShipById } from '@/state/selectors/list';
+import { choosePilot } from '@/state/slices/listSlice';
 
 import { useAppDispatch, useAppSelector } from './state';
 import { useFactionShips } from './useFactionShips';

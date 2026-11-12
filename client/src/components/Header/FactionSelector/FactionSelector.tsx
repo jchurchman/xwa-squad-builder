@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import { NavLink, useParams } from 'react-router';
 
-import { FactionIcon } from '@components';
-import { useAppDispatch } from '@hooks';
-import { newList } from 'src/state/slices/listSlice';
+import { FactionIcon } from '@/components/common/Icons/FactionIcon';
+import { useAppDispatch } from '@/hooks/state';
+import { newList } from '@/state/slices/listSlice';
 
 import classes from './FactionSelector.module.scss';
 

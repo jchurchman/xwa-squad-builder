@@ -1,5 +1,5 @@
-import { SearchableSelect } from '@components';
-import type { Upgrade } from 'src/gen/xwa/cards/v1/cards_pb';
+import { SearchableSelect } from '@/components/common/SearchableSelect';
+import type { Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
 
 import classes from './ShipForm.module.scss';
 

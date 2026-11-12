@@ -1,7 +1,7 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { cardServiceClient } from '@api';
-import type { Ship, Upgrade } from 'src/gen/xwa/cards/v1/cards_pb';
+import { cardServiceClient } from '@/api/cardService';
+import type { Ship, Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
 
 // Endpoints call the generated Connect client instead of building HTTP requests themselves.
 export const api = createApi({

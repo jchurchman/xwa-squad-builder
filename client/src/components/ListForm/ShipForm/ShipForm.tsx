@@ -1,9 +1,10 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 
-import { SearchableSelect } from '@components';
-import { useAppDispatch, useShipForm } from '@hooks';
-import { deleteShip } from 'src/state/slices/listSlice';
+import { SearchableSelect } from '@/components/common/SearchableSelect';
+import { useAppDispatch } from '@/hooks/state';
+import { useShipForm } from '@/hooks/useShipForm';
+import { deleteShip } from '@/state/slices/listSlice';
 
 import { ShipUpgradesForm } from './ShipUpgradesForm';
 

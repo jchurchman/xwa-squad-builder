@@ -4,7 +4,7 @@ import { createAppSlice } from './createAppSlice';
 
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-import type { ListState, ShipId, ShipState } from '@types';
+import type { ListState, ShipId, ShipState } from '@/types/state';
 
 const initialState: ListState = {
   shipOrder: [],

@@ -1,5 +1,5 @@
-import { SLOT_ORDER } from 'src/constants';
-import type { Action, Pilot, RestrictionGroup, Ship, Upgrade } from 'src/gen/xwa/cards/v1/cards_pb';
+import { SLOT_ORDER } from '@/constants';
+import type { Action, Pilot, RestrictionGroup, Ship, Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
 
 const SLOT_ID_SEPARATOR = '-';
 

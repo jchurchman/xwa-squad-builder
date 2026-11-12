@@ -1,5 +1,5 @@
-import { SearchableSelect } from '@components';
-import { useShipUpgradesForm } from 'src/hooks/useShipUpgradesForm';
+import { SearchableSelect } from '@/components/common/SearchableSelect';
+import { useShipUpgradesForm } from '@/hooks/useShipUpgradesForm';
 
 import { StandardLoadoutUpgrades } from './StandardLoadoutUpgrades';
 import { UpgradeSelect } from './UpgradeSelect';

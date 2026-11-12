@@ -1,10 +1,10 @@
 import { slugify } from '@shared/utils';
 import cn from 'classnames';
 
-import { useTypedParams } from '@hooks';
+import { useTypedParams } from '@/hooks/useTypedParams';
 
-import { AuthButtons } from './AuthButtons';
-import { FactionSelector } from './FactionSelector';
+import { AuthButtons } from './AuthButtons/AuthButtons';
+import { FactionSelector } from './FactionSelector/FactionSelector';
 
 import classes from './Header.module.scss';
 

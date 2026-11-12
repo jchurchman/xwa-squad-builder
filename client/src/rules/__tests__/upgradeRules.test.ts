@@ -7,8 +7,7 @@ import {
   RestrictionGroupSchema,
   ShipSchema,
   UpgradeSchema,
-} from 'src/gen/xwa/cards/v1/cards_pb';
-
+} from '@/gen/xwa/cards/v1/cards_pb';
 import {
   canEquipUpgrade,
   getClaimedSlots,
@@ -16,7 +15,7 @@ import {
   getUpgradeOptions,
   type SlotContext,
   type SquadShip,
-} from '../upgradeRules';
+} from '@/rules/upgradeRules';
 
 import type { MessageInitShape } from '@bufbuild/protobuf';
 

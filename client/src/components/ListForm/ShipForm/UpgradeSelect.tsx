@@ -1,5 +1,5 @@
-import { SearchableSelect } from '@components';
-import { useUpgradeSelect } from 'src/hooks/useUpgradeSelect';
+import { SearchableSelect } from '@/components/common/SearchableSelect';
+import { useUpgradeSelect } from '@/hooks/useUpgradeSelect';
 
 import classes from './ShipForm.module.scss';
 

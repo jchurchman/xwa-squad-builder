@@ -2,12 +2,14 @@ import { Alert, Button } from 'antd';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import { useAppDispatch, useFactionShips, useTypedParams } from '@hooks';
-import { selectShipOrderIds } from '@selectors';
-import { useUpgrades } from 'src/hooks/useUpgrades';
-import { addShip, newList } from 'src/state/slices/listSlice';
+import { useAppDispatch } from '@/hooks/state';
+import { useFactionShips } from '@/hooks/useFactionShips';
+import { useTypedParams } from '@/hooks/useTypedParams';
+import { useUpgrades } from '@/hooks/useUpgrades';
+import { selectShipOrderIds } from '@/state/selectors/list';
+import { addShip, newList } from '@/state/slices/listSlice';
 
-import { ShipForm } from './ShipForm';
+import { ShipForm } from './ShipForm/ShipForm';
 
 import classes from './ListForm.module.scss';
 
