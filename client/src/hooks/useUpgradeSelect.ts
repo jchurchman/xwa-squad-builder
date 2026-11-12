@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react';
 
-import { selectShipById } from '@selectors';
-import { getUpgradeOptions } from 'src/rules/upgradeRules';
-import { chooseUpgrade } from 'src/state/slices/listSlice';
+import { getUpgradeOptions } from '@/rules/upgradeRules';
+import { selectShipById } from '@/state/selectors/list';
+import { chooseUpgrade } from '@/state/slices/listSlice';
 
 import { useAppDispatch, useAppSelector } from './state';
 import { useSquad } from './useSquad';

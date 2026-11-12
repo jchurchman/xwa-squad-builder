@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import type { Upgrade } from 'src/gen/xwa/cards/v1/cards_pb';
-import { getClaimedSlots, getShipSlots, type ShipSlot } from 'src/rules/upgradeRules';
+import type { Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
+import { getClaimedSlots, getShipSlots, type ShipSlot } from '@/rules/upgradeRules';
 
 import { useSquad } from './useSquad';
 

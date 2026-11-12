@@ -1,4 +1,4 @@
-import type { RootState, ShipId } from '@types';
+import type { RootState, ShipId } from '@/types/state';
 
 export const selectList = (state: RootState) => state.list;
 

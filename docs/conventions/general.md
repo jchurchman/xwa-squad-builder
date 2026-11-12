@@ -14,7 +14,10 @@
 - Extract magic strings and magic numbers into named constants.
 - Client ESLint enforces `complexity` (max 10), `max-depth` (max 3), and `no-nested-ternary`.
   Fix a violation by extracting a named function or returning early, not by disabling the rule.
-- Do not use index barrel files.
+- Do not use index barrel files. Import the file that defines what you need.
+- Client imports from another folder go through the `@/` alias for `client/src`, e.g.
+  `@/components/Header/Header`. Only same-folder imports are relative
+  (`./ShipForm.module.scss`); ESLint rejects `../` and `src/` imports.
 - Colocate code with its only consumer. Move it to a shared location (`components/`, `hooks/`,
   `types/`) only once a second consumer needs it.
 

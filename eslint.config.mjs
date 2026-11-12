@@ -40,21 +40,33 @@ export default defineConfig([
       indent: ['warn', 2],
       'max-depth': ['error', 3],
       'no-nested-ternary': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              message:
+                'Import through the @/ alias (e.g. @/hooks/useSquad), not a parent path or src/.',
+              regex: '^(\\.\\./|src/)',
+            },
+          ],
+        },
+      ],
       'perfectionist/sort-imports': [
         'error',
         {
           customGroups: [
             {
-              elementNamePattern: ['^@(components|hooks|api|selectors)', '^src/*'],
-              groupName: 'my-code',
+              elementNamePattern: ['^@/assets/'],
+              groupName: 'my-assets',
             },
             {
-              elementNamePattern: ['^@(types|shared/types)'],
+              elementNamePattern: ['^@/types/', '^@shared/types'],
               groupName: 'my-types',
             },
             {
-              elementNamePattern: ['@assets'],
-              groupName: 'my-assets',
+              elementNamePattern: ['^@/'],
+              groupName: 'my-code',
             },
           ],
           environment: 'node',

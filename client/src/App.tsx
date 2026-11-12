@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router';
 
-import { Layout, SquadBuilder } from '@components';
+import { Layout } from '@/components/Layout/Layout';
+import { SquadBuilder } from '@/components/SquadBuilder';
 
 import './App.css';
 

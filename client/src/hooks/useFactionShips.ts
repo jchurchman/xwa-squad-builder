@@ -1,6 +1,6 @@
-import { FACTION_XWS } from 'src/constants';
-import type { Ship } from 'src/gen/xwa/cards/v1/cards_pb';
-import { useListShipsQuery } from 'src/state/slices/apiSlice';
+import { FACTION_XWS } from '@/constants';
+import type { Ship } from '@/gen/xwa/cards/v1/cards_pb';
+import { useListShipsQuery } from '@/state/slices/apiSlice';
 
 import { useTypedParams } from './useTypedParams';
 

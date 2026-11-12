@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
 
-import { ListForm } from './ListForm';
+import { ListForm } from './ListForm/ListForm';
 
 export function SquadBuilder() {
   const { faction, lang } = useParams();

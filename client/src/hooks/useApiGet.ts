@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { api, ApiError } from '../api/client';
+import { api, ApiError } from '@/api/client';
 
 export function useApiGet<T>(endpoint: string, options?: { skip?: boolean }) {
   const [data, setData] = useState<null | T>(null);

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
 
-import { isFaction } from 'src/utils/isFaction';
+import { isFaction } from '@/utils/isFaction';
 
 import { Faction } from '@shared/types';
 

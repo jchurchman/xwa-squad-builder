@@ -17,7 +17,8 @@
   ```
 
 - Types used by more than one module live in `client/src/types/`.
-- Prefer path aliases over long relative imports. Aliases are defined in
-  [client/vite.config.ts](../../client/vite.config.ts) (`@components`, `@hooks`, `@selectors`,
-  `@types`, `@api`, `@assets`, `src`). Keep the ESLint import-sort groups in
+- The `@/` alias maps to `client/src` (see [general.md](general.md) for import rules). It is
+  defined in [client/vite.config.ts](../../client/vite.config.ts) and
+  [client/tsconfig.json](../../client/tsconfig.json); `@shared` points at the legacy `shared/`
+  types until they are replaced. Keep the ESLint import-sort groups in
   [eslint.config.mjs](../../eslint.config.mjs) in step when aliases change.

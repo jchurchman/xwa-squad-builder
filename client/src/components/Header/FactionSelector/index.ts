@@ -1,1 +1,0 @@
-export { FactionSelector } from './FactionSelector';

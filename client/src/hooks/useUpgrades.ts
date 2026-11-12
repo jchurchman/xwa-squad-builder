@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import type { Upgrade } from 'src/gen/xwa/cards/v1/cards_pb';
-import { useListUpgradesQuery } from 'src/state/slices/apiSlice';
+import type { Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
+import { useListUpgradesQuery } from '@/state/slices/apiSlice';
 
 const NO_UPGRADES: Upgrade[] = [];
 

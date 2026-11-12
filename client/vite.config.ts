@@ -12,15 +12,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@api': '/src/api/index.ts',
-      '@assets': '/src/assets/index.ts',
-      '@components': '/src/components/index.ts',
-      '@hooks': '/src/hooks/index.ts',
-      '@selectors': '/src/state/selectors/index.ts',
+      '@': '/src',
       '@shared': path.resolve(__dirname, '../shared'),
       '@shared/types': path.resolve(__dirname, '../shared/types/index.ts'),
-      '@types': '/src/types/index.ts',
-      src: '/src',
     },
   },
   server: {
