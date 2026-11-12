@@ -12,9 +12,11 @@ export const FACTION_XWS: Record<Faction, string> = Object.freeze({
 });
 
 // TODO: Slot enum type
+// Display order for upgrade slots, using the slot names from the card data. Borrowed from YASB;
+// slot types YASB did not have are at the end.
 export const SLOT_ORDER = Object.freeze([
   'Talent',
-  'Force',
+  'Force Power',
   'Tactical Relay',
   'Turret',
   'Tech',
@@ -30,4 +32,9 @@ export const SLOT_ORDER = Object.freeze([
   'Modification',
   'Configuration',
   'Title',
+  'Command',
+  'Hardpoint',
+  'Cargo',
+  'Team',
+  'Hyperdrive',
 ]);

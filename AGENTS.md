@@ -46,6 +46,7 @@ Client (from the repository root):
 npx eslint <files>
 (cd client && npx tsc --noEmit)   # never run plain `tsc -b`; it writes .js files into src/
 npx prettier --check <files>
+(cd client && npx vitest run <test files>)   # e.g. src/rules
 ```
 
 Backend (from `backend/`):
