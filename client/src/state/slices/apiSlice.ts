@@ -1,7 +1,7 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { cardServiceClient } from '@api';
-import type { Ship } from 'src/gen/xwa/cards/v1/cards_pb';
+import type { Ship, Upgrade } from 'src/gen/xwa/cards/v1/cards_pb';
 
 // Endpoints call the generated Connect client instead of building HTTP requests themselves.
 export const api = createApi({
@@ -17,8 +17,18 @@ export const api = createApi({
         }
       },
     }),
+    listUpgrades: builder.query<Upgrade[], void>({
+      queryFn: async () => {
+        try {
+          const { upgrades } = await cardServiceClient.listUpgrades({});
+          return { data: upgrades };
+        } catch (error) {
+          return { error: String(error) };
+        }
+      },
+    }),
   }),
   reducerPath: 'api',
 });
 
-export const { useListShipsQuery } = api;
+export const { useListShipsQuery, useListUpgradesQuery } = api;

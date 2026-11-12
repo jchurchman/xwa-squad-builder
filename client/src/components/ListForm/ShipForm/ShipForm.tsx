@@ -5,6 +5,8 @@ import { SearchableSelect } from '@components';
 import { useAppDispatch, useShipForm } from '@hooks';
 import { deleteShip } from 'src/state/slices/listSlice';
 
+import { ShipUpgradesForm } from './ShipUpgradesForm';
+
 import classes from './ShipForm.module.scss';
 
 type ShipFormProps = {
@@ -46,7 +48,7 @@ export function ShipForm({ shipId }: ShipFormProps) {
         )}
       </div>
       {/** TODO: Add pilot ponts/loadout */}
-      {/** TODO: Restore upgrade selection once upgrades are served by the Go backend */}
+      <ShipUpgradesForm shipId={shipId} />
       <Button
         danger
         icon={<CloseOutlined />}

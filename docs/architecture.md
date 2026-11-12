@@ -245,7 +245,8 @@ Evaluation:
 - Today only the client evaluates rules, since lists cannot be saved yet. The Go evaluator and
   the shared fixtures come with saving lists. The client's cases are in
   `client/src/rules/__tests__/upgradeRules.test.ts` and are the starting point for those fixtures.
-- Until points versions exist, the client shows no points and does not check loadout.
+- Until points versions exist, the client shows no points and does not check loadout. Standard
+  loadout pilots show their fixed upgrades from the card data's `standardLoadout`.
 
 Open within D8:
 

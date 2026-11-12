@@ -7,3 +7,15 @@
   width: 220px;
   text-align: left;
 }
+
+.upgrade-select {
+  width: 220px;
+  text-align: left;
+}
+
+.upgrade-group {
+  display: flex;
+  flex-direction: row;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
