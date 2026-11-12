@@ -11,6 +11,8 @@ export interface ShipState {
   id: ShipId;
   pilotXws?: string;
   platformXws?: string;
+  /** Upgrade XWS IDs by slot ID, e.g. { "crew-0": "chewbacca" }. */
+  upgrades: Record<string, string>;
 }
 
 export interface ListState {

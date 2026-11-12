@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { useAppDispatch, useFactionShips, useTypedParams } from '@hooks';
 import { selectShipOrderIds } from '@selectors';
+import { useUpgrades } from 'src/hooks/useUpgrades';
 import { addShip, newList } from 'src/state/slices/listSlice';
 
 import { ShipForm } from './ShipForm';
@@ -12,7 +13,8 @@ import classes from './ListForm.module.scss';
 
 export function ListForm() {
   const { faction } = useTypedParams();
-  const { isError } = useFactionShips();
+  const ships = useFactionShips();
+  const upgrades = useUpgrades();
   const shipIds = useSelector(selectShipOrderIds);
   const dispatch = useAppDispatch();
 
@@ -30,8 +32,8 @@ export function ListForm() {
 
   return (
     <>
-      {isError && (
-        <Alert message="Could not load ships. Check that the backend is running." type="error" />
+      {(ships.isError || upgrades.isError) && (
+        <Alert message="Could not load cards. Check that the backend is running." type="error" />
       )}
       <Button
         onClick={() => {

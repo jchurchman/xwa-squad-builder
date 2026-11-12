@@ -12,7 +12,7 @@ const initialState: ListState = {
 };
 
 function createNewShip(): ShipState {
-  return { id: uuidv4() };
+  return { id: uuidv4(), upgrades: {} };
 }
 
 function addShipToState(state: ListState, newShip: ShipState): ListState {
@@ -31,7 +31,9 @@ const reducers = {
     state: ListState,
     action: PayloadAction<{ pilotXws: string | undefined; shipId: ShipId }>
   ) => {
-    state.ships[action.payload.shipId].pilotXws = action.payload.pilotXws;
+    const ship = state.ships[action.payload.shipId];
+    ship.pilotXws = action.payload.pilotXws;
+    ship.upgrades = {};
   },
   choosePlatform: (
     state: ListState,
@@ -40,6 +42,19 @@ const reducers = {
     const ship = state.ships[action.payload.shipId];
     ship.platformXws = action.payload.platformXws;
     ship.pilotXws = undefined;
+    ship.upgrades = {};
+  },
+  chooseUpgrade: (
+    state: ListState,
+    action: PayloadAction<{ shipId: ShipId; slotId: string; upgradeXws: string | undefined }>
+  ) => {
+    const { shipId, slotId, upgradeXws } = action.payload;
+    const ship = state.ships[shipId];
+    if (upgradeXws) {
+      ship.upgrades[slotId] = upgradeXws;
+    } else {
+      delete ship.upgrades[slotId];
+    }
   },
   deleteShip: (state: ListState, action: PayloadAction<ShipId>) => {
     delete state.ships[action.payload];
@@ -55,4 +70,5 @@ const listSlice = createAppSlice({
 });
 
 export default listSlice.reducer;
-export const { addShip, choosePilot, choosePlatform, deleteShip, newList } = listSlice.actions;
+export const { addShip, choosePilot, choosePlatform, chooseUpgrade, deleteShip, newList } =
+  listSlice.actions;
