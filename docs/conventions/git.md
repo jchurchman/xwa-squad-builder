@@ -5,7 +5,7 @@
 - Branch off `main`. Name branches `<your initials>/<short-description>`, e.g.
   `jc/points-version-schema`.
 - Keep pull requests to one logical change.
-- A PR changes at most ~400 hand-written lines. Generated code and lockfiles don't count.
+- A PR changes at most ~300 hand-written lines. Tests, generated code and lockfiles don't count.
 - If planned work is bigger, propose a split before writing code: the PRs in merge order, each
   with one sentence on what it does and a rough size. Each PR must leave `main` working.
 - Before opening a PR, run the [verification commands](../../AGENTS.md#verification) on
