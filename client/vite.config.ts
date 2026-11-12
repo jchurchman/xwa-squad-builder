@@ -11,6 +11,9 @@ export default defineConfig({
   },
   plugins: [react()],
   resolve: {
+    // TODO: These aliases point at index.ts barrel files, which docs/conventions/general.md
+    // forbids. Point each at its folder so imports name the file (`@components/Header/Header`),
+    // update callers, delete the barrels, and match the paths in tsconfig.json.
     alias: {
       '@api': '/src/api/index.ts',
       '@assets': '/src/assets/index.ts',
