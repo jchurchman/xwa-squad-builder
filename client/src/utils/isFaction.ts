@@ -1,4 +1,6 @@
-import { FACTION, type Faction } from '@/constants';
+import { FACTION } from '@/constants';
+
+import type { Faction } from '@/types/faction';
 
 const FACTIONS = new Set<string>(Object.values(FACTION));
 

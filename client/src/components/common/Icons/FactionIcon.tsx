@@ -1,9 +1,8 @@
 import classNames from 'classnames';
 
-import type { Faction } from '@/constants';
-import { slugify } from '@/utils/slugify';
-
 import classes from './Icons.module.scss';
+
+import type { Faction } from '@/types/faction';
 
 type IconProps = {
   active?: boolean;
@@ -20,8 +19,8 @@ export function FactionIcon(props: IconProps) {
       className={classNames(
         'xwing-miniatures-font',
         classes.factionIcon,
-        classes[slugify(faction)],
-        `xwing-miniatures-font-${slugify(faction)}`,
+        classes[faction],
+        `xwing-miniatures-font-${faction}`,
         { [classes.active]: active },
         className
       )}

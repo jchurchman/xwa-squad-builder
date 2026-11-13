@@ -1,19 +1,17 @@
-import type { ValueOf } from '@/types/utility';
+import type { Faction } from '@/types/faction';
 
-/** Faction display names, used in routes. */
+/** Faction IDs. URL-safe, and also the faction's CSS class and icon name. */
 export const FACTION = {
-  EMPIRE: 'Galactic Empire',
-  FIRST_ORDER: 'First Order',
-  REBELS: 'Rebel Alliance',
-  REPUBLIC: 'Galactic Republic',
-  RESISTANCE: 'Resistance',
-  SCUM: 'Scum and Villainy',
-  SEPARATISTS: 'Separatist Alliance',
+  EMPIRE: 'galactic-empire',
+  FIRST_ORDER: 'first-order',
+  REBELS: 'rebel-alliance',
+  REPUBLIC: 'galactic-republic',
+  RESISTANCE: 'resistance',
+  SCUM: 'scum-and-villainy',
+  SEPARATISTS: 'separatist-alliance',
 } as const;
 
-export type Faction = ValueOf<typeof FACTION>;
-
-// Maps the faction names used in routes to the XWS faction IDs the backend expects.
+// Maps faction IDs to the XWS faction IDs the backend expects.
 export const FACTION_XWS: Record<Faction, string> = Object.freeze({
   [FACTION.EMPIRE]: 'galacticempire',
   [FACTION.FIRST_ORDER]: 'firstorder',

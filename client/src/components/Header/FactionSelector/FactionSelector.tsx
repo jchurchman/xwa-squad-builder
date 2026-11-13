@@ -2,11 +2,13 @@ import classNames from 'classnames';
 import { NavLink, useParams } from 'react-router';
 
 import { FactionIcon } from '@/components/common/Icons/FactionIcon';
-import { FACTION, type Faction } from '@/constants';
+import { FACTION } from '@/constants';
 import { useAppDispatch } from '@/hooks/state';
 import { newList } from '@/state/slices/listSlice';
 
 import classes from './FactionSelector.module.scss';
+
+import type { Faction } from '@/types/faction';
 
 const SELECTOR_ORDER: Faction[] = [
   FACTION.REBELS,

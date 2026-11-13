@@ -1,7 +1,9 @@
 import { useParams } from 'react-router';
 
-import { FACTION, type Faction } from '@/constants';
+import { FACTION } from '@/constants';
 import { isFaction } from '@/utils/isFaction';
+
+import type { Faction } from '@/types/faction';
 
 const DEFAULT_LANG = 'en';
 
