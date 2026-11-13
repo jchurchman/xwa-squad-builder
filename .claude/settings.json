@@ -52,7 +52,6 @@
       "Edit(/.env)",
       "Edit(**/node_modules/**)",
       "Edit(/client/dist/**)",
-      "Edit(/server/**)",
       "Edit(/**/*.db)",
       "Edit(/backend/gen/**)",
       "Edit(/client/src/gen/**)"

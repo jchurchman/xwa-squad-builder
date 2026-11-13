@@ -1,20 +1,13 @@
 # Project structure
 
-The project is mid-transition from a Node server to a Go backend. Know which part you are
-touching.
-
 ## Status
 
-| Path       | State                                                                                                |
-| ---------- | ---------------------------------------------------------------------------------------------------- |
-| `client/`  | Active. React app; kept through the rewrite.                                                         |
-| `backend/` | Active. Go server and card import. Serves ships and pilots; upgrades and points are not built yet.   |
-| `proto/`   | Active. Connect RPC API definitions. Generated code lives in `backend/gen/` and `client/src/gen/`.   |
-| `server/`  | Legacy Node/Express server. Frozen and no longer used by the client. Will be removed.                |
-| `shared/`  | TypeScript types shared by `client/` and the legacy `server/`. Will be replaced by the API contract. |
-| `docs/`    | Architecture decisions and open questions for XWA.                                                   |
-
-Upgrade selection is hidden in the client until upgrades are served by the Go backend.
+| Path       | State                                                                                              |
+| ---------- | -------------------------------------------------------------------------------------------------- |
+| `client/`  | Active. React app; kept through the rewrite.                                                       |
+| `backend/` | Active. Go server and card import. Serves ships, pilots, and upgrades; points are not built yet.   |
+| `proto/`   | Active. Connect RPC API definitions. Generated code lives in `backend/gen/` and `client/src/gen/`. |
+| `docs/`    | Architecture decisions and open questions for XWA.                                                 |
 
 ## Stack
 
@@ -32,7 +25,7 @@ Upgrade selection is hidden in the client until upgrades are served by the Go ba
 ```text
 client/              React app
   src/
-    api/             Connect client for the backend (plus a legacy fetch helper)
+    api/             Connect client for the backend
     assets/          fonts and images
     components/      UI components (shared ones at top level, others nested by feature)
     gen/             generated from proto/; do not edit
@@ -48,7 +41,5 @@ backend/             Go server
   gen/               generated from proto/; do not edit
   internal/          carddata (read the fork), store (SQLite), cardservice (API handlers)
 proto/               Connect RPC API definitions (buf.yaml, buf.gen.yaml at the repo root)
-server/              legacy Node server (frozen, to be removed)
-shared/              TS types shared with the legacy server (to be replaced)
 docs/                architecture decisions, open questions, conventions
 ```

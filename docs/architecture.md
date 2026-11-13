@@ -26,9 +26,8 @@ decisions rest on working assumptions recorded there; they are marked "(working 
 
 ### D1. Go backend replaces the Node server — Accepted
 
-A new Go server lives in `backend/` (named so the legacy `server/` needn't be renamed during the
-transition). The Node server in `server/` is frozen and will be removed once nothing depends on
-it. The React client in `client/` is kept.
+The Go server lives in `backend/`. It replaced a Node/Express server in `server/`, which was
+removed once nothing depended on it. The React client in `client/` is kept.
 
 ### D2. Card definitions come from a fork of xwing-data2 — Accepted
 
@@ -256,7 +255,7 @@ Open within D8:
 
 ### D9. Connect RPC is the API contract — Accepted
 
-Protobuf files define every request and response. Code generated from them replaces `shared/`:
+Protobuf files define every request and response. Code generated from them replaced the hand-written `shared/` types:
 
 - Go: `connect-go` handlers and message types.
 - TypeScript: `protoc-gen-es` generates message types and service definitions. The client calls
