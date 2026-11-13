@@ -11,7 +11,9 @@
   hooks, and API calls. Do the computing in pure functions that take their inputs as arguments
   instead of reading module state.
 - A function's name must describe everything it does. If describing it takes "and", split it.
-- Extract magic strings and magic numbers into named constants.
+- Extract magic strings and magic numbers into named constants. Constants direct logic and
+  normalize values; text players read goes in `client/src/strings/`, not in constants.
+- Values used in URLs must be URL-safe, e.g. `rebel-alliance`, not `Rebel Alliance`.
 - Client ESLint enforces `complexity` (max 10), `max-depth` (max 3), and `no-nested-ternary`.
   Fix a violation by extracting a named function or returning early, not by disabling the rule.
 - Do not use index barrel files. Import the file that defines what you need.

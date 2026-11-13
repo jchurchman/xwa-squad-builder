@@ -1,4 +1,3 @@
-import { slugify } from '@shared/utils';
 import cn from 'classnames';
 
 import { useTypedParams } from '@/hooks/useTypedParams';
@@ -12,7 +11,7 @@ export function Header() {
   const { faction } = useTypedParams();
 
   return (
-    <header className={cn(classes['headerContainer'], classes[slugify(faction)])}>
+    <header className={cn(classes['headerContainer'], classes[faction])}>
       <FactionSelector />
       <div>XWA Squadbuilder</div>
       <AuthButtons />

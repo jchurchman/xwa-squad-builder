@@ -1,14 +1,25 @@
-import { Faction } from '@shared/types';
+import type { Faction } from '@/types/faction';
 
-// Maps the faction names used in routes to the XWS faction IDs the backend expects.
+/** Faction IDs. URL-safe, and also the faction's CSS class and icon name. */
+export const FACTION = {
+  EMPIRE: 'galactic-empire',
+  FIRST_ORDER: 'first-order',
+  REBELS: 'rebel-alliance',
+  REPUBLIC: 'galactic-republic',
+  RESISTANCE: 'resistance',
+  SCUM: 'scum-and-villainy',
+  SEPARATISTS: 'separatist-alliance',
+} as const;
+
+// Maps faction IDs to the XWS faction IDs the backend expects.
 export const FACTION_XWS: Record<Faction, string> = Object.freeze({
-  [Faction.empire]: 'galacticempire',
-  [Faction.firstorder]: 'firstorder',
-  [Faction.rebels]: 'rebelalliance',
-  [Faction.republic]: 'galacticrepublic',
-  [Faction.resistance]: 'resistance',
-  [Faction.scum]: 'scumandvillainy',
-  [Faction.separatists]: 'separatistalliance',
+  [FACTION.EMPIRE]: 'galacticempire',
+  [FACTION.FIRST_ORDER]: 'firstorder',
+  [FACTION.REBELS]: 'rebelalliance',
+  [FACTION.REPUBLIC]: 'galacticrepublic',
+  [FACTION.RESISTANCE]: 'resistance',
+  [FACTION.SCUM]: 'scumandvillainy',
+  [FACTION.SEPARATISTS]: 'separatistalliance',
 });
 
 // TODO: Slot enum type

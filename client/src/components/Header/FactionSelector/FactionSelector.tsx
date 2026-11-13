@@ -2,21 +2,22 @@ import classNames from 'classnames';
 import { NavLink, useParams } from 'react-router';
 
 import { FactionIcon } from '@/components/common/Icons/FactionIcon';
+import { FACTION } from '@/constants';
 import { useAppDispatch } from '@/hooks/state';
 import { newList } from '@/state/slices/listSlice';
 
 import classes from './FactionSelector.module.scss';
 
-import { Faction } from '@shared/types';
+import type { Faction } from '@/types/faction';
 
-const selectorButtonOrder: Faction[] = [
-  Faction.rebels,
-  Faction.empire,
-  Faction.scum,
-  Faction.resistance,
-  Faction.firstorder,
-  Faction.republic,
-  Faction.separatists,
+const SELECTOR_ORDER: Faction[] = [
+  FACTION.REBELS,
+  FACTION.EMPIRE,
+  FACTION.SCUM,
+  FACTION.RESISTANCE,
+  FACTION.FIRST_ORDER,
+  FACTION.REPUBLIC,
+  FACTION.SEPARATISTS,
 ];
 
 export function FactionSelector() {
@@ -25,7 +26,7 @@ export function FactionSelector() {
 
   return (
     <div className={classes.selectorContainer}>
-      {selectorButtonOrder.map((faction, idx) => (
+      {SELECTOR_ORDER.map((faction, idx) => (
         <NavLink
           className={({ isActive }) => classNames(classes.navLink, { [classes.active]: isActive })}
           key={idx}
