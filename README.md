@@ -31,14 +31,14 @@ Run from the repository root:
 
 ```bash
 npm test                                      # client tests (Vitest), then go vet and Go tests
-npx eslint client                             # lint the client
+npm run lint                                  # lint the client and root config
 (cd client && npx tsc --noEmit)               # type-check the client
 npx prettier --check <files you changed>      # formatting
 (cd backend && gofmt -l . && golangci-lint run ./...)   # Go formatting and lint; gofmt must print nothing
 ```
 
-Avoid `npm run lint` and `npm run format:check` for now. They also check the frozen legacy
-`server/` and generated code, so they report errors unrelated to your change.
+Avoid `npm run format:check` for now: it also checks generated code, so it reports a file you
+did not change.
 
 ## Run a dev instance
 

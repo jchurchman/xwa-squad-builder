@@ -59,7 +59,6 @@ go test ./...
 
 ## Never edit
 
-- `server/`: the legacy Node server, frozen.
 - `backend/gen/` and `client/src/gen/`: generated code. Change the `.proto` file and run
   `npm run generate`.
 - `.env`, `node_modules/`, `client/dist/`, and `*.db` files.
