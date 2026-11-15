@@ -77,13 +77,15 @@ type RestrictionGroup struct {
 
 // Cards is everything loaded from the card data.
 type Cards struct {
-	Ships    []Ship
-	Pilots   []Pilot
-	Upgrades []Upgrade
+	Ships     []Ship
+	Pilots    []Pilot
+	Upgrades  []Upgrade
+	AMGPoints AMGPoints
 }
 
 type manifest struct {
-	Pilots []struct {
+	Version string `json:"version"`
+	Pilots  []struct {
 		Faction string   `json:"faction"`
 		Ships   []string `json:"ships"`
 	} `json:"pilots"`
@@ -167,7 +169,11 @@ func Load(fsys fs.FS) (*Cards, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Cards{Ships: ships, Pilots: pilots, Upgrades: upgrades}, nil
+	amgPoints, err := loadAMGPoints(fsys, m)
+	if err != nil {
+		return nil, err
+	}
+	return &Cards{Ships: ships, Pilots: pilots, Upgrades: upgrades, AMGPoints: amgPoints}, nil
 }
 
 func loadShipsAndPilots(fsys fs.FS, m manifest) ([]Ship, []Pilot, error) {

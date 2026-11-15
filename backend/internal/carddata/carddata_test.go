@@ -8,6 +8,7 @@ import (
 )
 
 const testManifest = `{
+	"version": "3.9.1",
 	"pilots": [
 		{"faction": "rebelalliance", "ships": ["data/pilots/rebel/tie.json", "data/pilots/rebel/xwing.json"]},
 		{"faction": "galacticempire", "ships": ["data/pilots/empire/tie.json"]}
@@ -21,6 +22,7 @@ const testXWing = `{
 	"stats": [{"type": "attack", "arc": "Front Arc", "value": 3}, {"type": "agility", "value": 2}],
 	"pilots": [{
 		"xws": "lukeskywalker", "name": "Luke Skywalker", "initiative": 5, "limited": 1,
+		"cost": 6, "loadout": 10, "standard": true, "extended": true, "epic": true,
 		"slots": ["Force Power", "Astromech"], "keywords": ["X-wing"],
 		"force": {"value": 2, "side": ["light"]}
 	}]
@@ -28,22 +30,27 @@ const testXWing = `{
 
 const testUpgrades = `[
 	{
-		"xws": "000", "name": "0-0-0", "limited": 1,
+		"xws": "000", "name": "0-0-0", "limited": 1, "cost": {"value": 3}, "extended": true, "epic": true,
 		"sides": [{"type": "Crew", "slots": ["Crew"]}],
 		"restrictions": [{"factions": ["scumandvillainy"], "names": ["Darth Vader"]}, {"action": {"type": "Calculate"}}]
 	},
 	{
 		"xws": "admiralozzel", "name": "Admiral Ozzel", "limited": 1, "standardLoadoutOnly": true,
 		"sides": [{"type": "Command", "slots": ["Command", "Crew"]}]
-	}
+	},
+	{
+		"xws": "combatboardingtube", "name": "Combat Boarding Tube", "cost": {"value": "?"}, "epic": true,
+		"sides": [{"type": "Command", "slots": ["Command"]}]
+	},
+	{"xws": "delta7b", "name": "Delta-7B", "sides": [{"type": "Configuration", "slots": ["Configuration"]}]}
 ]`
 
 func testFS() fstest.MapFS {
 	return fstest.MapFS{
 		manifestPath:                   {Data: []byte(testManifest)},
-		"data/pilots/rebel/tie.json":   {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "sabinewren-tielnfighter", "name": "Sabine Wren", "initiative": 3}]}`)},
+		"data/pilots/rebel/tie.json":   {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "sabinewren-tielnfighter", "name": "Sabine Wren", "initiative": 3, "cost": 4, "loadout": 8, "epic": true}]}`)},
 		"data/pilots/rebel/xwing.json": {Data: []byte(testXWing)},
-		"data/pilots/empire/tie.json":  {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3, "standardLoadout": ["admiralozzel"], "shipAbility": {"name": "Autothrusters"}}]}`)},
+		"data/pilots/empire/tie.json":  {Data: []byte(`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "size": "Small", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3, "cost": 3, "standardLoadout": ["admiralozzel"], "shipAbility": {"name": "Autothrusters"}}]}`)},
 		"data/upgrades/crew.json":      {Data: []byte(testUpgrades)},
 	}
 }
@@ -97,9 +104,73 @@ func TestLoadUpgrades(t *testing.T) {
 			},
 		},
 		{XWS: "admiralozzel", Name: "Admiral Ozzel", Slots: []string{"Command", "Crew"}, Limited: 1, StandardLoadoutOnly: true},
+		{XWS: "combatboardingtube", Name: "Combat Boarding Tube", Slots: []string{"Command"}},
+		{XWS: "delta7b", Name: "Delta-7B", Slots: []string{"Configuration"}},
 	}
 	if !reflect.DeepEqual(cards.Upgrades, want) {
 		t.Errorf("upgrades = %+v, want %+v", cards.Upgrades, want)
+	}
+}
+
+func TestLoadAMGPoints(t *testing.T) {
+	cards, err := Load(testFS())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := AMGPoints{
+		DataVersion: "3.9.1",
+		Pilots: []PilotCost{
+			{PilotXWS: "sabinewren-tielnfighter", Cost: 4, Loadout: 8, Formats: []string{FormatEpic}},
+			{
+				PilotXWS: "lukeskywalker", Cost: 6, Loadout: 10, Slots: []string{"Force Power", "Astromech"},
+				Formats: []string{FormatStandard, FormatExtended, FormatEpic},
+			},
+			{PilotXWS: "blacksquadronace", Cost: 3},
+		},
+		// Admiral Ozzel is standard-loadout-only, so it has no cost and no row. Combat Boarding Tube
+		// is priced "?" and Delta-7B has no cost and no legal format, so both are unpriced rows.
+		Upgrades: []UpgradeCost{
+			{UpgradeXWS: "000", Cost: intPtr(3), Formats: []string{FormatExtended, FormatEpic}},
+			{UpgradeXWS: "combatboardingtube"},
+			{UpgradeXWS: "delta7b"},
+		},
+	}
+	if !reflect.DeepEqual(cards.AMGPoints, want) {
+		t.Errorf("AMGPoints = %+v, want %+v", cards.AMGPoints, want)
+	}
+}
+
+func TestLoadRejectsMissingCosts(t *testing.T) {
+	tests := map[string]struct {
+		path, data, wantErr string
+	}{
+		"pilot": {
+			path:    "data/pilots/empire/tie.json",
+			data:    `{"xws": "tielnfighter", "name": "TIE/ln Fighter", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3}]}`,
+			wantErr: `pilot "blacksquadronace" in data/pilots/empire/tie.json has no cost`,
+		},
+		"upgrade cost that is neither a number nor ?": {
+			path:    "data/upgrades/crew.json",
+			data:    `[{"xws": "000", "name": "0-0-0", "cost": {"value": "free"}, "sides": [{"type": "Crew"}]}]`,
+			wantErr: `upgrade "000" in data/upgrades/crew.json: cost "free" is neither a number nor "?"`,
+		},
+		"upgrade that is not standard-loadout-only": {
+			path:    "data/upgrades/crew.json",
+			data:    `[{"xws": "000", "name": "0-0-0", "epic": true, "sides": [{"type": "Crew"}]}]`,
+			wantErr: `upgrade "000" in data/upgrades/crew.json has no cost`,
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			fsys := testFS()
+			fsys[tt.path] = &fstest.MapFile{Data: []byte(tt.data)}
+
+			_, err := Load(fsys)
+			if err == nil || err.Error() != tt.wantErr {
+				t.Fatalf("err = %v, want %q", err, tt.wantErr)
+			}
+		})
 	}
 }
 
@@ -151,3 +222,5 @@ func TestParsePin(t *testing.T) {
 		}
 	}
 }
+
+func intPtr(v int) *int { return &v }
