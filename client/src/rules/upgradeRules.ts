@@ -1,7 +1,9 @@
 import { SLOT_ORDER } from '@/constants';
 import type { Action, Pilot, RestrictionGroup, Ship, Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
 
-import { getUpgradeCost, type PointsIndex } from './pointsRules';
+import { getUpgradeCost } from './pointsRules';
+
+import type { PointsIndex } from '@/types/points';
 
 const SLOT_ID_SEPARATOR = '-';
 

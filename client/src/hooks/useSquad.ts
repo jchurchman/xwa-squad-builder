@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 
 import { FACTION_XWS } from '@/constants';
 import type { Ship, Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
-import type { PointsIndex } from '@/rules/pointsRules';
 import type { SquadShip } from '@/rules/upgradeRules';
 import { selectList } from '@/state/selectors/list';
 
@@ -12,6 +11,7 @@ import { usePointsVersion } from './usePointsVersion';
 import { useTypedParams } from './useTypedParams';
 import { useUpgrades } from './useUpgrades';
 
+import type { PointsIndex } from '@/types/points';
 import type { ListState } from '@/types/state';
 
 const STANDARD_LOADOUT_SLOT_PREFIX = 'standard-';
