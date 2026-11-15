@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { NavLink, useParams } from 'react-router';
+import { NavLink, useLocation, useParams } from 'react-router';
 
 import { FactionIcon } from '@/components/common/Icons/FactionIcon';
 import { FACTION } from '@/constants';
@@ -22,6 +22,8 @@ const SELECTOR_ORDER: Faction[] = [
 
 export function FactionSelector() {
   const { lang } = useParams();
+  // Keep the query string (e.g. the format) when switching faction.
+  const { search } = useLocation();
   const dispatch = useAppDispatch();
 
   return (
@@ -31,7 +33,7 @@ export function FactionSelector() {
           className={({ isActive }) => classNames(classes.navLink, { [classes.active]: isActive })}
           key={idx}
           onClick={() => dispatch(newList())}
-          to={`/${lang}/${faction}`}
+          to={{ pathname: `/${lang}/${faction}`, search }}
         >
           {({ isActive }) => (
             <FactionIcon active={isActive} className={classes.navLink} faction={faction} />

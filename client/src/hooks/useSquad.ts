@@ -58,7 +58,7 @@ function listStateToSquad(
 
 /** The current faction's squad resolved to cards, plus every upgrade card and the points version. */
 export function useSquad() {
-  const { faction } = useTypedParams();
+  const { faction, format } = useTypedParams();
   const ships = useFactionShips();
   const { upgrades, upgradesByXws, ...upgradesQuery } = useUpgrades();
   const { points, ...pointsQuery } = usePointsVersion();
@@ -71,6 +71,7 @@ export function useSquad() {
 
   return {
     factionXws: FACTION_XWS[faction],
+    format,
     isLoading: ships.isLoading || upgradesQuery.isLoading || pointsQuery.isLoading,
     points,
     squad,

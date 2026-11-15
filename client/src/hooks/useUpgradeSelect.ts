@@ -5,11 +5,10 @@ import { getUpgradeOptions } from '@/rules/upgradeRules';
 import { selectShipById } from '@/state/selectors/list';
 import { chooseUpgrade } from '@/state/slices/listSlice';
 import { withPoints } from '@/strings/points';
+import { withDisallowedChoice } from '@/utils/withDisallowedChoice';
 
 import { useAppDispatch, useAppSelector } from './state';
 import { useSquad } from './useSquad';
-
-const NOT_ALLOWED_SUFFIX = ' (not allowed)';
 
 interface UpgradeSelectArgs {
   shipId: string;
@@ -19,25 +18,29 @@ interface UpgradeSelectArgs {
 
 export function useUpgradeSelect({ shipId, slotId, slotType }: UpgradeSelectArgs) {
   const dispatch = useAppDispatch();
-  const { factionXws, isLoading, points, squad, upgrades, upgradesByXws } = useSquad();
+  const { factionXws, format, isLoading, points, squad, upgrades, upgradesByXws } = useSquad();
   const selected = useAppSelector((state) => selectShipById(state, shipId)?.upgrades[slotId]);
 
   const options = useMemo(() => {
-    const context = { factionXws, shipId, slotId, squad };
-    const legal = getUpgradeOptions(upgrades, slotType, context, points);
-    const result = legal.map((upgrade) => ({
+    const context = { factionXws, format, shipId, slotId, squad };
+    const legal = getUpgradeOptions(upgrades, slotType, context, points).map((upgrade) => ({
       label: withPoints(upgrade.name, getUpgradeCost(points, upgrade.xws, factionXws)),
       value: upgrade.xws,
     }));
-
-    // A choice can become illegal after other changes (e.g. its required pilot is removed).
-    // Keep it visible, marked, so the player can see and replace it.
     const current = selected ? upgradesByXws.get(selected) : undefined;
-    if (current && !legal.includes(current)) {
-      result.unshift({ label: `${current.name}${NOT_ALLOWED_SUFFIX}`, value: current.xws });
-    }
-    return result;
-  }, [factionXws, points, selected, shipId, slotId, slotType, squad, upgrades, upgradesByXws]);
+    return withDisallowedChoice(legal, current && { label: current.name, value: current.xws });
+  }, [
+    factionXws,
+    format,
+    points,
+    selected,
+    shipId,
+    slotId,
+    slotType,
+    squad,
+    upgrades,
+    upgradesByXws,
+  ]);
 
   const onSelect = useCallback(
     (upgradeXws?: string) => {

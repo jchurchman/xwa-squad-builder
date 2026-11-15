@@ -5,6 +5,7 @@ import { SearchableSelect } from '@/components/common/SearchableSelect';
 import { useAppDispatch } from '@/hooks/state';
 import { useShipForm } from '@/hooks/useShipForm';
 import { deleteShip } from '@/state/slices/listSlice';
+import { loadoutLabel } from '@/strings/points';
 
 import { ShipUpgradesForm } from './ShipUpgradesForm';
 
@@ -15,7 +16,7 @@ type ShipFormProps = {
 };
 
 export function ShipForm({ shipId }: ShipFormProps) {
-  const { pilot, platform } = useShipForm({ shipId });
+  const { loadout, pilot, platform } = useShipForm({ shipId });
 
   const dispatch = useAppDispatch();
 
@@ -48,7 +49,7 @@ export function ShipForm({ shipId }: ShipFormProps) {
           />
         )}
       </div>
-      {/** TODO: Add pilot loadout */}
+      {loadout && <div>{loadoutLabel(loadout.used, loadout.max)}</div>}
       <ShipUpgradesForm shipId={shipId} />
       <Button
         danger
