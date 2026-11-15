@@ -2,6 +2,8 @@ package store
 
 import (
 	"context"
+	"errors"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -180,3 +182,48 @@ func TestImportAMGPointsRejectsCostsThatDoNotMatchCards(t *testing.T) {
 }
 
 func intPtr(v int) *int { return &v }
+
+func TestLatestPublishedPointsVersion(t *testing.T) {
+	ctx := context.Background()
+	st := openStoreWithCards(t)
+
+	if _, err := st.LatestPublishedPointsVersion(ctx, "amg"); !errors.Is(err, ErrNoPointsVersion) {
+		t.Fatalf("before import: err = %v, want ErrNoPointsVersion", err)
+	}
+
+	older := testAMGPoints()
+	newer := testAMGPoints()
+	newer.Pilots[0].Cost = 7
+	if _, err := st.ImportAMGPoints(ctx, "older", older, testImportTime); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.ImportAMGPoints(ctx, "newer", newer, testImportTime.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := st.LatestPublishedPointsVersion(ctx, "amg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Label != "newer" || got.MaxListPoints != 20 || got.EffectiveDate != "" {
+		t.Errorf("version = %q %d %q, want newer 20 \"\"", got.Label, got.MaxListPoints, got.EffectiveDate)
+	}
+	// Rows come back sorted by XWS ID.
+	wantPilots := []string{"blacksquadronace", "bluesquadronescort", "lukeskywalker", "sabinewren-tielnfighter"}
+	for i, p := range got.Pilots {
+		if p.PilotXWS != wantPilots[i] {
+			t.Fatalf("pilot %d = %q, want %q", i, p.PilotXWS, wantPilots[i])
+		}
+	}
+	luke := got.Pilots[2]
+	if luke.Cost != 7 || luke.Loadout != 10 || !reflect.DeepEqual(luke.Slots, []string{"Force Power", "Astromech"}) {
+		t.Errorf("luke = %+v, want cost 7 from the newer version", luke)
+	}
+	if len(got.Upgrades) != 1 || *got.Upgrades[0].Cost != 3 || got.Upgrades[0].FactionXWS != "" {
+		t.Errorf("upgrades = %+v, want one 000 cost of 3 for every faction", got.Upgrades)
+	}
+
+	if _, err := st.LatestPublishedPointsVersion(ctx, "xwa"); !errors.Is(err, ErrNoPointsVersion) {
+		t.Errorf("xwa: err = %v, want ErrNoPointsVersion", err)
+	}
+}

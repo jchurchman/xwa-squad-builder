@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"errors"
 	"fmt"
 	"time"
 
@@ -107,8 +108,8 @@ func insertPilotCosts(ctx context.Context, tx *sql.Tx, versionID int64, costs []
 func insertUpgradeCosts(ctx context.Context, tx *sql.Tx, versionID int64, costs []carddata.UpgradeCost) error {
 	for _, c := range costs {
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO upgrade_costs (version_id, upgrade_xws, cost, formats) VALUES (?, ?, ?, ?)`,
-			versionID, c.UpgradeXWS, c.Cost, toJSON(c.Formats),
+			INSERT INTO upgrade_costs (version_id, upgrade_xws, faction, cost, formats) VALUES (?, ?, ?, ?, ?)`,
+			versionID, c.UpgradeXWS, c.FactionXWS, c.Cost, toJSON(c.Formats),
 		); err != nil {
 			return fmt.Errorf("inserting cost for upgrade %q: %w", c.UpgradeXWS, err)
 		}
@@ -129,4 +130,94 @@ func checkCosts(ctx context.Context, tx *sql.Tx, versionID int64) error {
 		return fmt.Errorf("%s %q", check.problem, xws)
 	}
 	return nil
+}
+
+// ErrNoPointsVersion means a source has no published points version yet.
+var ErrNoPointsVersion = errors.New("no published points version")
+
+// PointsVersion is one points version with all of its costs.
+type PointsVersion struct {
+	Source        string
+	Label         string
+	EffectiveDate string
+	MaxListPoints int
+	Pilots        []carddata.PilotCost
+	Upgrades      []carddata.UpgradeCost
+}
+
+// LatestPublishedPointsVersion returns source's most recently published points version, or
+// ErrNoPointsVersion if it has none.
+func (s *Store) LatestPublishedPointsVersion(ctx context.Context, source string) (*PointsVersion, error) {
+	v := &PointsVersion{Source: source}
+	var id int64
+	var effectiveDate sql.NullString
+	err := s.db.QueryRowContext(ctx, `
+		SELECT id, label, effective_date, max_list_points FROM points_versions
+		WHERE source = ? AND status = ?
+		ORDER BY status_changed_at DESC, id DESC
+		LIMIT 1`, source, statusPublished,
+	).Scan(&id, &v.Label, &effectiveDate, &v.MaxListPoints)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNoPointsVersion
+	}
+	if err != nil {
+		return nil, err
+	}
+	v.EffectiveDate = effectiveDate.String
+
+	if v.Pilots, err = listPilotCosts(ctx, s.db, id); err != nil {
+		return nil, err
+	}
+	if v.Upgrades, err = listUpgradeCosts(ctx, s.db, id); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+func listPilotCosts(ctx context.Context, db *sql.DB, versionID int64) ([]carddata.PilotCost, error) {
+	rows, err := db.QueryContext(ctx, `
+		SELECT pilot_xws, cost, loadout, slots, formats FROM pilot_costs
+		WHERE version_id = ? ORDER BY pilot_xws`, versionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var costs []carddata.PilotCost
+	for rows.Next() {
+		var c carddata.PilotCost
+		var slots, formats string
+		if err := rows.Scan(&c.PilotXWS, &c.Cost, &c.Loadout, &slots, &formats); err != nil {
+			return nil, err
+		}
+		if err := decodeJSONColumns(jsonColumn{slots, &c.Slots}, jsonColumn{formats, &c.Formats}); err != nil {
+			return nil, fmt.Errorf("pilot cost %q: %w", c.PilotXWS, err)
+		}
+		costs = append(costs, c)
+	}
+	return costs, rows.Err()
+}
+
+func listUpgradeCosts(ctx context.Context, db *sql.DB, versionID int64) ([]carddata.UpgradeCost, error) {
+	rows, err := db.QueryContext(ctx, `
+		SELECT upgrade_xws, faction, cost, formats FROM upgrade_costs
+		WHERE version_id = ? ORDER BY upgrade_xws, faction`, versionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var costs []carddata.UpgradeCost
+	for rows.Next() {
+		var c carddata.UpgradeCost
+		var formats string
+		if err := rows.Scan(&c.UpgradeXWS, &c.FactionXWS, &c.Cost, &formats); err != nil {
+			return nil, err
+		}
+		if err := decodeJSONColumns(jsonColumn{formats, &c.Formats}); err != nil {
+			return nil, fmt.Errorf("upgrade cost %q: %w", c.UpgradeXWS, err)
+		}
+		costs = append(costs, c)
+	}
+	return costs, rows.Err()
 }
