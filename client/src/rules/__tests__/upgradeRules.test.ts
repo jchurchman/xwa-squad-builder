@@ -8,7 +8,11 @@ import {
   ShipSchema,
   UpgradeSchema,
 } from '@/gen/xwa/cards/v1/cards_pb';
-import { PointsVersionSchema, UpgradeCostSchema } from '@/gen/xwa/points/v1/points_pb';
+import {
+  PilotCostSchema,
+  PointsVersionSchema,
+  UpgradeCostSchema,
+} from '@/gen/xwa/points/v1/points_pb';
 import { indexPointsVersion } from '@/rules/pointsRules';
 import {
   canEquipUpgrade,
@@ -106,7 +110,14 @@ function makeSquadShip(id: string, ship: typeof xwing, pilot: typeof luke, upgra
 }
 
 function makeContext(squad: SquadShip[], overrides: Partial<SlotContext> = {}): SlotContext {
-  return { factionXws: REBELS, shipId: squad[0].id, slotId: 'crew-0', squad, ...overrides };
+  return {
+    factionXws: REBELS,
+    format: 'standard',
+    shipId: squad[0].id,
+    slotId: 'crew-0',
+    squad,
+    ...overrides,
+  };
 }
 
 describe('getShipSlots', () => {
@@ -250,27 +261,53 @@ describe('canEquipUpgrade', () => {
 });
 
 describe('getUpgradeOptions', () => {
-  it('lists legal upgrades for the slot type that the points version prices, sorted by name', () => {
-    const unpriced = makeUpgrade({ name: 'Admiral Ozzel', slots: ['Crew'], xws: 'admiralozzel' });
-    const neverPriced = makeUpgrade({ name: 'Boarding Tube', slots: ['Crew'], xws: 'tube' });
-    const upgrades = [hanCrew, chewbaccaCrew, r2d2, unpriced, neverPriced, ooo];
-    const points = indexPointsVersion(
+  const STANDARD_AND_EPIC = ['standard', 'epic'];
+  const unpriced = makeUpgrade({ name: 'Admiral Ozzel', slots: ['Crew'], xws: 'admiralozzel' });
+  const neverPriced = makeUpgrade({ name: 'Boarding Tube', slots: ['Crew'], xws: 'tube' });
+  const epicOnly = makeUpgrade({ name: 'Epic Crew', slots: ['Crew'], xws: 'epiccrew' });
+  const upgrades = [hanCrew, chewbaccaCrew, r2d2, unpriced, neverPriced, epicOnly, ooo];
+
+  const makePoints = (loadout: number) =>
+    indexPointsVersion(
       create(PointsVersionSchema, {
+        pilotCosts: [
+          create(PilotCostSchema, { formats: STANDARD_AND_EPIC, loadout, pilotXws: han.xws }),
+        ],
         upgradeCosts: [
-          ...[hanCrew, chewbaccaCrew, r2d2, ooo].map((upgrade) =>
-            create(UpgradeCostSchema, { cost: 4, upgradeXws: upgrade.xws })
+          ...[hanCrew, r2d2, ooo].map((upgrade) =>
+            create(UpgradeCostSchema, {
+              cost: 4,
+              formats: STANDARD_AND_EPIC,
+              upgradeXws: upgrade.xws,
+            })
           ),
+          create(UpgradeCostSchema, {
+            cost: 6,
+            formats: STANDARD_AND_EPIC,
+            upgradeXws: chewbaccaCrew.xws,
+          }),
+          create(UpgradeCostSchema, { cost: 1, formats: ['epic'], upgradeXws: epicOnly.xws }),
           create(UpgradeCostSchema, { upgradeXws: neverPriced.xws }),
         ],
       })
     );
+  const getOptionNames = (points: ReturnType<typeof makePoints>, context: SlotContext) =>
+    getUpgradeOptions(upgrades, 'Crew', context, points).map((upgrade) => upgrade.name);
 
-    const options = getUpgradeOptions(
-      upgrades,
-      'Crew',
-      makeContext([makeSquadShip('a', yt1300, han)]),
-      points
-    );
-    expect(options.map((upgrade) => upgrade.name)).toEqual(['Chewbacca']);
+  it('lists legal upgrades for the slot type that the points version prices, sorted by name', () => {
+    const context = makeContext([makeSquadShip('a', yt1300, han)]);
+    expect(getOptionNames(makePoints(10), context)).toEqual(['Chewbacca']);
+  });
+
+  it('lists only upgrades allowed in the format', () => {
+    const context = makeContext([makeSquadShip('a', yt1300, han)], { format: 'epic' });
+    expect(getOptionNames(makePoints(10), context)).toEqual(['Chewbacca', 'Epic Crew']);
+  });
+
+  it('lists only upgrades that fit what is left of the loadout, ignoring the slot being chosen', () => {
+    const squad = [makeSquadShip('a', yt1300, han, { 'crew-0': hanCrew, 'gunner-0': r2d2 })];
+    // r2d2 uses 4 of the 10 loadout; the 4 in crew-0 is being replaced, so 6 is left.
+    expect(getOptionNames(makePoints(10), makeContext(squad))).toEqual(['Chewbacca']);
+    expect(getOptionNames(makePoints(9), makeContext(squad))).toEqual([]);
   });
 });

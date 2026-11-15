@@ -1,8 +1,9 @@
 import { SLOT_ORDER } from '@/constants';
 import type { Action, Pilot, RestrictionGroup, Ship, Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
 
-import { getUpgradeCost } from './pointsRules';
+import { getLoadout, getLoadoutPoints, getUpgradeCost, isUpgradeLegal } from './pointsRules';
 
+import type { Format } from '@/types/format';
 import type { PointsIndex } from '@/types/points';
 
 const SLOT_ID_SEPARATOR = '-';
@@ -26,9 +27,10 @@ export interface SquadShip {
   upgrades: Record<SlotId, Upgrade>;
 }
 
-/** Where an upgrade is being chosen: which faction, squad, ship, and slot. */
+/** Where an upgrade is being chosen: which faction, format, squad, ship, and slot. */
 export interface SlotContext {
   factionXws: string;
+  format: Format;
   shipId: string;
   slotId: SlotId;
   squad: SquadShip[];
@@ -255,9 +257,22 @@ export function canEquipUpgrade(upgrade: Upgrade, context: SlotContext): boolean
   );
 }
 
+/** Whether the upgrade's cost fits in what is left of the ship's loadout, ignoring the slot. */
+function isWithinLoadout(upgrade: Upgrade, context: SlotContext, points: PointsIndex): boolean {
+  const thisShip = getSquadWithoutSlot(context).find(
+    (squadShip) => squadShip.id === context.shipId
+  );
+  if (!thisShip) {
+    return false;
+  }
+  const cost = getUpgradeCost(points, upgrade.xws, context.factionXws) ?? 0;
+  const used = getLoadoutPoints(thisShip, points, context.factionXws);
+  return used + cost <= getLoadout(points, thisShip.pilot.xws);
+}
+
 /**
- * Upgrades a player can choose for a slot, sorted by name: those the points version prices for the
- * faction, of the slot's type, that the rest of the squad allows.
+ * Upgrades a player can choose for a slot, sorted by name: those the points version allows for the
+ * faction and format, of the slot's type, that fit the ship's loadout and the rest of the squad.
  */
 export function getUpgradeOptions(
   upgrades: Upgrade[],
@@ -268,8 +283,9 @@ export function getUpgradeOptions(
   return upgrades
     .filter(
       (upgrade) =>
-        getUpgradeCost(points, upgrade.xws, context.factionXws) !== undefined &&
+        isUpgradeLegal(points, upgrade.xws, context.factionXws, context.format) &&
         getPrimarySlotType(upgrade) === slotType &&
+        isWithinLoadout(upgrade, context, points) &&
         canEquipUpgrade(upgrade, context)
     )
     .sort((a, b) => a.name.localeCompare(b.name));

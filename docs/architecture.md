@@ -107,10 +107,9 @@ restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
   A cost is empty when the source never priced the upgrade (AMG's `?`, or no cost and no legal
   format); such an upgrade is legal in no format.
 - **Choosable upgrades:** a player can choose an upgrade only if the points version gives it a
-  cost for the list's faction (format legality comes with the format picker). Upgrades with no
-  cost row can still appear in a standard loadout pilot's fixed loadout. The card data's
-  `standard_loadout_only` flag is not used for this: XWA may price an upgrade AMG kept
-  standard-loadout-only.
+  cost for the list's faction and lists the list's format. Upgrades with no cost row can still
+  appear in a standard loadout pilot's fixed loadout. The card data's `standard_loadout_only`
+  flag is not used for this: XWA may price an upgrade AMG kept standard-loadout-only.
 - **Restricted entries** mirror the columns of XWA's restricted list (see D5). AMG versions have
   none: AMG named a restricted list but never defined how it works or put a card on it. `faction` is one of
   the seven factions or `Generic`; `kind` is `Pilot` or `Upgrade`; `ship_or_type` is the pilot's
@@ -275,9 +274,12 @@ Evaluation:
   `client/src/rules/__tests__/upgradeRules.test.ts` and are the starting point for those fixtures.
 - The client reads the newest published AMG points version (the only source with one so far). It
   shows pilot and upgrade costs and the list's pilot points against `max_list_points`, and takes
-  pilot slots and choosable upgrades from the version (see D4). It does not check format or
-  loadout yet. Standard loadout pilots show their fixed upgrades from the card data's
-  `standardLoadout`.
+  pilot slots and choosable upgrades from the version (see D4). The list's format is the
+  `format` query parameter (Standard when missing); only pilots, ships with a legal pilot, and
+  upgrades legal in it are offered. Upgrades must also fit what is left of the ship's loadout, and
+  each ship shows its loadout used. A choice that becomes illegal stays, marked "(not allowed)".
+  List size is shown but not enforced. Standard loadout pilots show their fixed upgrades from the
+  card data's `standardLoadout`.
 
 Open within D8:
 

@@ -7,3 +7,8 @@ export function withPoints(name: string, points: number | undefined): string {
 export function listPointsLabel(total: number, max: number): string {
   return `${total} / ${max} points`;
 }
+
+/** A ship's upgrade points against its loadout value, e.g. "Loadout 12 / 17". */
+export function loadoutLabel(used: number, loadout: number): string {
+  return `Loadout ${used} / ${loadout}`;
+}

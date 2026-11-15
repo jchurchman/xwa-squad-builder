@@ -12,6 +12,7 @@ import { selectShipOrderIds } from '@/state/selectors/list';
 import { addShip, newList } from '@/state/slices/listSlice';
 import { listPointsLabel } from '@/strings/points';
 
+import { FormatSelect } from './FormatSelect';
 import { ShipForm } from './ShipForm/ShipForm';
 
 import classes from './ListForm.module.scss';
@@ -52,6 +53,7 @@ export function ListForm() {
       >
         New List
       </Button>
+      <FormatSelect />
       {listPoints.max > 0 && <div>{listPointsLabel(listPoints.total, listPoints.max)}</div>}
 
       <div className={classes.shipContainer}>
