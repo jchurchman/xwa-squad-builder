@@ -78,36 +78,47 @@ use XWS IDs, so they survive a re-import.
 
 ### D4. Points are versioned in the database — Accepted
 
-A points version holds everything XWA changes in a points release: squad points, loadout values,
-pilot upgrade slots, upgrade costs, and the restricted list.
+A points version holds everything a points release changes: the list size, squad points,
+loadout values, pilot upgrade slots, format legality, upgrade costs, and the restricted list.
+"Points version" and "points seed" always include pilot slots.
 
 ```text
 points_versions
-  id, source (xwa | amg), label, effective_date,
+  id, source (xwa | amg), label, effective_date, max_list_points,
   status (draft | testing | published), based_on_version_id, created_at, status_changed_at
 
-pilot_costs        (version_id, pilot_xws, cost, loadout, slots)
-upgrade_costs      (version_id, upgrade_xws, faction, cost)
+pilot_costs        (version_id, pilot_xws, cost, loadout, slots, formats)
+upgrade_costs      (version_id, upgrade_xws, faction, cost, formats)
 restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
 ```
 
 - **Labels** follow XWA's naming, e.g. `50P 2.1.1`. The effective date comes from the points
-  release document.
+  release document. An AMG version's label names the xwing-data2 version and commit it was
+  imported from, e.g. `xwing-data2 3.9.1 @0dc446f`.
+- **List size** (`max_list_points`) is the most a list may cost: 20 for AMG, 50 for XWA. It is
+  stored per version so a release can change it.
 - **Pilot slots** are the list of upgrade slots a pilot has, duplicates included (e.g. two
   Torpedo slots). They live in the points version because XWA can change them during the points
   and playtesting cycle.
 - **Upgrade costs** are one cost per upgrade. A row with an empty `faction` applies to every
   faction; a row with a faction overrides it for that faction, for cross-faction upgrades priced
   differently per faction. XWA does not currently vary costs by ship size, initiative, or agility.
-- **Restricted entries** mirror the columns of XWA's restricted list (see D5). `faction` is one of
+- **Restricted entries** mirror the columns of XWA's restricted list (see D5). AMG versions have
+  none: AMG named a restricted list but never defined how it works or put a card on it. `faction` is one of
   the seven factions or `Generic`; `kind` is `Pilot` or `Upgrade`; `ship_or_type` is the pilot's
   ship or the upgrade's type. The rule itself counts same-named ships and upgrades together (see
   D8).
 - Every version holds a full copy of all of the above (roughly 1,300 rows plus the restricted
   list), not a diff. Copies are
   cheap at this size and make reading any version trivial.
-- **Formats:** XWA does not distinguish Standard from Extended, and Epic uses the same points and
-  restricted list. So versions have no format dimension.
+- **Formats:** AMG has Standard, Extended, and Epic; XWA has Standard and Epic. Every format
+  uses the same points and restricted list, so there are no per-format costs. Formats only decide
+  which cards are legal: `formats` on each pilot and upgrade row lists the formats it may be used
+  in (`standard`, `extended`, `epic`).
+  - AMG rows take `formats` from xwing-data2's `standard`, `extended`, and `epic` flags.
+  - XWA's points documents price every card, Epic ones included, without marking legality. Until
+    they do, XWA rows take legality from AMG's flags: `epic` from `epic`, and (working
+    assumption, since XWA has no rotation) `standard` from AMG's `extended`.
 
 **Lifecycle:** draft → testing → draft → testing → … → published.
 
@@ -120,8 +131,9 @@ restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
   validated. The next draft is a copy of it.
 - Testers see one version at a time: the newest `testing` version.
 - The public sees the current published version plus the two before it.
-- AMG's official points are imported as `source = amg` versions from xwing-data2's cost fields.
-  They are read-only.
+- AMG's official points are imported as `source = amg` versions from xwing-data2's `cost`,
+  `loadout`, `slots`, and format flags, with `max_list_points` 20. They are read-only and
+  imported as `published`.
 
 ### D5. Points admin UI and CSV round-trip — Accepted
 
@@ -219,6 +231,10 @@ entry in the data:
   - Not enforced yet: `standardized` and `non-limited`. Both are about the whole list rather than
     one ship, and belong with list validation.
 - **Points-version rules** use data from the points version:
+  - **List size:** the list's total cost, pilots plus upgrades, cannot exceed the version's
+    `max_list_points`.
+  - **Format:** a list is built for one format, and every pilot and upgrade in it must list that
+    format in its `formats`.
   - **Slots:** every upgrade needs a free slot of its type on the pilot. A pilot with one
     Modification slot can equip only one Modification, however cheap.
   - **Loadout:** the total point cost of a ship's upgrades cannot exceed its loadout value. Slots
