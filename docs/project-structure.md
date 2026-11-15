@@ -2,12 +2,12 @@
 
 ## Status
 
-| Path       | State                                                                                                                 |
-| ---------- | --------------------------------------------------------------------------------------------------------------------- |
-| `client/`  | Active. React app; kept through the rewrite.                                                                          |
-| `backend/` | Active. Go server and card import. Serves ships, pilots, and upgrades. Imports AMG points; points are not served yet. |
-| `proto/`   | Active. Connect RPC API definitions. Generated code lives in `backend/gen/` and `client/src/gen/`.                    |
-| `docs/`    | Architecture decisions and open questions for XWA.                                                                    |
+| Path       | State                                                                                                     |
+| ---------- | --------------------------------------------------------------------------------------------------------- |
+| `client/`  | Active. React app; kept through the rewrite.                                                              |
+| `backend/` | Active. Go server and card import. Serves ships, pilots, upgrades, and points versions (AMG only so far). |
+| `proto/`   | Active. Connect RPC API definitions. Generated code lives in `backend/gen/` and `client/src/gen/`.        |
+| `docs/`    | Architecture decisions and open questions for XWA.                                                        |
 
 ## Stack
 
@@ -39,7 +39,8 @@ backend/             Go server
   cmd/server/        API server
   cmd/importcards/   card data import
   gen/               generated from proto/; do not edit
-  internal/          carddata (read the fork), store (SQLite), cardservice (API handlers)
+  internal/          carddata (read the fork), store (SQLite), cardservice and pointsservice
+                     (API handlers)
 proto/               Connect RPC API definitions (buf.yaml, buf.gen.yaml at the repo root)
 docs/                architecture decisions, open questions, conventions
 ```

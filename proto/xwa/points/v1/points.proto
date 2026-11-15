@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package xwa.points.v1;
+
+option go_package = "github.com/jchurchman/xwa-squad-builder/backend/gen/xwa/points/v1;pointsv1";
+
+// PointsService serves points versions: costs, loadout values, and upgrade slots for each card
+// (docs/architecture.md, D4).
+service PointsService {
+  // GetPointsVersion returns a source's newest published points version.
+  rpc GetPointsVersion(GetPointsVersionRequest) returns (GetPointsVersionResponse);
+}
+
+message GetPointsVersionRequest {
+  // "amg" or "xwa".
+  string source = 1;
+}
+
+message GetPointsVersionResponse {
+  PointsVersion version = 1;
+}
+
+message PointsVersion {
+  string source = 1;
+  // e.g. "50P 2.1.1", or "xwing-data2 3.9.1 @0dc446f" for AMG.
+  string label = 2;
+  // ISO date; empty when the source gives none.
+  string effective_date = 3;
+  // The most a list's pilots may cost together. Upgrade costs count only against loadout.
+  int32 max_list_points = 4;
+  repeated PilotCost pilot_costs = 5;
+  repeated UpgradeCost upgrade_costs = 6;
+}
+
+message PilotCost {
+  string pilot_xws = 1;
+  int32 cost = 2;
+  // The most the pilot's upgrades may cost together.
+  int32 loadout = 3;
+  // Upgrade slots, repeats included, e.g. ["Talent", "Torpedo", "Torpedo"].
+  repeated string slots = 4;
+  // Formats the pilot is legal in: "standard", "extended", "epic".
+  repeated string formats = 5;
+}
+
+// Standard-loadout-only upgrades have no entry: they come only with their pilot.
+message UpgradeCost {
+  string upgrade_xws = 1;
+  // Empty for a cost that applies to every faction; a faction XWS ID overrides it for that faction.
+  string faction_xws = 2;
+  // Unset when the source never priced the upgrade; it is then legal in no format.
+  optional int32 cost = 3;
+  // Formats the upgrade is legal in: "standard", "extended", "epic".
+  repeated string formats = 4;
+}

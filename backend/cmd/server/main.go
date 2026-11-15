@@ -16,7 +16,9 @@ import (
 	"connectrpc.com/connect/v2/connecthttp"
 
 	"github.com/jchurchman/xwa-squad-builder/backend/gen/xwa/cards/v1/cardsv1connect"
+	"github.com/jchurchman/xwa-squad-builder/backend/gen/xwa/points/v1/pointsv1connect"
 	"github.com/jchurchman/xwa-squad-builder/backend/internal/cardservice"
+	"github.com/jchurchman/xwa-squad-builder/backend/internal/pointsservice"
 	"github.com/jchurchman/xwa-squad-builder/backend/internal/store"
 )
 
@@ -53,6 +55,7 @@ func main() {
 
 	rpcServer := connect.NewServer()
 	cardsv1connect.RegisterCardServiceHandler(rpcServer, cardservice.New(st))
+	pointsv1connect.RegisterPointsServiceHandler(rpcServer, pointsservice.New(st))
 
 	rpcMux := http.NewServeMux()
 	connecthttp.Mount(rpcMux, rpcServer)

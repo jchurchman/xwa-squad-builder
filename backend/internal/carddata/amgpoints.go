@@ -10,6 +10,9 @@ import (
 const unpricedCost = `"?"`
 
 // Formats a card can be legal in.
+//
+// TODO: introduce `type Format string`, type these constants as Format, and use []Format for
+// PilotCost.Formats and UpgradeCost.Formats instead of []string.
 const (
 	FormatStandard = "standard"
 	FormatExtended = "extended"
@@ -33,10 +36,11 @@ type PilotCost struct {
 	Formats  []string
 }
 
-// UpgradeCost is an upgrade's entry in a points version. AMG prices an upgrade the same for every
-// faction.
+// UpgradeCost is an upgrade's entry in a points version.
 type UpgradeCost struct {
 	UpgradeXWS string
+	// FactionXWS is empty for a cost that applies to every faction, which is all AMG uses.
+	FactionXWS string
 	// Cost is nil for an upgrade AMG never priced. Such an upgrade is legal in no format.
 	Cost    *int
 	Formats []string
