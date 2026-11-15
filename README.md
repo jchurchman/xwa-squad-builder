@@ -20,7 +20,7 @@ Then, from the repository root:
 git clone https://github.com/jchurchman/xwa-squad-builder.git
 cd xwa-squad-builder
 npm install              # installs every npm workspace
-npm run backend:import   # downloads the pinned card data into backend/xwa.db
+npm run backend:import   # downloads the pinned card data and its AMG points into backend/xwa.db
 ```
 
 The import needs network access. The server refuses to start until it has run.

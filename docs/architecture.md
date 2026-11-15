@@ -104,6 +104,8 @@ restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
 - **Upgrade costs** are one cost per upgrade. A row with an empty `faction` applies to every
   faction; a row with a faction overrides it for that faction, for cross-faction upgrades priced
   differently per faction. XWA does not currently vary costs by ship size, initiative, or agility.
+  A cost is empty when the source never priced the upgrade (AMG's `?`, or no cost and no legal
+  format); such an upgrade is legal in no format.
 - **Restricted entries** mirror the columns of XWA's restricted list (see D5). AMG versions have
   none: AMG named a restricted list but never defined how it works or put a card on it. `faction` is one of
   the seven factions or `Generic`; `kind` is `Pilot` or `Upgrade`; `ship_or_type` is the pilot's
@@ -134,7 +136,11 @@ restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
 - The public sees the current published version plus the two before it.
 - AMG's official points are imported as `source = amg` versions from xwing-data2's `cost`,
   `loadout`, `slots`, and format flags, with `max_list_points` 20. They are read-only and
-  imported as `published`.
+  imported as `published`. `npm run backend:import` records one per pinned commit; importing from
+  a local checkout (`CARD_DATA_PATH`) skips it, since a published version must come from a known
+  commit. Standard-loadout-only upgrades have no cost row.
+- Points tables are never dropped by the card import. Changing them needs a migration
+  (`backend/internal/store/points_schema.sql`).
 
 ### D5. Points admin UI and CSV round-trip — Accepted
 

@@ -2,12 +2,12 @@
 
 ## Status
 
-| Path       | State                                                                                              |
-| ---------- | -------------------------------------------------------------------------------------------------- |
-| `client/`  | Active. React app; kept through the rewrite.                                                       |
-| `backend/` | Active. Go server and card import. Serves ships, pilots, and upgrades; points are not built yet.   |
-| `proto/`   | Active. Connect RPC API definitions. Generated code lives in `backend/gen/` and `client/src/gen/`. |
-| `docs/`    | Architecture decisions and open questions for XWA.                                                 |
+| Path       | State                                                                                                                 |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| `client/`  | Active. React app; kept through the rewrite.                                                                          |
+| `backend/` | Active. Go server and card import. Serves ships, pilots, and upgrades. Imports AMG points; points are not served yet. |
+| `proto/`   | Active. Connect RPC API definitions. Generated code lives in `backend/gen/` and `client/src/gen/`.                    |
+| `docs/`    | Architecture decisions and open questions for XWA.                                                                    |
 
 ## Stack
 

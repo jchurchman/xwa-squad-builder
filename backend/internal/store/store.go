@@ -29,11 +29,16 @@ type FactionShip struct {
 	Pilots []carddata.Pilot
 }
 
-// Open opens (creating if needed) the database at path. Card tables exist only after an import.
+// Open opens (creating if needed) the database at path and creates any missing points tables.
+// Card tables exist only after an import.
 func Open(path string) (*Store, error) {
 	db, err := sql.Open("sqlite", "file:"+path+"?_pragma=foreign_keys(1)")
 	if err != nil {
 		return nil, err
+	}
+	if _, err := db.Exec(pointsSchema); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("creating points tables: %w", err)
 	}
 	return &Store{db: db}, nil
 }
