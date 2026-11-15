@@ -22,6 +22,10 @@ export const FACTION_XWS: Record<Faction, string> = Object.freeze({
   [FACTION.SEPARATISTS]: 'separatistalliance',
 });
 
+// TODO: Take the points source from a query parameter, defaulting to the latest XWA version, once
+// XWA points are imported. Only AMG has a published points version so far.
+export const POINTS_SOURCE = 'amg';
+
 // TODO: Slot enum type
 // Display order for upgrade slots, using the slot names from the card data. Borrowed from YASB;
 // slot types YASB did not have are at the end.

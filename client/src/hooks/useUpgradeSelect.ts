@@ -1,8 +1,10 @@
 import { useCallback, useMemo } from 'react';
 
+import { getUpgradeCost } from '@/rules/pointsRules';
 import { getUpgradeOptions } from '@/rules/upgradeRules';
 import { selectShipById } from '@/state/selectors/list';
 import { chooseUpgrade } from '@/state/slices/listSlice';
+import { withPoints } from '@/strings/points';
 
 import { useAppDispatch, useAppSelector } from './state';
 import { useSquad } from './useSquad';
@@ -17,12 +19,16 @@ interface UpgradeSelectArgs {
 
 export function useUpgradeSelect({ shipId, slotId, slotType }: UpgradeSelectArgs) {
   const dispatch = useAppDispatch();
-  const { factionXws, isLoading, squad, upgrades, upgradesByXws } = useSquad();
+  const { factionXws, isLoading, points, squad, upgrades, upgradesByXws } = useSquad();
   const selected = useAppSelector((state) => selectShipById(state, shipId)?.upgrades[slotId]);
 
   const options = useMemo(() => {
-    const legal = getUpgradeOptions(upgrades, slotType, { factionXws, shipId, slotId, squad });
-    const result = legal.map((upgrade) => ({ label: upgrade.name, value: upgrade.xws }));
+    const context = { factionXws, shipId, slotId, squad };
+    const legal = getUpgradeOptions(upgrades, slotType, context, points);
+    const result = legal.map((upgrade) => ({
+      label: withPoints(upgrade.name, getUpgradeCost(points, upgrade.xws, factionXws)),
+      value: upgrade.xws,
+    }));
 
     // A choice can become illegal after other changes (e.g. its required pilot is removed).
     // Keep it visible, marked, so the player can see and replace it.
@@ -31,7 +37,7 @@ export function useUpgradeSelect({ shipId, slotId, slotType }: UpgradeSelectArgs
       result.unshift({ label: `${current.name}${NOT_ALLOWED_SUFFIX}`, value: current.xws });
     }
     return result;
-  }, [factionXws, selected, shipId, slotId, slotType, squad, upgrades, upgradesByXws]);
+  }, [factionXws, points, selected, shipId, slotId, slotType, squad, upgrades, upgradesByXws]);
 
   const onSelect = useCallback(
     (upgradeXws?: string) => {

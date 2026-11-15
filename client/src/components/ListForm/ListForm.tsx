@@ -4,10 +4,13 @@ import { useSelector } from 'react-redux';
 
 import { useAppDispatch } from '@/hooks/state';
 import { useFactionShips } from '@/hooks/useFactionShips';
+import { useListPoints } from '@/hooks/useListPoints';
+import { usePointsVersion } from '@/hooks/usePointsVersion';
 import { useTypedParams } from '@/hooks/useTypedParams';
 import { useUpgrades } from '@/hooks/useUpgrades';
 import { selectShipOrderIds } from '@/state/selectors/list';
 import { addShip, newList } from '@/state/slices/listSlice';
+import { listPointsLabel } from '@/strings/points';
 
 import { ShipForm } from './ShipForm/ShipForm';
 
@@ -17,6 +20,8 @@ export function ListForm() {
   const { faction } = useTypedParams();
   const ships = useFactionShips();
   const upgrades = useUpgrades();
+  const pointsVersion = usePointsVersion();
+  const listPoints = useListPoints();
   const shipIds = useSelector(selectShipOrderIds);
   const dispatch = useAppDispatch();
 
@@ -34,8 +39,11 @@ export function ListForm() {
 
   return (
     <>
-      {(ships.isError || upgrades.isError) && (
-        <Alert message="Could not load cards. Check that the backend is running." type="error" />
+      {(ships.isError || upgrades.isError || pointsVersion.isError) && (
+        <Alert
+          message="Could not load cards or points. Check that the backend is running."
+          type="error"
+        />
       )}
       <Button
         onClick={() => {
@@ -44,6 +52,7 @@ export function ListForm() {
       >
         New List
       </Button>
+      {listPoints.max > 0 && <div>{listPointsLabel(listPoints.total, listPoints.max)}</div>}
 
       <div className={classes.shipContainer}>
         {shipIds.map((id, index) => (

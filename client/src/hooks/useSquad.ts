@@ -7,18 +7,24 @@ import { selectList } from '@/state/selectors/list';
 
 import { useAppSelector } from './state';
 import { useFactionShips } from './useFactionShips';
+import { usePointsVersion } from './usePointsVersion';
 import { useTypedParams } from './useTypedParams';
 import { useUpgrades } from './useUpgrades';
 
+import type { PointsIndex } from '@/types/points';
 import type { ListState } from '@/types/state';
 
 const STANDARD_LOADOUT_SLOT_PREFIX = 'standard-';
 
-/** Resolves the list's XWS IDs to cards. Ships without a chosen pilot are left out. */
+/**
+ * Resolves the list's XWS IDs to cards, with slots from the points version. Ships without a chosen
+ * pilot are left out.
+ */
 function listStateToSquad(
   list: ListState,
   ships: Ship[],
-  upgradesByXws: Map<string, Upgrade>
+  upgradesByXws: Map<string, Upgrade>,
+  points: PointsIndex
 ): SquadShip[] {
   return list.shipOrder.flatMap((shipId) => {
     const shipState = list.ships[shipId];
@@ -45,25 +51,28 @@ function listStateToSquad(
       }
     }
 
-    return [{ id: shipId, pilot, ship, upgrades }];
+    const slots = points.pilots.get(pilot.xws)?.slots ?? [];
+    return [{ id: shipId, pilot, ship, slots, upgrades }];
   });
 }
 
-/** The current faction's squad resolved to cards, plus every upgrade card. */
+/** The current faction's squad resolved to cards, plus every upgrade card and the points version. */
 export function useSquad() {
   const { faction } = useTypedParams();
   const ships = useFactionShips();
   const { upgrades, upgradesByXws, ...upgradesQuery } = useUpgrades();
+  const { points, ...pointsQuery } = usePointsVersion();
   const list = useAppSelector(selectList);
 
   const squad = useMemo(
-    () => listStateToSquad(list, ships.ships, upgradesByXws),
-    [list, ships.ships, upgradesByXws]
+    () => listStateToSquad(list, ships.ships, upgradesByXws, points),
+    [list, ships.ships, upgradesByXws, points]
   );
 
   return {
     factionXws: FACTION_XWS[faction],
-    isLoading: ships.isLoading || upgradesQuery.isLoading,
+    isLoading: ships.isLoading || upgradesQuery.isLoading || pointsQuery.isLoading,
+    points,
     squad,
     upgrades,
     upgradesByXws,

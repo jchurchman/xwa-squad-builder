@@ -284,7 +284,7 @@ type Pilot struct {
 	// Maximum copies of this card name in a squad. 0 means no limit.
 	Limited int32 `protobuf:"varint,4,opt,name=limited,proto3" json:"limited,omitempty"`
 	// Upgrade slots, e.g. "Talent", "Torpedo". Empty for standard loadout pilots.
-	// Read from the card data until points versions exist.
+	// The client takes slots from the points version instead (docs/architecture.md, D4).
 	Slots []string `protobuf:"bytes,5,rep,name=slots,proto3" json:"slots,omitempty"`
 	// Upgrade XWS IDs a standard loadout pilot always flies with.
 	StandardLoadout []string `protobuf:"bytes,6,rep,name=standard_loadout,json=standardLoadout,proto3" json:"standard_loadout,omitempty"`

@@ -8,6 +8,8 @@ import {
   ShipSchema,
   UpgradeSchema,
 } from '@/gen/xwa/cards/v1/cards_pb';
+import { PointsVersionSchema, UpgradeCostSchema } from '@/gen/xwa/points/v1/points_pb';
+import { indexPointsVersion } from '@/rules/pointsRules';
 import {
   canEquipUpgrade,
   getClaimedSlots,
@@ -100,7 +102,7 @@ const standardizedOnly = makeUpgrade({ name: 'Sensitive Controls', slots: ['Crew
 ]);
 
 function makeSquadShip(id: string, ship: typeof xwing, pilot: typeof luke, upgrades = {}) {
-  return { id, pilot, ship, upgrades } satisfies SquadShip;
+  return { id, pilot, ship, slots: pilot.slots, upgrades } satisfies SquadShip;
 }
 
 function makeContext(squad: SquadShip[], overrides: Partial<SlotContext> = {}): SlotContext {
@@ -109,7 +111,7 @@ function makeContext(squad: SquadShip[], overrides: Partial<SlotContext> = {}): 
 
 describe('getShipSlots', () => {
   it('orders slots by type and numbers repeats', () => {
-    expect(getShipSlots(han)).toEqual([
+    expect(getShipSlots(han.slots)).toEqual([
       { id: 'cannon-0', type: 'Cannon' },
       { id: 'cannon-1', type: 'Cannon' },
       { id: 'crew-0', type: 'Crew' },
@@ -119,7 +121,7 @@ describe('getShipSlots', () => {
   });
 
   it('uses dashes for multi-word slot types', () => {
-    expect(getShipSlots(luke).map((slot) => slot.id)).toEqual([
+    expect(getShipSlots(luke.slots).map((slot) => slot.id)).toEqual([
       'talent-0',
       'force-power-0',
       'torpedo-0',
@@ -130,7 +132,7 @@ describe('getShipSlots', () => {
 
 describe('getClaimedSlots', () => {
   it('gives an upgrade its extra slots from the first free slot of each type', () => {
-    const slots = getShipSlots(han);
+    const slots = getShipSlots(han.slots);
     expect(getClaimedSlots(slots, { 'cannon-0': protonCannons })).toEqual({
       'cannon-1': 'cannon-0',
     });
@@ -248,17 +250,26 @@ describe('canEquipUpgrade', () => {
 });
 
 describe('getUpgradeOptions', () => {
-  it('lists legal upgrades for the slot type, sorted by name, without standard-loadout-only cards', () => {
-    const loadoutOnly = makeUpgrade({
-      name: 'Admiral Ozzel',
-      slots: ['Crew'],
-      standardLoadoutOnly: true,
-      xws: 'admiralozzel',
-    });
+  it('lists legal upgrades for the slot type that the points version prices, sorted by name', () => {
+    const unpriced = makeUpgrade({ name: 'Admiral Ozzel', slots: ['Crew'], xws: 'admiralozzel' });
+    const neverPriced = makeUpgrade({ name: 'Boarding Tube', slots: ['Crew'], xws: 'tube' });
+    const upgrades = [hanCrew, chewbaccaCrew, r2d2, unpriced, neverPriced, ooo];
+    const points = indexPointsVersion(
+      create(PointsVersionSchema, {
+        upgradeCosts: [
+          ...[hanCrew, chewbaccaCrew, r2d2, ooo].map((upgrade) =>
+            create(UpgradeCostSchema, { cost: 4, upgradeXws: upgrade.xws })
+          ),
+          create(UpgradeCostSchema, { upgradeXws: neverPriced.xws }),
+        ],
+      })
+    );
+
     const options = getUpgradeOptions(
-      [hanCrew, chewbaccaCrew, r2d2, loadoutOnly, ooo],
+      upgrades,
       'Crew',
-      makeContext([makeSquadShip('a', yt1300, han)])
+      makeContext([makeSquadShip('a', yt1300, han)]),
+      points
     );
     expect(options.map((upgrade) => upgrade.name)).toEqual(['Chewbacca']);
   });

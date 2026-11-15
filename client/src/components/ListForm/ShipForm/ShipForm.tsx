@@ -48,7 +48,7 @@ export function ShipForm({ shipId }: ShipFormProps) {
           />
         )}
       </div>
-      {/** TODO: Add pilot ponts/loadout */}
+      {/** TODO: Add pilot loadout */}
       <ShipUpgradesForm shipId={shipId} />
       <Button
         danger
