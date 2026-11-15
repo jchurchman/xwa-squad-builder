@@ -1,6 +1,8 @@
 import { SLOT_ORDER } from '@/constants';
 import type { Action, Pilot, RestrictionGroup, Ship, Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
 
+import { getUpgradeCost, type PointsIndex } from './pointsRules';
+
 const SLOT_ID_SEPARATOR = '-';
 
 // e.g. "force-power-0", "crew-1"
@@ -16,6 +18,8 @@ export interface SquadShip {
   id: string;
   pilot: Pilot;
   ship: Ship;
+  /** Upgrade slots from the points version, repeats included. Empty for standard loadout pilots. */
+  slots: string[];
   /** Equipped upgrades by slot. Standard loadout upgrades are keyed by their own IDs. */
   upgrades: Record<SlotId, Upgrade>;
 }
@@ -37,10 +41,10 @@ function slotTypeToSlotIdPrefix(slotType: string): string {
   return slotType.toLowerCase().replace(/\s+/g, SLOT_ID_SEPARATOR);
 }
 
-/** A pilot's upgrade slots in display order, each with a stable ID. */
-export function getShipSlots(pilot: Pilot): ShipSlot[] {
+/** Upgrade slots in display order, each with a stable ID. */
+export function getShipSlots(slotTypes: string[]): ShipSlot[] {
   const counts: Record<string, number> = {};
-  return [...pilot.slots]
+  return [...slotTypes]
     .sort((a, b) => getSlotOrderIndex(a) - getSlotOrderIndex(b))
     .map((type) => {
       const index = counts[type] ?? 0;
@@ -220,7 +224,7 @@ function hasRoomForExtraSlots(upgrade: Upgrade, thisShip: SquadShip, slotId: Slo
     return true;
   }
 
-  const slots = getShipSlots(thisShip.pilot);
+  const slots = getShipSlots(thisShip.slots);
   const claimed = getClaimedSlots(slots, thisShip.upgrades);
   const freeSlots = slots.filter(
     (slot) => slot.id !== slotId && !thisShip.upgrades[slot.id] && !claimed[slot.id]
@@ -249,16 +253,20 @@ export function canEquipUpgrade(upgrade: Upgrade, context: SlotContext): boolean
   );
 }
 
-/** Upgrades a player can choose for a slot, sorted by name. */
+/**
+ * Upgrades a player can choose for a slot, sorted by name: those the points version prices for the
+ * faction, of the slot's type, that the rest of the squad allows.
+ */
 export function getUpgradeOptions(
   upgrades: Upgrade[],
   slotType: string,
-  context: SlotContext
+  context: SlotContext,
+  points: PointsIndex
 ): Upgrade[] {
   return upgrades
     .filter(
       (upgrade) =>
-        !upgrade.standardLoadoutOnly &&
+        getUpgradeCost(points, upgrade.xws, context.factionXws) !== undefined &&
         getPrimarySlotType(upgrade) === slotType &&
         canEquipUpgrade(upgrade, context)
     )

@@ -152,7 +152,7 @@ export type Pilot = Message<"xwa.cards.v1.Pilot"> & {
 
   /**
    * Upgrade slots, e.g. "Talent", "Torpedo". Empty for standard loadout pilots.
-   * Read from the card data until points versions exist.
+   * The client takes slots from the points version instead (docs/architecture.md, D4).
    *
    * @generated from field: repeated string slots = 5;
    */

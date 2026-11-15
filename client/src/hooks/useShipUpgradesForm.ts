@@ -26,7 +26,7 @@ export function useShipUpgradesForm({ shipId }: { shipId: string }) {
       return { slots: NO_SLOTS, standardLoadout: Object.values(squadShip.upgrades) };
     }
 
-    const slots = getShipSlots(squadShip.pilot);
+    const slots = getShipSlots(squadShip.slots);
     const claimed = getClaimedSlots(slots, squadShip.upgrades);
     return {
       slots: slots.map((slot) => ({

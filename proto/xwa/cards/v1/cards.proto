@@ -45,7 +45,7 @@ message Pilot {
   // Maximum copies of this card name in a squad. 0 means no limit.
   int32 limited = 4;
   // Upgrade slots, e.g. "Talent", "Torpedo". Empty for standard loadout pilots.
-  // Read from the card data until points versions exist.
+  // The client takes slots from the points version instead (docs/architecture.md, D4).
   repeated string slots = 5;
   // Upgrade XWS IDs a standard loadout pilot always flies with.
   repeated string standard_loadout = 6;
