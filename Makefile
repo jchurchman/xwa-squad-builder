@@ -11,8 +11,8 @@ PRETTIER_FILES = $(addprefix ../,$(FILES))
 .PHONY: install dev backend-dev client-dev import generate test backend-test client-test \
 	lint lint-fix format format-check build backend-build client-build start
 
-install: ## install client packages
-	cd client && npm install
+install: ## install client packages and the git hooks in lefthook.yml
+	cd client && npm install && npx lefthook install
 
 dev: ## run the Go backend on :3001 and the client on http://localhost:5173
 	$(MAKE) -j2 backend-dev client-dev

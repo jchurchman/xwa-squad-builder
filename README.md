@@ -19,7 +19,7 @@ Then, from the repository root:
 ```bash
 git clone https://github.com/jchurchman/xwa-squad-builder.git
 cd xwa-squad-builder
-make install   # installs the client's npm packages, including its lint and format tools
+make install   # installs the client's npm packages and the pre-push hook (lefthook)
 make import    # downloads the pinned card data and its AMG points into backend/xwa.db
 ```
 

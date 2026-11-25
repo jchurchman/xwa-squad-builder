@@ -11,6 +11,9 @@
 - Before opening a PR, run the [verification commands](../../AGENTS.md#verification) on
   everything you changed.
 - Merge with a merge commit or rebase, never squash. Squashing erases commit authorship.
+- A pre-push hook lints and format-checks what you push and blocks the push on problems (see
+  [development.md](../development.md#git-hooks)). Fix them in a new commit; don't skip the hook to
+  get a push through.
 
 ## Authorship
 

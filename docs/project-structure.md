@@ -24,6 +24,7 @@
 
 ```text
 Makefile             task runner for both sides (make dev, make test, ...)
+lefthook.yml         git hooks (pre-push lint and format checks)
 client/              React app; owns the npm packages and the ESLint, Prettier, and TS configs
   src/
     api/             Connect client for the backend
