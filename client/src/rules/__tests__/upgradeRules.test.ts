@@ -310,4 +310,59 @@ describe('getUpgradeOptions', () => {
     expect(getOptionNames(makePoints(10), makeContext(squad))).toEqual(['Chewbacca']);
     expect(getOptionNames(makePoints(9), makeContext(squad))).toEqual([]);
   });
+
+  describe('slots that take more than one upgrade type', () => {
+    const ionCannon = makeUpgrade({ name: 'Ion Cannon', slots: ['Cannon'], xws: 'ioncannon' });
+    const protonTorpedoes = makeUpgrade({
+      name: 'Proton Torpedoes',
+      slots: ['Torpedo'],
+      xws: 'protontorpedoes',
+    });
+    const homingMissiles = makeUpgrade({
+      name: 'Homing Missiles',
+      slots: ['Missile'],
+      xws: 'homingmissiles',
+    });
+    const weapons = [ionCannon, protonTorpedoes, homingMissiles, chewbaccaCrew];
+    const weaponPoints = indexPointsVersion(
+      create(PointsVersionSchema, {
+        pilotCosts: [
+          create(PilotCostSchema, { formats: STANDARD_AND_EPIC, loadout: 20, pilotXws: han.xws }),
+        ],
+        upgradeCosts: weapons.map((upgrade) =>
+          create(UpgradeCostSchema, {
+            cost: 2,
+            formats: STANDARD_AND_EPIC,
+            upgradeXws: upgrade.xws,
+          })
+        ),
+      })
+    );
+    const getWeaponNames = (slotType: string, slotId: string) =>
+      getUpgradeOptions(
+        weapons,
+        slotType,
+        makeContext([makeSquadShip('a', yt1300, han)], { slotId }),
+        weaponPoints
+      ).map((upgrade) => upgrade.name);
+
+    it('lists cannons, torpedoes, and missiles for a Weapon Hardpoint', () => {
+      expect(getWeaponNames('Weapon Hardpoint', 'weapon-hardpoint-0')).toEqual([
+        'Homing Missiles',
+        'Ion Cannon',
+        'Proton Torpedoes',
+      ]);
+    });
+
+    it('lists torpedoes and missiles for a Versatile Frame', () => {
+      expect(getWeaponNames('Versatile Frame', 'versatile-frame-0')).toEqual([
+        'Homing Missiles',
+        'Proton Torpedoes',
+      ]);
+    });
+
+    it('still lists only one type for other slots', () => {
+      expect(getWeaponNames('Torpedo', 'torpedo-0')).toEqual(['Proton Torpedoes']);
+    });
+  });
 });
