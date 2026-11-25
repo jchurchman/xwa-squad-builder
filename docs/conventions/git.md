@@ -20,5 +20,6 @@ Agent-written and human-written code must stay distinguishable in `git blame`.
   `Co-Authored-By` trailer.
 - Never mix agent and human edits in one commit. Commit agent work before a human edits on top
   of it; the human's changes go in their own commit.
-- `gh` authenticates as the bot account `jc-claude-bot` through `GH_TOKEN` in
-  `.claude/settings.local.json` (gitignored), so agent-opened PRs come from the bot.
+- Agent `gh` calls and pushes authenticate as the bot account `jc-claude-bot`, so agent-opened
+  PRs come from the bot. This is set up in each developer's user-level Claude settings
+  (`GH_CONFIG_DIR` and a `gh` git credential helper); no token is stored in this repo.
