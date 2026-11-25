@@ -1,7 +1,7 @@
 // Command server runs the XWA Squad Builder API.
 //
 // TODO: serve the built client from this server too (architecture doc, D10). Until then,
-// `npm start` runs the API only.
+// `make start` runs the API only.
 package main
 
 import (
@@ -50,7 +50,7 @@ func main() {
 		log.Fatal(err)
 	}
 	if !hasCards {
-		log.Fatalf("no card data in %s: run `npm run backend:import` first", *dbPath)
+		log.Fatalf("no card data in %s: run `make import` first", *dbPath)
 	}
 
 	rpcServer := connect.NewServer()

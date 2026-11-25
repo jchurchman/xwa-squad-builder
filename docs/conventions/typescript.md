@@ -20,4 +20,4 @@
 - The `@/` alias maps to `client/src` (see [general.md](general.md) for import rules). It is
   defined in [client/vite.config.ts](../../client/vite.config.ts) and
   [client/tsconfig.json](../../client/tsconfig.json). Keep the ESLint import-sort groups in
-  [eslint.config.mjs](../../eslint.config.mjs) in step when aliases change.
+  [client/eslint.config.js](../../client/eslint.config.js) in step when aliases change.

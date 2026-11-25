@@ -1,4 +1,4 @@
-# Generates Go and TypeScript code from proto/. Run `npm run generate` after editing a .proto file.
+# Generates Go and TypeScript code from proto/. Run `make generate` after editing a .proto file.
 # Plugin versions are pinned so regenerating is reproducible. Keep each in step with its runtime:
 #   protocolbuffers/go -> google.golang.org/protobuf in backend/go.mod
 #   connectrpc/go      -> connectrpc.com/connect/v2 in backend/go.mod
