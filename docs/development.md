@@ -45,8 +45,9 @@ reports that `core.hooksPath` is set, unset it (`git config --unset core.hooksPa
 
 ## CI
 
-[.github/workflows/checks.yml](../.github/workflows/checks.yml) runs on every pull request, as two
-parallel jobs. Every step must pass:
+[.github/workflows/checks.yml](../.github/workflows/checks.yml) runs on every pull request and on
+pushes to `main`, as two parallel jobs. The `main` runs save the npm and Go caches that pull
+requests reuse. Every step must pass:
 
 - **client:** ESLint, Prettier check, `tsc --noEmit`, and the Vitest tests.
 - **backend:** `gofmt` check, `golangci-lint` (pinned to the version in the workflow), `go vet`,
