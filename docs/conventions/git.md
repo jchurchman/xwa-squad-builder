@@ -21,6 +21,9 @@ Agent-written and human-written code must stay distinguishable in `git blame`.
 
 - Agents commit with `--author="Claude <noreply@anthropic.com>"` and keep the
   `Co-Authored-By` trailer.
+- Agents commit each logical step separately, with a message that says what changed and why, so a
+  PR can be reviewed one commit at a time. Put corrections in new commits; don't amend, squash, or
+  reorder commits that are already pushed.
 - Never mix agent and human edits in one commit. Commit agent work before a human edits on top
   of it; the human's changes go in their own commit.
 - Agent `gh` calls and pushes authenticate as the bot account `jc-claude-bot`, so agent-opened
