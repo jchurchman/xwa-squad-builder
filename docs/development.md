@@ -37,11 +37,16 @@ the pushed commits touch:
 
 The hook only reports. If a check fails, the push is blocked and the hook prints the command that
 fixes it (for example `make lint-fix` or `make format`); fix, commit, and push again. Editors that
-format and lint on save catch most of this earlier. Tests are not run on push. To skip the hook
-for one push, run `LEFTHOOK=0 git push ...`.
+format and lint on save catch most of this earlier. Tests are not run on push; CI runs them. To
+skip the hook for one push, run `LEFTHOOK=0 git push ...`.
 
 After adding a new hook type to `lefthook.yml`, run `make install` again so git picks it up. If it
 reports that `core.hooksPath` is set, unset it (`git config --unset core.hooksPath`) and retry.
+
+## CI
+
+[.github/workflows/tests.yml](../.github/workflows/tests.yml) runs `make client-test` and
+`make backend-test` on every pull request, as two parallel jobs.
 
 ## Card data
 
