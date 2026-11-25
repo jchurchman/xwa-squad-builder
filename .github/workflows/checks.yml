@@ -1,10 +1,15 @@
 # Checks every pull request: lint, format, types, and tests for the client and the backend. Every
 # step must pass. The pre-push hook (lefthook.yml) runs the same lint and format checks locally, so
 # this mainly catches pushes that skipped it.
+#
+# It also runs on pushes to main. Caches saved on a pull request are visible only to that pull
+# request, so main's run is what saves the npm and Go caches that new pull requests start from.
 name: Checks
 
 on:
   pull_request:
+  push:
+    branches: [main]
 
 permissions:
   contents: read
