@@ -1,0 +1,30 @@
+# Git hooks, run by lefthook (installed from client/ by `make install`).
+# Skip them for one push with `LEFTHOOK=0 git push ...`.
+# Globs match paths from the repository root.
+glob_matcher: doublestar
+
+# Before pushing, check each side whose files the pushed commits touch. The checks cover the
+# whole side, not just the changed files, and only report: fix, commit, and push again.
+# Editors fix most of this on save. Tests run in CI on pull requests instead.
+pre-push:
+  parallel: true
+  jobs:
+    - name: eslint
+      root: 'client/'
+      run: npx eslint .
+      fail_text: 'Run `make lint-fix`, fix what remains, and commit.'
+
+    - name: prettier
+      glob: '**/*.{ts,tsx,json,md}'
+      run: make format-check
+      fail_text: 'Run `make format` and commit.'
+
+    - name: gofmt
+      root: 'backend/'
+      run: files=$(gofmt -l .) && [ -z "$files" ] || { echo "$files"; exit 1; }
+      fail_text: 'Run `(cd backend && gofmt -w .)` and commit.'
+
+    - name: golangci-lint
+      root: 'backend/'
+      run: golangci-lint run ./...
+      fail_text: 'Run `(cd backend && golangci-lint run --fix ./...)`, fix what remains, and commit.'
