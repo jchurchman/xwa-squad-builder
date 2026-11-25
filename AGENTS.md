@@ -31,10 +31,13 @@ Read only the docs that match your task.
 Run from the repository root:
 
 ```bash
-npm run backend:import # load card data into backend/xwa.db; the server refuses to start without it
-npm run dev            # Go backend on :3001, client on http://localhost:5173
-npm run generate       # run after editing any .proto file
+make import     # load card data into backend/xwa.db; the server refuses to start without it
+make dev        # Go backend on :3001, client on http://localhost:5173
+make generate   # run after editing any .proto file
 ```
+
+The client's JavaScript tooling (ESLint, Prettier, TypeScript) is installed in `client/`, not at
+the root.
 
 ## Verification
 
@@ -43,10 +46,10 @@ Run after all edits are made. Fix what it reports and re-run until it is clean.
 Client (from the repository root):
 
 ```bash
-npx eslint <files>
+make lint
 (cd client && npx tsc --noEmit)   # never run plain `tsc -b`; it writes .js files into src/
-npx prettier --check <files>
-(cd client && npx vitest run <test files>)   # e.g. src/rules
+make format-check FILES="<files>" # paths from the repository root; also checks docs
+(cd client && npm test -- <test files>)   # e.g. src/rules
 ```
 
 Backend (from `backend/`):
@@ -60,7 +63,7 @@ go test ./...
 ## Never edit
 
 - `backend/gen/` and `client/src/gen/`: generated code. Change the `.proto` file and run
-  `npm run generate`.
+  `make generate`.
 - `.env`, `node_modules/`, `client/dist/`, and `*.db` files.
 
 ## Permissions
@@ -69,7 +72,7 @@ go test ./...
   the full suites above.
 - **Ask first:** installing, removing, or upgrading packages (npm or Go modules); any git
   operation that changes history or remotes (`commit`, `push`, `checkout`, `rebase`, etc.);
-  deleting files not created during the current task; running a full build (`npm run build`).
+  deleting files not created during the current task; running a full build (`make build`).
 
 ## Working agreements
 

@@ -140,7 +140,7 @@ restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
 - The public sees the current published version plus the two before it.
 - AMG's official points are imported as `source = amg` versions from xwing-data2's `cost`,
   `loadout`, `slots`, and format flags, with `max_list_points` 20. They are read-only and
-  imported as `published`. `npm run backend:import` records one per pinned commit; importing from
+  imported as `published`. `make import` records one per pinned commit; importing from
   a local checkout (`CARD_DATA_PATH`) skips it, since a published version must come from a known
   commit. Standard-loadout-only upgrades have no cost row.
 - Points tables are never dropped by the card import. Changing them needs a migration

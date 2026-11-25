@@ -19,8 +19,8 @@ Then, from the repository root:
 ```bash
 git clone https://github.com/jchurchman/xwa-squad-builder.git
 cd xwa-squad-builder
-npm install              # installs every npm workspace
-npm run backend:import   # downloads the pinned card data and its AMG points into backend/xwa.db
+make install   # installs the client's npm packages, including its lint and format tools
+make import    # downloads the pinned card data and its AMG points into backend/xwa.db
 ```
 
 The import needs network access. The server refuses to start until it has run.
@@ -30,30 +30,27 @@ The import needs network access. The server refuses to start until it has run.
 Run from the repository root:
 
 ```bash
-npm test                                      # client tests (Vitest), then go vet and Go tests
-npm run lint                                  # lint the client and root config
+make test                                     # client tests (Vitest), then go vet and Go tests
+make lint                                     # lint the client
 (cd client && npx tsc --noEmit)               # type-check the client
-npx prettier --check <files you changed>      # formatting
+make format-check                             # formatting; FILES="<paths>" checks only those
 (cd backend && gofmt -l . && golangci-lint run ./...)   # Go formatting and lint; gofmt must print nothing
 ```
-
-Avoid `npm run format:check` for now: it also checks generated code, so it reports a file you
-did not change.
 
 ## Run a dev instance
 
 ```bash
-npm run dev
+make dev
 ```
 
 This starts the Go backend on port 3001 and the client on <http://localhost:5173>. The client
 proxies `/api` to the backend.
 
 - **Client changes** reload in the browser automatically.
-- **Go changes** need a restart: stop `npm run dev` and start it again.
-- **`.proto` changes:** run `npm run generate`, then restart.
+- **Go changes** need a restart: stop `make dev` and start it again.
+- **`.proto` changes:** run `make generate`, then restart.
 - **Card data changes** (`backend/cards.version` or `backend/internal/store/schema.sql`): run
-  `npm run backend:import` again. To import from a local checkout of the card data fork, set
+  `make import` again. To import from a local checkout of the card data fork, set
   `CARD_DATA_PATH` to its path.
 
 ## More

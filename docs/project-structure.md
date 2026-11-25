@@ -23,7 +23,8 @@
 ## Layout
 
 ```text
-client/              React app
+Makefile             task runner for both sides (make dev, make test, ...)
+client/              React app; owns the npm packages and the ESLint, Prettier, and TS configs
   src/
     api/             Connect client for the backend
     assets/          fonts and images
