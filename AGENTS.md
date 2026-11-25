@@ -69,10 +69,14 @@ go test ./...
 ## Permissions
 
 - **Allowed without asking:** linting, type-checking, formatting, and running tests, including
-  the full suites above.
-- **Ask first:** installing, removing, or upgrading packages (npm or Go modules); any git
-  operation that changes history or remotes (`commit`, `push`, `checkout`, `rebase`, etc.);
-  deleting files not created during the current task; running a full build (`make build`).
+  the full suites above. Git work on your own feature branch: creating it, committing, pushing,
+  pulling, merging `main` in, and rebasing onto `main` (push a rebased branch with
+  `--force-with-lease`). Commit in reviewable steps; see
+  [docs/conventions/git.md](docs/conventions/git.md#authorship).
+- **Ask first:** installing, removing, or upgrading packages (npm or Go modules); git operations
+  that can discard work or reach beyond your branch (`reset`, `restore`, `clean`, `checkout`, a
+  plain `push --force`, deleting or renaming branches, tags); deleting files not created during
+  the current task; running a full build (`make build`).
 
 ## Working agreements
 
