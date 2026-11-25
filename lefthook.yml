@@ -5,7 +5,8 @@ glob_matcher: doublestar
 
 # Before pushing, check each side whose files the pushed commits touch. The checks cover the
 # whole side, not just the changed files, and only report: fix, commit, and push again.
-# Editors fix most of this on save. Tests run in CI on pull requests instead.
+# Editors fix most of this on save. CI (.github/workflows/checks.yml) repeats these checks and adds
+# the type check and tests.
 pre-push:
   parallel: true
   jobs:
