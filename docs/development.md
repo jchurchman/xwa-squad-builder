@@ -45,8 +45,15 @@ reports that `core.hooksPath` is set, unset it (`git config --unset core.hooksPa
 
 ## CI
 
-[.github/workflows/tests.yml](../.github/workflows/tests.yml) runs `make client-test` and
-`make backend-test` on every pull request, as two parallel jobs.
+[.github/workflows/checks.yml](../.github/workflows/checks.yml) runs on every pull request, as two
+parallel jobs. Every step must pass:
+
+- **client:** ESLint, Prettier check, `tsc --noEmit`, and the Vitest tests.
+- **backend:** `gofmt` check, `golangci-lint` (pinned to the version in the workflow), `go vet`,
+  and the Go tests.
+
+The lint and format checks repeat the pre-push hook, to catch pushes that skipped it. The type
+check and tests run only here.
 
 ## Card data
 

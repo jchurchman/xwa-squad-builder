@@ -1,0 +1,53 @@
+# Checks every pull request: lint, format, types, and tests for the client and the backend. Every
+# step must pass. The pre-push hook (lefthook.yml) runs the same lint and format checks locally, so
+# this mainly catches pushes that skipped it.
+name: Checks
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - run: npm ci
+        working-directory: client
+      - name: Lint
+        run: make lint
+      - name: Format
+        run: make format-check
+      - name: Type-check
+        run: npx tsc --noEmit
+        working-directory: client
+      - name: Test
+        run: make client-test
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - name: Format
+        working-directory: backend
+        run: |
+          files=$(gofmt -l .)
+          if [ -n "$files" ]; then echo "Not gofmt-formatted:"; echo "$files"; exit 1; fi
+      - name: Lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+          working-directory: backend
+      - name: Vet and test
+        run: make backend-test

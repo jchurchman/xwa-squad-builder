@@ -25,7 +25,7 @@
 ```text
 Makefile             task runner for both sides (make dev, make test, ...)
 lefthook.yml         git hooks (pre-push lint and format checks)
-.github/workflows/   CI: tests on pull requests
+.github/workflows/   CI: lint, format, type, and test checks on pull requests
 client/              React app; owns the npm packages and the ESLint, Prettier, and TS configs
   src/
     api/             Connect client for the backend
