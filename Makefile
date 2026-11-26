@@ -8,7 +8,10 @@ PRETTIER := cd client && node_modules/.bin/prettier --config .prettierrc
 FILES ?= "**/*.{ts,tsx,json,md}"
 PRETTIER_FILES = $(addprefix ../,$(FILES))
 
-.PHONY: install dev backend-dev client-dev import generate test backend-test client-test \
+# The YASB checkout `make import-yasb` reads XWA points from.
+YASB_PATH ?= ../yasb
+
+.PHONY: install dev backend-dev client-dev import import-yasb generate test backend-test client-test \
 	lint lint-fix format format-check build backend-build client-build start
 
 install: ## install client packages and the git hooks in lefthook.yml
@@ -25,6 +28,9 @@ client-dev:
 
 import: ## load the pinned card data and its AMG points into backend/xwa.db
 	cd backend && go run ./cmd/importcards
+
+import-yasb: ## record the XWA points in the YASB checkout at YASB_PATH; run `make import` first
+	cd backend && go run ./cmd/importyasb -yasb $(abspath $(YASB_PATH))
 
 generate: ## lint proto/ and regenerate Go and TypeScript code
 	buf lint && buf generate
