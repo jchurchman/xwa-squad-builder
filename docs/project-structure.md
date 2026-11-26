@@ -41,9 +41,10 @@ backend/             Go server
   cards.version      pinned commit of the card data fork
   cmd/server/        API server
   cmd/importcards/   card data import
+  cmd/importyasb/    XWA points import from a YASB checkout
   gen/               generated from proto/; do not edit
-  internal/          carddata (read the fork), store (SQLite), cardservice and pointsservice
-                     (API handlers)
+  internal/          carddata (read the fork), yasb (read YASB's XWA points), store (SQLite),
+                     cardservice and pointsservice (API handlers)
 proto/               Connect RPC API definitions (buf.yaml, buf.gen.yaml at the repo root)
 docs/                architecture decisions, open questions, conventions
 ```

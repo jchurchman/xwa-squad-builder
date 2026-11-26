@@ -13,6 +13,7 @@ Run from the repository root:
 ```bash
 make install      # install the client's npm packages (client/), including ESLint and Prettier
 make import       # download the pinned card data into backend/xwa.db and record its AMG points (run once, and after changing cards.version or store/schema.sql)
+make import-yasb  # record the XWA points in the YASB checkout at YASB_PATH (default ../yasb); run after make import
 make dev          # Go backend on :3001 and client on http://localhost:5173 (proxies /api to :3001)
 make generate     # lint proto/ and regenerate Go + TypeScript code after editing a .proto file
 make test         # client tests (Vitest) then backend vet and tests
@@ -24,6 +25,15 @@ make start        # run the built Go server; it serves the API only, not the cli
 
 The [Makefile](../Makefile) has one target per step, such as `make backend-test` or
 `make client-dev`. The server refuses to start until `make import` has loaded card data.
+
+## XWA points from YASB
+
+`make import-yasb` reads XWA's points from a local YASB checkout (see
+[D4](architecture.md#d4-points-are-versioned-in-the-database--accepted)). It needs Node and the
+checkout's own `node_modules` (`npm install` in the checkout), and compiles YASB's card data in
+memory, so it writes nothing to the checkout. It refuses to run if the card files it reads have
+uncommitted changes. Pull the checkout, then run it; a commit that is already imported changes
+nothing.
 
 ## Git hooks
 

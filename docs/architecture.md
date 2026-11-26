@@ -143,6 +143,12 @@ restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
   imported as `published`. `make import` records one per pinned commit; importing from
   a local checkout (`CARD_DATA_PATH`) skips it, since a published version must come from a known
   commit. Standard-loadout-only upgrades have no cost row.
+- **Temporary:** until XWA's points team edits drafts here, XWA's points are imported from YASB,
+  where XWA maintains them. `make import-yasb` records the points in a YASB checkout as a
+  read-only, `published` `source = xwa` version with `max_list_points` 50, labeled after YASB's
+  points version and commit, e.g. `50P 2.1.1 (yasb @b252228)`. Pilot slots come from YASB. It
+  prices the cards in the latest AMG version and takes their legality from it as above, so it
+  runs after `make import`. YASB cards our card data does not have are skipped and listed.
 - Points tables are never dropped by the card import. Changing them needs a migration
   (`backend/internal/store/points_schema.sql`).
 
