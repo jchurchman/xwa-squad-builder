@@ -18,8 +18,10 @@ var pointsSchema string
 
 const (
 	sourceAMG        = "amg"
+	sourceXWA        = "xwa"
 	statusPublished  = "published"
 	amgMaxListPoints = 20
+	xwaMaxListPoints = 50
 )
 
 // costCheck is a query that returns the XWS ID of the first card breaking a rule, or no rows.
@@ -53,6 +55,25 @@ var costChecks = []costCheck{
 // card data commit, so a label that already exists holds the same points: the import then changes
 // nothing and returns false. Run it after ReplaceCards, since it checks costs against the cards.
 func (s *Store) ImportAMGPoints(ctx context.Context, label string, points carddata.AMGPoints, now time.Time) (bool, error) {
+	return s.importPublishedPoints(ctx, sourceAMG, amgMaxListPoints, label, points.Pilots, points.Upgrades, now)
+}
+
+// ImportXWAPoints records XWA points as a published XWA points version named label, with XWA's
+// 50-point list size. Like ImportAMGPoints, labels name the commit the points came from, so a label
+// that already exists changes nothing and returns false.
+//
+// Temporary: until XWA's points team edits drafts here (D4), XWA points come from YASB, published
+// as-is.
+func (s *Store) ImportXWAPoints(
+	ctx context.Context, label string, pilots []carddata.PilotCost, upgrades []carddata.UpgradeCost, now time.Time,
+) (bool, error) {
+	return s.importPublishedPoints(ctx, sourceXWA, xwaMaxListPoints, label, pilots, upgrades, now)
+}
+
+func (s *Store) importPublishedPoints(
+	ctx context.Context, source string, maxListPoints int, label string,
+	pilots []carddata.PilotCost, upgrades []carddata.UpgradeCost, now time.Time,
+) (bool, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
@@ -61,7 +82,7 @@ func (s *Store) ImportAMGPoints(ctx context.Context, label string, points cardda
 
 	var exists bool
 	if err := tx.QueryRowContext(ctx,
-		"SELECT EXISTS (SELECT 1 FROM points_versions WHERE source = ? AND label = ?)", sourceAMG, label,
+		"SELECT EXISTS (SELECT 1 FROM points_versions WHERE source = ? AND label = ?)", source, label,
 	).Scan(&exists); err != nil || exists {
 		return false, err
 	}
@@ -70,7 +91,7 @@ func (s *Store) ImportAMGPoints(ctx context.Context, label string, points cardda
 	res, err := tx.ExecContext(ctx, `
 		INSERT INTO points_versions (source, label, max_list_points, status, created_at, status_changed_at)
 		VALUES (?, ?, ?, ?, ?, ?)`,
-		sourceAMG, label, amgMaxListPoints, statusPublished, stamp, stamp,
+		source, label, maxListPoints, statusPublished, stamp, stamp,
 	)
 	if err != nil {
 		return false, fmt.Errorf("creating points version %q: %w", label, err)
@@ -80,10 +101,10 @@ func (s *Store) ImportAMGPoints(ctx context.Context, label string, points cardda
 		return false, err
 	}
 
-	if err := insertPilotCosts(ctx, tx, versionID, points.Pilots); err != nil {
+	if err := insertPilotCosts(ctx, tx, versionID, pilots); err != nil {
 		return false, err
 	}
-	if err := insertUpgradeCosts(ctx, tx, versionID, points.Upgrades); err != nil {
+	if err := insertUpgradeCosts(ctx, tx, versionID, upgrades); err != nil {
 		return false, err
 	}
 	if err := checkCosts(ctx, tx, versionID); err != nil {

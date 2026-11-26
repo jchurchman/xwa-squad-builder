@@ -181,6 +181,36 @@ func TestImportAMGPointsRejectsCostsThatDoNotMatchCards(t *testing.T) {
 	}
 }
 
+func TestImportXWAPointsCreatesPublishedXWAVersion(t *testing.T) {
+	ctx := context.Background()
+	st := openStoreWithCards(t)
+	amg := testAMGPoints()
+	if _, err := st.ImportAMGPoints(ctx, testAMGLabel, amg, testImportTime); err != nil {
+		t.Fatal(err)
+	}
+
+	const label = "50P 2.1.1 (yasb @b252228)"
+	created, err := st.ImportXWAPoints(ctx, label, amg.Pilots, amg.Upgrades, testImportTime)
+	if err != nil || !created {
+		t.Fatalf("ImportXWAPoints = %v, %v; want true, nil", created, err)
+	}
+	got, err := st.LatestPublishedPointsVersion(ctx, "xwa")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Label != label || got.MaxListPoints != 50 || len(got.Pilots) != 4 {
+		t.Errorf("xwa version = %q %d with %d pilots, want %q 50 with 4", got.Label, got.MaxListPoints, len(got.Pilots), label)
+	}
+	if amgVersion, err := st.LatestPublishedPointsVersion(ctx, "amg"); err != nil || amgVersion.Label != testAMGLabel {
+		t.Errorf("amg version = %v, %v; want it unchanged", amgVersion, err)
+	}
+
+	created, err = st.ImportXWAPoints(ctx, label, amg.Pilots, amg.Upgrades, testImportTime)
+	if err != nil || created {
+		t.Errorf("second ImportXWAPoints = %v, %v; want false, nil", created, err)
+	}
+}
+
 func intPtr(v int) *int { return &v }
 
 func TestLatestPublishedPointsVersion(t *testing.T) {
