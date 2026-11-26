@@ -1,4 +1,4 @@
-import { SLOT_ORDER } from '@/constants';
+import { MULTI_TYPE_SLOTS, SLOT_ORDER } from '@/constants';
 import type { Action, Pilot, RestrictionGroup, Ship, Upgrade } from '@/gen/xwa/cards/v1/cards_pb';
 
 import { getLoadout, getLoadoutPoints, getUpgradeCost, isUpgradeLegal } from './pointsRules';
@@ -86,6 +86,12 @@ export function getClaimedSlots(
 
 function getPrimarySlotType(upgrade: Upgrade): string {
   return upgrade.slots[0];
+}
+
+/** Whether an upgrade can be chosen in a slot: its primary type is one the slot takes. */
+function fitsSlotType(upgrade: Upgrade, slotType: string): boolean {
+  const accepted = MULTI_TYPE_SLOTS[slotType] ?? [slotType];
+  return accepted.includes(getPrimarySlotType(upgrade));
 }
 
 /** The squad as it would be if the slot being chosen were empty. */
@@ -272,7 +278,8 @@ function isWithinLoadout(upgrade: Upgrade, context: SlotContext, points: PointsI
 
 /**
  * Upgrades a player can choose for a slot, sorted by name: those the points version allows for the
- * faction and format, of the slot's type, that fit the ship's loadout and the rest of the squad.
+ * faction and format, of a type the slot takes, that fit the ship's loadout and the rest of the
+ * squad.
  */
 export function getUpgradeOptions(
   upgrades: Upgrade[],
@@ -284,7 +291,7 @@ export function getUpgradeOptions(
     .filter(
       (upgrade) =>
         isUpgradeLegal(points, upgrade.xws, context.factionXws, context.format) &&
-        getPrimarySlotType(upgrade) === slotType &&
+        fitsSlotType(upgrade, slotType) &&
         isWithinLoadout(upgrade, context, points) &&
         canEquipUpgrade(upgrade, context)
     )

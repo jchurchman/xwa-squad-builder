@@ -55,6 +55,8 @@ export const SLOT_ORDER = Object.freeze([
   'Cannon',
   'Torpedo',
   'Missile',
+  'Weapon Hardpoint',
+  'Versatile Frame',
   'Crew',
   'Gunner',
   'Astromech',
@@ -69,3 +71,11 @@ export const SLOT_ORDER = Object.freeze([
   'Team',
   'Hyperdrive',
 ]);
+
+// Slots that take more than one upgrade type: XWA gives some ships one of these in place of a fixed
+// weapon slot (YASB calls them HardpointShip and VersatileShip). Every other slot takes only
+// upgrades of its own type.
+export const MULTI_TYPE_SLOTS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  'Versatile Frame': ['Torpedo', 'Missile'],
+  'Weapon Hardpoint': ['Cannon', 'Torpedo', 'Missile'],
+});
