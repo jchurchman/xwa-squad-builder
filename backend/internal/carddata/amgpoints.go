@@ -82,6 +82,8 @@ func loadAMGPoints(fsys fs.FS, m manifest) (AMGPoints, error) {
 	return AMGPoints{DataVersion: m.Version, Pilots: pilots, Upgrades: upgrades}, nil
 }
 
+// loadAMGPilotCosts records a pilot with no cost and no legal format, such as an XWA-only card, as
+// a row legal in no format. A pilot legal in some format must have a cost.
 func loadAMGPilotCosts(fsys fs.FS, m manifest) ([]PilotCost, error) {
 	var costs []PilotCost
 	for _, faction := range m.Pilots {
@@ -93,10 +95,15 @@ func loadAMGPilotCosts(fsys fs.FS, m manifest) ([]PilotCost, error) {
 				return nil, err
 			}
 			for _, p := range sf.Pilots {
-				if p.Cost == nil {
+				switch {
+				case p.Cost == nil && len(formatFlagsToFormats(p.formatFlags)) == 0:
+					// Not an AMG card, e.g. one only XWA released: legal in no AMG format.
+					costs = append(costs, PilotCost{PilotXWS: p.XWS})
+				case p.Cost == nil:
 					return nil, fmt.Errorf("pilot %q in %s has no cost", p.XWS, path)
+				default:
+					costs = append(costs, amgPilotEntryToCost(p))
 				}
-				costs = append(costs, amgPilotEntryToCost(p))
 			}
 		}
 	}

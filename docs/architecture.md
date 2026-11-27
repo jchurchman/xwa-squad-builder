@@ -142,7 +142,9 @@ restricted_entries (version_id, faction, kind, ship_or_type, name, max_copies)
   `loadout`, `slots`, and format flags, with `max_list_points` 20. They are read-only and
   imported as `published`. `make import` records one per pinned commit; importing from
   a local checkout (`CARD_DATA_PATH`) skips it, since a published version must come from a known
-  commit. Standard-loadout-only upgrades have no cost row.
+  commit. Standard-loadout-only upgrades have no cost row. Cards AMG never released, such as
+  XWA-only cards in the fork, have no AMG cost and no AMG format flag; they get a row that is legal
+  in no format.
 - Points tables are never dropped by the card import. Changing them needs a migration
   (`backend/internal/store/points_schema.sql`).
 

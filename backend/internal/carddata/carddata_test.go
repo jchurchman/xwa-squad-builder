@@ -141,13 +141,30 @@ func TestLoadAMGPoints(t *testing.T) {
 	}
 }
 
+func TestLoadAMGPointsRecordsNonAMGPilotAsIllegal(t *testing.T) {
+	fsys := testFS()
+	// An XWA-only pilot: no AMG cost and no AMG format.
+	fsys["data/pilots/empire/tie.json"] = &fstest.MapFile{Data: []byte(
+		`{"xws": "tielnfighter", "name": "TIE/ln Fighter", "pilots": [{"xws": "zeta5-evacuationofdqar", "name": "Zeta 5", "initiative": 2, "loadout": 6, "slots": ["Talent"], "standard": false, "extended": false, "epic": false}]}`,
+	)}
+
+	cards, err := Load(fsys)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := cards.AMGPoints.Pilots[len(cards.AMGPoints.Pilots)-1]
+	if want := (PilotCost{PilotXWS: "zeta5-evacuationofdqar"}); !reflect.DeepEqual(got, want) {
+		t.Errorf("pilot cost = %+v, want %+v", got, want)
+	}
+}
+
 func TestLoadRejectsMissingCosts(t *testing.T) {
 	tests := map[string]struct {
 		path, data, wantErr string
 	}{
-		"pilot": {
+		"pilot legal in a format": {
 			path:    "data/pilots/empire/tie.json",
-			data:    `{"xws": "tielnfighter", "name": "TIE/ln Fighter", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3}]}`,
+			data:    `{"xws": "tielnfighter", "name": "TIE/ln Fighter", "pilots": [{"xws": "blacksquadronace", "name": "Black Squadron Ace", "initiative": 3, "epic": true}]}`,
 			wantErr: `pilot "blacksquadronace" in data/pilots/empire/tie.json has no cost`,
 		},
 		"upgrade cost that is neither a number nor ?": {
